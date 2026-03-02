@@ -258,6 +258,28 @@ describe('resolveProfileContinuityInheritance', () => {
     });
   });
 
+  it('does not apply km settings alias mapping to kimi cliproxy profile', async () => {
+    spyOn(configLoader, 'loadOrCreateUnifiedConfig').mockReturnValue({
+      version: 8,
+      continuity: {
+        inherit_from_account: {
+          km: 'pro',
+        },
+      },
+    } as ReturnType<typeof configLoader.loadOrCreateUnifiedConfig>);
+
+    const ensureInstanceSpy = spyOn(InstanceManager.prototype, 'ensureInstance');
+
+    const result = await resolveProfileContinuityInheritance({
+      profileName: 'kimi',
+      profileType: 'cliproxy',
+      target: 'claude',
+    });
+
+    expect(result).toEqual({});
+    expect(ensureInstanceSpy).not.toHaveBeenCalled();
+  });
+
   it('fails open when source account instance initialization throws', async () => {
     spyOn(configLoader, 'loadOrCreateUnifiedConfig').mockReturnValue({
       version: 8,

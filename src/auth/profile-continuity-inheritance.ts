@@ -65,12 +65,13 @@ function loadLegacyContinuityInheritanceMap(): Record<string, string> {
 
 function resolveMappedAccount(
   profileName: string,
+  profileType: ProfileType,
   inheritFromAccount: Record<string, string>
 ): string | undefined {
-  const candidates = new Set<string>([
-    ...getProfileLookupCandidates(profileName),
-    resolveAliasToCanonical(profileName),
-  ]);
+  const candidates = new Set<string>(getProfileLookupCandidates(profileName));
+  if (profileType === 'settings') {
+    candidates.add(resolveAliasToCanonical(profileName));
+  }
 
   for (const candidate of candidates) {
     const mapped = inheritFromAccount[candidate];
@@ -118,9 +119,13 @@ export async function resolveProfileContinuityInheritance(
 
   const inheritFromAccount = getContinuityInheritanceMap();
   const sourceAccount =
-    resolveMappedAccount(input.profileName, inheritFromAccount) ??
+    resolveMappedAccount(input.profileName, input.profileType, inheritFromAccount) ??
     (!isUnifiedMode()
-      ? resolveMappedAccount(input.profileName, loadLegacyContinuityInheritanceMap())
+      ? resolveMappedAccount(
+          input.profileName,
+          input.profileType,
+          loadLegacyContinuityInheritanceMap()
+        )
       : undefined);
   if (!sourceAccount) {
     return {};
