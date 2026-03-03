@@ -263,19 +263,14 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         description: 'Flagship Qwen model via iFlow',
       },
       {
-        id: 'kimi-k2.5',
-        name: 'Kimi K2.5',
-        description: 'Latest Kimi model via iFlow',
-      },
-      {
         id: 'kimi-k2',
         name: 'Kimi K2',
-        description: 'Kimi general model',
+        description: 'Kimi model currently available via iFlow',
       },
       {
-        id: 'deepseek-v3.2-chat',
-        name: 'DeepSeek V3.2 Chat',
-        description: 'Stable DeepSeek chat model',
+        id: 'deepseek-v3.2',
+        name: 'DeepSeek V3.2',
+        description: 'Current DeepSeek V3.2 model via iFlow',
       },
       {
         id: 'deepseek-r1',
@@ -283,14 +278,9 @@ export const MODEL_CATALOGS: Record<string, ProviderCatalog> = {
         description: 'Reasoning-focused DeepSeek model',
       },
       {
-        id: 'glm-4.7',
-        name: 'GLM 4.7',
-        description: 'Zhipu GLM 4.7 via iFlow',
-      },
-      {
-        id: 'minimax-m2.5',
-        name: 'MiniMax M2.5',
-        description: 'MiniMax M2.5 via iFlow',
+        id: 'glm-4.6',
+        name: 'GLM 4.6',
+        description: 'Zhipu GLM 4.6 via iFlow',
       },
       {
         id: 'qwen3-vl-plus',

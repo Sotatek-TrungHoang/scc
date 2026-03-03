@@ -103,6 +103,16 @@ describe('model-id-normalizer', () => {
         'claude-sonnet-4-6'
       );
     });
+
+    it('normalizes known legacy iflow model aliases to supported upstream IDs', () => {
+      expect(normalizeModelIdForProvider('iflow-default', 'iflow')).toBe('qwen3-coder-plus');
+      expect(normalizeModelIdForProvider('kimi-k2.5', 'iflow')).toBe('kimi-k2');
+      expect(normalizeModelIdForProvider('kimi-k2.5(8192)', 'iflow')).toBe('kimi-k2(8192)');
+      expect(canonicalizeModelIdForProvider('deepseek-v3.2-chat', 'iflow')).toBe('deepseek-v3.2');
+      expect(canonicalizeModelIdForProvider('glm-4.7', 'iflow')).toBe('glm-4.6');
+      expect(canonicalizeModelIdForProvider('minimax-m2.5', 'iflow')).toBe('qwen3-coder-plus');
+      expect(canonicalizeModelIdForProvider('kimi-k2.5', 'gemini')).toBe('kimi-k2.5');
+    });
   });
 
   describe('env normalization', () => {
@@ -125,6 +135,21 @@ describe('model-id-normalizer', () => {
       const unchanged = normalizeModelEnvVarsForProvider(input, 'gemini');
       expect(unchanged.ANTHROPIC_MODEL).toBe('claude-sonnet-4.5-thinking');
       expect(unchanged.UNRELATED).toBe('keep-me');
+    });
+
+    it('normalizes iflow legacy model aliases in env vars', () => {
+      const input: NodeJS.ProcessEnv = {
+        ANTHROPIC_MODEL: 'kimi-k2.5',
+        ANTHROPIC_DEFAULT_OPUS_MODEL: 'iflow-default',
+        ANTHROPIC_DEFAULT_SONNET_MODEL: 'deepseek-v3.2-chat',
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-4.7',
+      };
+
+      const normalized = normalizeModelEnvVarsForProvider(input, 'iflow');
+      expect(normalized.ANTHROPIC_MODEL).toBe('kimi-k2');
+      expect(normalized.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+      expect(normalized.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+      expect(normalized.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
     });
 
     it('flags denylisted antigravity models', () => {

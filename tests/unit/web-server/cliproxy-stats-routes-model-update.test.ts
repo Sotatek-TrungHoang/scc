@@ -147,4 +147,34 @@ describe('cliproxy-stats-routes model update canonicalization', () => {
     expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('gpt-5.3-codex');
     expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('gpt-5-mini');
   });
+
+  it('canonicalizes legacy iflow model IDs to supported upstream IDs', async () => {
+    const settingsPath = path.join(tempHome, '.ccs', 'cliproxy', 'iflow.settings.json');
+    writeSettings(settingsPath, {
+      ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/iflow',
+      ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+      ANTHROPIC_MODEL: 'qwen3-coder-plus',
+      ANTHROPIC_DEFAULT_OPUS_MODEL: 'qwen3-coder-plus',
+      ANTHROPIC_DEFAULT_SONNET_MODEL: 'qwen3-coder-plus',
+      ANTHROPIC_DEFAULT_HAIKU_MODEL: 'qwen3-coder-plus',
+    });
+
+    const response = await fetch(`${baseUrl}/api/cliproxy/models/iflow`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'kimi-k2.5' }),
+    });
+    expect(response.status).toBe(200);
+
+    const body = (await response.json()) as { model: string };
+    expect(body.model).toBe('kimi-k2');
+
+    const persisted = JSON.parse(fs.readFileSync(settingsPath, 'utf8')) as {
+      env: Record<string, string>;
+    };
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('kimi-k2');
+  });
 });

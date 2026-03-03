@@ -31,9 +31,32 @@ const DENIED_ANTIGRAVITY_SONNET_45_REGEX =
   /claude-sonnet-4(?:[.-])5(?:-thinking)?(?=(?:$|[^a-z0-9]))/gi;
 const CANONICAL_ANTIGRAVITY_OPUS_46_MODEL = 'claude-opus-4-6-thinking';
 const CODEX_EFFORT_SUFFIX_REGEX = /-(xhigh|high|medium)$/i;
+const IFLOW_LEGACY_MODEL_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+  'iflow-default': 'qwen3-coder-plus',
+  'kimi-k2.5': 'kimi-k2',
+  'deepseek-v3.2-chat': 'deepseek-v3.2',
+  'glm-4.7': 'glm-4.6',
+  'minimax-m2.5': 'qwen3-coder-plus',
+});
 
 function trimModelId(model: string): string {
   return model.trim();
+}
+
+function splitBaseModelAndSuffix(model: string): { baseModel: string; suffix: string } {
+  const openParenIndex = model.indexOf('(');
+  const openBracketIndex = model.indexOf('[');
+  const suffixIndexCandidates = [openParenIndex, openBracketIndex].filter((index) => index >= 0);
+
+  if (suffixIndexCandidates.length === 0) {
+    return { baseModel: model, suffix: '' };
+  }
+
+  const suffixStart = Math.min(...suffixIndexCandidates);
+  return {
+    baseModel: model.slice(0, suffixStart),
+    suffix: model.slice(suffixStart),
+  };
 }
 
 /**
@@ -62,9 +85,29 @@ export function isCodexProvider(provider: ProviderLike): boolean {
   return provider.trim().toLowerCase() === 'codex';
 }
 
+/** Whether provider maps to iFlow model alias canonicalization rules. */
+export function isIFlowProvider(provider: ProviderLike): boolean {
+  if (typeof provider !== 'string') return false;
+  return provider.trim().toLowerCase() === 'iflow';
+}
+
 /** Normalize Codex effort-suffixed IDs to canonical IDs. */
 export function stripCodexEffortSuffix(model: string): string {
   return model.replace(CODEX_EFFORT_SUFFIX_REGEX, '');
+}
+
+/**
+ * Normalize known legacy iFlow model aliases to current upstream model IDs.
+ * Preserves suffixes such as (budget) and [1m].
+ */
+export function normalizeIFlowLegacyModelAliases(model: string): string {
+  const trimmed = trimModelId(model);
+  const { baseModel, suffix } = splitBaseModelAndSuffix(trimmed);
+  const replacement = IFLOW_LEGACY_MODEL_ALIASES[baseModel.trim().toLowerCase()];
+  if (!replacement) {
+    return trimmed;
+  }
+  return `${replacement}${suffix}`;
 }
 
 /** Normalize Claude dotted major.minor IDs to hyphenated format. */
@@ -144,6 +187,9 @@ export function getDeniedModelIdReasonForProvider(
  */
 export function normalizeModelIdForProvider(model: string, provider: ProviderLike): string {
   const trimmedModel = trimModelId(model);
+  if (isIFlowProvider(provider)) {
+    return normalizeIFlowLegacyModelAliases(trimmedModel);
+  }
   if (!isAntigravityProvider(provider)) return trimmedModel;
   const normalizedDottedVersion = normalizeClaudeDottedMajorMinor(trimmedModel);
   return normalizeDeprecatedAntigravityModelAliases(normalizedDottedVersion);

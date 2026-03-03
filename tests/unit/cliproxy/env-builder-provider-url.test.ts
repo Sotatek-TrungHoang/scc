@@ -242,6 +242,51 @@ describe('getEffectiveEnvVars local provider URL normalization', () => {
     expect(persisted.presets[0]?.haiku).toBe('qwen3-coder-plus');
   });
 
+  it('migrates stale iflow model aliases (including kimi-k2.5) to supported IDs', () => {
+    const iflowSettingsPath = path.join(tempHome, 'iflow.settings.json');
+    writeSettings(
+      iflowSettingsPath,
+      {
+        ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/iflow',
+        ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+        ANTHROPIC_MODEL: 'kimi-k2.5',
+        ANTHROPIC_DEFAULT_OPUS_MODEL: 'iflow-default',
+        ANTHROPIC_DEFAULT_SONNET_MODEL: 'deepseek-v3.2-chat',
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-4.7',
+      },
+      {
+        presets: [
+          {
+            name: 'legacy-iflow',
+            default: 'kimi-k2.5',
+            opus: 'iflow-default',
+            sonnet: 'deepseek-v3.2-chat',
+            haiku: 'minimax-m2.5',
+          },
+        ],
+      }
+    );
+
+    const env = getEffectiveEnvVars('iflow', 8317, iflowSettingsPath);
+    expect(env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+    expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
+
+    const persisted = JSON.parse(fs.readFileSync(iflowSettingsPath, 'utf-8')) as {
+      env: Record<string, string>;
+      presets: Array<Record<string, string>>;
+    };
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
+    expect(persisted.presets[0]?.default).toBe('kimi-k2');
+    expect(persisted.presets[0]?.opus).toBe('qwen3-coder-plus');
+    expect(persisted.presets[0]?.sonnet).toBe('deepseek-v3.2');
+    expect(persisted.presets[0]?.haiku).toBe('qwen3-coder-plus');
+  });
+
   it('repairs existing provider settings files that are missing env keys', () => {
     process.env.CCS_HOME = tempHome;
     const agySettingsPath = path.join(tempHome, '.ccs', 'agy.settings.json');

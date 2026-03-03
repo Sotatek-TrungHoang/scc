@@ -71,4 +71,64 @@ describe('route-helpers AGY denylist', () => {
       /denylist/i
     );
   });
+
+  it('canonicalizes legacy iflow model IDs on settings create', () => {
+    createSettingsFile(
+      'iflow-profile',
+      'http://127.0.0.1:8317/api/provider/iflow',
+      'test-token',
+      {
+        model: 'kimi-k2.5',
+        opusModel: 'iflow-default',
+        sonnetModel: 'deepseek-v3.2-chat',
+        haikuModel: 'glm-4.7',
+      }
+    );
+
+    const settingsPath = path.join(tempHome, '.ccs', 'iflow-profile.settings.json');
+    const persisted = JSON.parse(fs.readFileSync(settingsPath, 'utf8')) as {
+      env: Record<string, string>;
+    };
+
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
+  });
+
+  it('canonicalizes legacy iflow model IDs on settings update', () => {
+    const settingsDir = path.join(tempHome, '.ccs');
+    fs.mkdirSync(settingsDir, { recursive: true });
+    const settingsPath = path.join(settingsDir, 'iflow-profile.settings.json');
+    fs.writeFileSync(
+      settingsPath,
+      JSON.stringify(
+        {
+          env: {
+            ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/iflow',
+            ANTHROPIC_AUTH_TOKEN: 'test-token',
+            ANTHROPIC_MODEL: 'qwen3-coder-plus',
+            ANTHROPIC_DEFAULT_OPUS_MODEL: 'qwen3-coder-plus',
+            ANTHROPIC_DEFAULT_SONNET_MODEL: 'qwen3-coder-plus',
+            ANTHROPIC_DEFAULT_HAIKU_MODEL: 'qwen3-coder-plus',
+          },
+        },
+        null,
+        2
+      ) + '\n'
+    );
+
+    updateSettingsFile('iflow-profile', {
+      model: 'kimi-k2.5',
+      sonnetModel: 'deepseek-v3.2-chat',
+      haikuModel: 'minimax-m2.5',
+    });
+
+    const persisted = JSON.parse(fs.readFileSync(settingsPath, 'utf8')) as {
+      env: Record<string, string>;
+    };
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('qwen3-coder-plus');
+  });
 });

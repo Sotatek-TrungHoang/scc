@@ -108,6 +108,52 @@ describe('settings-routes model canonicalization', () => {
     expect(persisted.presets[0]?.haiku).toBe('claude-haiku-4-5');
   });
 
+  it('canonicalizes legacy iflow model IDs on PUT /:profile', async () => {
+    const settingsPath = path.join(tempHome, '.ccs', 'iflow.settings.json');
+    writeSettings(settingsPath, { env: {} });
+
+    const response = await fetch(`${baseUrl}/api/settings/iflow`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settings: {
+          env: {
+            ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/iflow',
+            ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+            ANTHROPIC_MODEL: 'kimi-k2.5',
+            ANTHROPIC_DEFAULT_OPUS_MODEL: 'iflow-default',
+            ANTHROPIC_DEFAULT_SONNET_MODEL: 'deepseek-v3.2-chat',
+            ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-4.7',
+          },
+          presets: [
+            {
+              name: 'legacy-iflow',
+              default: 'kimi-k2.5',
+              opus: 'iflow-default',
+              sonnet: 'deepseek-v3.2-chat',
+              haiku: 'minimax-m2.5',
+            },
+          ],
+        },
+      }),
+    });
+    expect(response.status).toBe(200);
+
+    const persisted = JSON.parse(fs.readFileSync(settingsPath, 'utf8')) as {
+      env: Record<string, string>;
+      presets: Array<Record<string, string>>;
+    };
+
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
+    expect(persisted.presets[0]?.default).toBe('kimi-k2');
+    expect(persisted.presets[0]?.opus).toBe('qwen3-coder-plus');
+    expect(persisted.presets[0]?.sonnet).toBe('deepseek-v3.2');
+    expect(persisted.presets[0]?.haiku).toBe('qwen3-coder-plus');
+  });
+
   it('canonicalizes AGY preset values on POST /:profile/presets', async () => {
     const settingsPath = path.join(tempHome, '.ccs', 'agy.settings.json');
     writeSettings(settingsPath, {

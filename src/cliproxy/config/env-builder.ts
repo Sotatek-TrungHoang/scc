@@ -25,6 +25,7 @@ import {
   MODEL_ENV_VAR_KEYS,
   migrateDeniedAntigravityModelAliases,
   normalizeModelEnvVarsForProvider,
+  normalizeIFlowLegacyModelAliases,
   normalizeModelIdForProvider,
 } from '../model-id-normalizer';
 
@@ -39,8 +40,6 @@ const DEPRECATED_MODEL_PREFIX = 'gemini-claude-';
 /** Replacement prefix matching actual upstream model names */
 const UPSTREAM_MODEL_PREFIX = 'claude-';
 const CODEX_EFFORT_SUFFIX_REGEX = /-(xhigh|high|medium)$/i;
-const IFLOW_PLACEHOLDER_MODEL = 'iflow-default';
-const IFLOW_DEFAULT_MODEL = 'qwen3-coder-plus';
 const PRESET_MODEL_KEYS = ['default', 'opus', 'sonnet', 'haiku'] as const;
 const REQUIRED_PROVIDER_ENV_KEYS = [
   'ANTHROPIC_BASE_URL',
@@ -172,8 +171,8 @@ function migrateCodexEffortSuffixes(
 }
 
 /**
- * Migrate legacy iFlow placeholder model IDs to a real default model.
- * Example: iflow-default -> qwen3-coder-plus
+ * Migrate legacy iFlow model IDs to current upstream model IDs.
+ * Example: iflow-default -> qwen3-coder-plus, kimi-k2.5 -> kimi-k2
  */
 function migrateIFlowPlaceholderModel(
   settingsPath: string,
@@ -184,14 +183,13 @@ function migrateIFlowPlaceholderModel(
   if (!settings.env || typeof settings.env !== 'object') return false;
 
   let migrated = false;
-  const normalize = (value: string): string => value.trim().toLowerCase();
-  const replaceIfPlaceholder = (value: string): string =>
-    normalize(value) === IFLOW_PLACEHOLDER_MODEL ? IFLOW_DEFAULT_MODEL : value;
+  const replaceLegacyIFlowModel = (value: string): string =>
+    normalizeIFlowLegacyModelAliases(value);
 
   for (const key of MODEL_ENV_VAR_KEYS) {
     const value = settings.env[key];
     if (typeof value !== 'string') continue;
-    const replaced = replaceIfPlaceholder(value);
+    const replaced = replaceLegacyIFlowModel(value);
     if (replaced !== value) {
       settings.env[key] = replaced;
       migrated = true;
@@ -206,7 +204,7 @@ function migrateIFlowPlaceholderModel(
       for (const key of PRESET_MODEL_KEYS) {
         const value = presetRecord[key];
         if (typeof value !== 'string') continue;
-        const replaced = replaceIfPlaceholder(value);
+        const replaced = replaceLegacyIFlowModel(value);
         if (replaced !== value) {
           presetRecord[key] = replaced;
           migrated = true;
