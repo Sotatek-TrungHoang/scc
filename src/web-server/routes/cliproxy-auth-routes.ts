@@ -50,29 +50,14 @@ import {
   validateAntigravityRiskAcknowledgement,
   isAntigravityResponsibilityBypassEnabled,
 } from '../../cliproxy/antigravity-responsibility';
+import { createRouteErrorHelpers } from './route-helpers';
 
 const router = Router();
 
 // Valid providers list - derived from canonical CLIPROXY_PROFILES
 const validProviders: CLIProxyProvider[] = [...CLIPROXY_PROFILES];
 
-function logRouteError(context: string, error: unknown): void {
-  if (error instanceof Error) {
-    console.error(`[cliproxy-auth-routes] ${context}: ${error.message}`);
-    return;
-  }
-  console.error(`[cliproxy-auth-routes] ${context}: unknown error`);
-}
-
-function respondInternalError(
-  res: Response,
-  error: unknown,
-  fallbackMessage: string,
-  statusCode = 500
-): void {
-  logRouteError(fallbackMessage, error);
-  res.status(statusCode).json({ error: fallbackMessage });
-}
+const { respondInternalError } = createRouteErrorHelpers('cliproxy-auth-routes');
 
 function parseKiroMethod(raw: unknown): { method: KiroAuthMethod; invalid: boolean } {
   if (raw === undefined || raw === null) {
@@ -110,6 +95,13 @@ export function getStartUrlUnsupportedReason(
     return `Provider '${provider}' uses Device Code flow. Use /api/cliproxy/auth/${provider}/start instead.`;
   }
   return null;
+}
+
+export function getStartAuthFailureMessage(provider: CLIProxyProvider): string {
+  if (provider === 'ghcp') {
+    return 'Authentication failed, was cancelled, or GitHub Copilot verification did not complete. Ensure the account has an active Copilot subscription and retry.';
+  }
+  return 'Authentication failed or was cancelled';
 }
 
 /**
@@ -503,7 +495,9 @@ router.post('/:provider/start', async (req: Request, res: Response): Promise<voi
         },
       });
     } else {
-      res.status(400).json({ error: 'Authentication failed or was cancelled' });
+      res.status(400).json({
+        error: getStartAuthFailureMessage(provider as CLIProxyProvider),
+      });
     }
   } catch (error) {
     respondInternalError(res, error, 'Failed to start OAuth flow.');

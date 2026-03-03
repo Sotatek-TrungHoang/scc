@@ -8,7 +8,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { loadOrCreateUnifiedConfig, saveUnifiedConfig } from '../../config/unified-config-loader';
+import { loadOrCreateUnifiedConfig, mutateUnifiedConfig } from '../../config/unified-config-loader';
 import { testConnection } from '../../cliproxy/remote-proxy-client';
 import { isProxyRunning } from '../../cliproxy/services/proxy-lifecycle-service';
 import { DEFAULT_BACKEND } from '../../cliproxy/platform-detector';
@@ -36,32 +36,32 @@ router.get('/', async (_req: Request, res: Response) => {
 /**
  * PUT /api/cliproxy-server - Update proxy configuration
  */
-router.put('/', async (req: Request, res: Response) => {
+router.put('/', (req: Request, res: Response) => {
   try {
-    const config = await loadOrCreateUnifiedConfig();
     const updates = req.body as Partial<CliproxyServerConfig>;
 
-    // Deep merge with defaults and current config
-    config.cliproxy_server = {
-      remote: {
-        ...DEFAULT_CLIPROXY_SERVER_CONFIG.remote,
-        ...config.cliproxy_server?.remote,
-        ...updates.remote,
-      },
-      fallback: {
-        ...DEFAULT_CLIPROXY_SERVER_CONFIG.fallback,
-        ...config.cliproxy_server?.fallback,
-        ...updates.fallback,
-      },
-      local: {
-        ...DEFAULT_CLIPROXY_SERVER_CONFIG.local,
-        ...config.cliproxy_server?.local,
-        ...updates.local,
-      },
-    };
+    // Atomic read-modify-write — avoids race between load and save
+    const updated = mutateUnifiedConfig((config) => {
+      config.cliproxy_server = {
+        remote: {
+          ...DEFAULT_CLIPROXY_SERVER_CONFIG.remote,
+          ...config.cliproxy_server?.remote,
+          ...updates.remote,
+        },
+        fallback: {
+          ...DEFAULT_CLIPROXY_SERVER_CONFIG.fallback,
+          ...config.cliproxy_server?.fallback,
+          ...updates.fallback,
+        },
+        local: {
+          ...DEFAULT_CLIPROXY_SERVER_CONFIG.local,
+          ...config.cliproxy_server?.local,
+          ...updates.local,
+        },
+      };
+    });
 
-    await saveUnifiedConfig(config);
-    res.json(config.cliproxy_server);
+    res.json(updated.cliproxy_server);
   } catch (error) {
     console.error('[cliproxy-server-routes] Failed to save proxy config:', error);
     res.status(500).json({ error: 'Failed to save proxy config' });
@@ -91,7 +91,7 @@ router.get('/backend', async (_req: Request, res: Response) => {
  * @throws {400} Invalid backend value
  * @throws {409} Proxy is running (unless force=true)
  */
-router.put('/backend', async (req: Request, res: Response) => {
+router.put('/backend', (req: Request, res: Response) => {
   try {
     const { backend, force } = req.body;
     if (backend !== 'original' && backend !== 'plus') {
@@ -99,9 +99,9 @@ router.put('/backend', async (req: Request, res: Response) => {
       return;
     }
 
-    // Check if proxy is running - warn about restart requirement
-    const config = await loadOrCreateUnifiedConfig();
-    const currentBackend = config.cliproxy?.backend ?? DEFAULT_BACKEND;
+    // Pre-flight read: check running state before acquiring write lock
+    const currentConfig = loadOrCreateUnifiedConfig();
+    const currentBackend = currentConfig.cliproxy?.backend ?? DEFAULT_BACKEND;
     if (currentBackend !== backend && isProxyRunning() && !force) {
       res.status(409).json({
         error: 'Proxy is running. Stop proxy first or use force=true to change backend.',
@@ -110,18 +110,21 @@ router.put('/backend', async (req: Request, res: Response) => {
       });
       return;
     }
-    if (!config.cliproxy) {
-      config.cliproxy = {
-        backend,
-        oauth_accounts: {},
-        providers: [...CLIPROXY_PROVIDER_IDS],
-        variants: {},
-      };
-    } else {
-      config.cliproxy.backend = backend;
-    }
 
-    await saveUnifiedConfig(config);
+    // Atomic write — avoids race between load and save
+    mutateUnifiedConfig((config) => {
+      if (!config.cliproxy) {
+        config.cliproxy = {
+          backend,
+          oauth_accounts: {},
+          providers: [...CLIPROXY_PROVIDER_IDS],
+          variants: {},
+        };
+      } else {
+        config.cliproxy.backend = backend;
+      }
+    });
+
     res.json({ backend });
   } catch (error) {
     console.error('[cliproxy-server-routes] Failed to save backend config:', error);

@@ -14,9 +14,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { useCreateVariant, useCliproxyAuth } from '@/hooks/use-cliproxy';
 import { usePrivacy } from '@/contexts/privacy-context';
 import { CLIPROXY_PROVIDERS, getProviderDisplayName } from '@/lib/provider-config';
+import { isDeniedAgyModelId } from '@/lib/utils';
 
 const singleProviderSchema = z.object({
   name: z
@@ -67,8 +70,15 @@ const providerOptions = CLIPROXY_PROVIDERS.map((id) => ({
   value: id,
   label: getProviderDisplayName(id),
 }));
+const AGY_DENYLIST_MESSAGE =
+  'Antigravity denylist: Claude Opus 4.5 and Claude Sonnet 4.5 are deprecated.';
+
+function isDeniedAgyModelForProvider(provider: string, modelId: string | undefined): boolean {
+  return provider === 'agy' && typeof modelId === 'string' && isDeniedAgyModelId(modelId);
+}
 
 export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
+  const { t } = useTranslation();
   const createMutation = useCreateVariant();
   const { data: authData } = useCliproxyAuth();
   const { privacyMode } = usePrivacy();
@@ -97,6 +107,12 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
   const providerAccounts = providerAuth?.accounts || [];
 
   const onSubmitSingle = async (data: SingleProviderFormData) => {
+    if (isDeniedAgyModelForProvider(data.provider, data.model)) {
+      singleForm.setError('model', { message: AGY_DENYLIST_MESSAGE });
+      toast.error(AGY_DENYLIST_MESSAGE);
+      return;
+    }
+
     try {
       await createMutation.mutateAsync(data);
       singleForm.reset();
@@ -107,6 +123,14 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
   };
 
   const onSubmitComposite = async (data: CompositeFormData) => {
+    for (const tier of ['opus', 'sonnet', 'haiku'] as const) {
+      const tierConfig = data.tiers[tier];
+      if (!isDeniedAgyModelForProvider(tierConfig.provider, tierConfig.model)) continue;
+      compositeForm.setError(`tiers.${tier}.model`, { message: AGY_DENYLIST_MESSAGE });
+      toast.error(AGY_DENYLIST_MESSAGE);
+      return;
+    }
+
     try {
       await createMutation.mutateAsync({
         name: data.name,
@@ -151,8 +175,12 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
           {mode === 'single' ? (
             <form onSubmit={singleForm.handleSubmit(onSubmitSingle)} className="space-y-4">
               <div>
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" {...singleForm.register('name')} placeholder="my-gemini" />
+                <Label htmlFor="name">{t('cliproxyDialog.name')}</Label>
+                <Input
+                  id="name"
+                  {...singleForm.register('name')}
+                  placeholder={t('cliproxyDialog.placeholderName')}
+                />
                 {singleForm.formState.errors.name && (
                   <span className="text-xs text-red-500">
                     {singleForm.formState.errors.name.message}
@@ -161,13 +189,13 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
               </div>
 
               <div>
-                <Label htmlFor="provider">Provider</Label>
+                <Label htmlFor="provider">{t('cliproxyDialog.provider')}</Label>
                 <select
                   id="provider"
                   {...singleForm.register('provider')}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="">Select provider...</option>
+                  <option value="">{t('cliproxyDialog.selectProvider')}</option>
                   {providerOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
@@ -183,17 +211,17 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
 
               {selectedProvider && providerAccounts.length > 0 && (
                 <div>
-                  <Label htmlFor="account">Account</Label>
+                  <Label htmlFor="account">{t('cliproxyDialog.account')}</Label>
                   <select
                     id="account"
                     {...singleForm.register('account')}
                     className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   >
-                    <option value="">Use default account</option>
+                    <option value="">{t('cliproxyDialog.useDefaultAccount')}</option>
                     {providerAccounts.map((acc) => (
                       <option key={acc.id} value={acc.id}>
                         {privacyMode ? '••••••' : acc.email || acc.id}
-                        {acc.isDefault ? ' (default)' : ''}
+                        {acc.isDefault ? ` ${t('cliproxyDialog.defaultSuffix')}` : ''}
                       </option>
                     ))}
                   </select>
@@ -201,39 +229,45 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
               )}
 
               <div>
-                <Label htmlFor="model">Model (optional)</Label>
-                <Input id="model" {...singleForm.register('model')} placeholder="gemini-2.5-pro" />
+                <Label htmlFor="model">{t('cliproxyDialog.modelOptional')}</Label>
+                <Input
+                  id="model"
+                  {...singleForm.register('model')}
+                  placeholder={t('cliproxyDialog.placeholderModel')}
+                />
               </div>
 
               <div>
-                <Label htmlFor="target">Default Target</Label>
+                <Label htmlFor="target">{t('cliproxyDialog.defaultTarget')}</Label>
                 <select
                   id="target"
                   {...singleForm.register('target')}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="claude">Claude Code</option>
-                  <option value="droid">Factory Droid</option>
+                  <option value="claude">{t('cliproxyDialog.claudeCode')}</option>
+                  <option value="droid">{t('cliproxyDialog.factoryDroid')}</option>
                 </select>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
+                  {t('cliproxyDialog.cancel')}
                 </Button>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Creating...' : 'Create'}
+                  {createMutation.isPending
+                    ? t('cliproxyDialog.creating')
+                    : t('cliproxyDialog.create')}
                 </Button>
               </div>
             </form>
           ) : (
             <form onSubmit={compositeForm.handleSubmit(onSubmitComposite)} className="space-y-4">
               <div>
-                <Label htmlFor="comp-name">Name</Label>
+                <Label htmlFor="comp-name">{t('cliproxyDialog.name')}</Label>
                 <Input
                   id="comp-name"
                   {...compositeForm.register('name')}
-                  placeholder="my-composite"
+                  placeholder={t('cliproxyDialog.placeholderComposite')}
                 />
                 {compositeForm.formState.errors.name && (
                   <span className="text-xs text-red-500">
@@ -243,17 +277,17 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
               </div>
 
               <div>
-                <Label>Tier Configuration</Label>
+                <Label>{t('cliproxyDialog.tierConfig')}</Label>
                 <Tabs defaultValue="opus" className="w-full">
                   <TabsList className="grid w-full grid-cols-3">
-                    <TabsTrigger value="opus">Opus</TabsTrigger>
-                    <TabsTrigger value="sonnet">Sonnet</TabsTrigger>
-                    <TabsTrigger value="haiku">Haiku</TabsTrigger>
+                    <TabsTrigger value="opus">{t('cliproxyDialog.opus')}</TabsTrigger>
+                    <TabsTrigger value="sonnet">{t('cliproxyDialog.sonnet')}</TabsTrigger>
+                    <TabsTrigger value="haiku">{t('cliproxyDialog.haiku')}</TabsTrigger>
                   </TabsList>
                   {(['opus', 'sonnet', 'haiku'] as const).map((tier) => (
                     <TabsContent key={tier} value={tier} className="space-y-3">
                       <div>
-                        <Label htmlFor={`${tier}-provider`}>Provider</Label>
+                        <Label htmlFor={`${tier}-provider`}>{t('cliproxyDialog.provider')}</Label>
                         <select
                           id={`${tier}-provider`}
                           {...compositeForm.register(`tiers.${tier}.provider`)}
@@ -267,11 +301,11 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
                         </select>
                       </div>
                       <div>
-                        <Label htmlFor={`${tier}-model`}>Model</Label>
+                        <Label htmlFor={`${tier}-model`}>{t('cliproxyDialog.model')}</Label>
                         <Input
                           id={`${tier}-model`}
                           {...compositeForm.register(`tiers.${tier}.model`)}
-                          placeholder="model-id"
+                          placeholder={t('cliproxyDialog.placeholderModelId')}
                         />
                         {compositeForm.formState.errors.tiers?.[tier]?.model && (
                           <span className="text-xs text-red-500">
@@ -280,11 +314,13 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
                         )}
                       </div>
                       <div>
-                        <Label htmlFor={`${tier}-account`}>Account (optional)</Label>
+                        <Label htmlFor={`${tier}-account`}>
+                          {t('cliproxyDialog.accountOptional')}
+                        </Label>
                         <Input
                           id={`${tier}-account`}
                           {...compositeForm.register(`tiers.${tier}.account`)}
-                          placeholder="account-id"
+                          placeholder={t('cliproxyDialog.placeholderAccountId')}
                         />
                       </div>
                     </TabsContent>
@@ -293,36 +329,38 @@ export function CliproxyDialog({ open, onClose }: CliproxyDialogProps) {
               </div>
 
               <div>
-                <Label htmlFor="default-tier">Default Tier</Label>
+                <Label htmlFor="default-tier">{t('cliproxyDialog.defaultTier')}</Label>
                 <select
                   id="default-tier"
                   {...compositeForm.register('default_tier')}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="opus">Opus</option>
-                  <option value="sonnet">Sonnet</option>
-                  <option value="haiku">Haiku</option>
+                  <option value="opus">{t('cliproxyDialog.opus')}</option>
+                  <option value="sonnet">{t('cliproxyDialog.sonnet')}</option>
+                  <option value="haiku">{t('cliproxyDialog.haiku')}</option>
                 </select>
               </div>
 
               <div>
-                <Label htmlFor="composite-target">Default Target</Label>
+                <Label htmlFor="composite-target">{t('cliproxyDialog.defaultTarget')}</Label>
                 <select
                   id="composite-target"
                   {...compositeForm.register('target')}
                   className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
-                  <option value="claude">Claude Code</option>
-                  <option value="droid">Factory Droid</option>
+                  <option value="claude">{t('cliproxyDialog.claudeCode')}</option>
+                  <option value="droid">{t('cliproxyDialog.factoryDroid')}</option>
                 </select>
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
                 <Button type="button" variant="outline" onClick={onClose}>
-                  Cancel
+                  {t('cliproxyDialog.cancel')}
                 </Button>
                 <Button type="submit" disabled={createMutation.isPending}>
-                  {createMutation.isPending ? 'Creating...' : 'Create'}
+                  {createMutation.isPending
+                    ? t('cliproxyDialog.creating')
+                    : t('cliproxyDialog.create')}
                 </Button>
               </div>
             </form>

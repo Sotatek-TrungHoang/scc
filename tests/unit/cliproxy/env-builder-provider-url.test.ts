@@ -105,10 +105,61 @@ describe('getEffectiveEnvVars local provider URL normalization', () => {
     });
 
     const env = getEffectiveEnvVars('agy', 8317, settingsPath);
-    expect(env.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6-thinking');
+    expect(env.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6');
     expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('claude-opus-4-6-thinking');
-    expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6-thinking');
+    expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6');
     expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('claude-haiku-4-5');
+
+    const persisted = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) as {
+      env: Record<string, string>;
+    };
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('claude-opus-4-6-thinking');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6');
+  });
+
+  it('migrates denylisted AGY 4.5 model IDs to supported 4.6 fallbacks', () => {
+    writeSettings(
+      settingsPath,
+      {
+        ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/agy',
+        ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+        ANTHROPIC_MODEL: 'claude-opus-4.5',
+        ANTHROPIC_DEFAULT_OPUS_MODEL: 'claude-opus-4-5-thinking',
+        ANTHROPIC_DEFAULT_SONNET_MODEL: 'claude-sonnet-4.5-thinking',
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'claude-sonnet-4-5',
+      },
+      {
+        presets: [
+          {
+            name: 'legacy-45',
+            default: 'claude-opus-4.5',
+            opus: 'claude-opus-4-5-thinking',
+            sonnet: 'claude-sonnet-4.5-thinking',
+            haiku: 'claude-sonnet-4-5',
+          },
+        ],
+      }
+    );
+
+    const env = getEffectiveEnvVars('agy', 8317, settingsPath);
+    expect(env.ANTHROPIC_MODEL).toBe('claude-opus-4-6-thinking');
+    expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('claude-opus-4-6-thinking');
+    expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6');
+    expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('claude-sonnet-4-6');
+
+    const persisted = JSON.parse(fs.readFileSync(settingsPath, 'utf-8')) as {
+      env: Record<string, string>;
+      presets?: Array<Record<string, string>>;
+    };
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('claude-opus-4-6-thinking');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('claude-opus-4-6-thinking');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('claude-sonnet-4-6');
+    expect(persisted.presets?.[0]?.default).toBe('claude-opus-4-6-thinking');
+    expect(persisted.presets?.[0]?.opus).toBe('claude-opus-4-6-thinking');
+    expect(persisted.presets?.[0]?.sonnet).toBe('claude-sonnet-4-6');
+    expect(persisted.presets?.[0]?.haiku).toBe('claude-sonnet-4-6');
   });
 
   it('migrates codex preset model mappings to canonical IDs', () => {
@@ -191,6 +242,51 @@ describe('getEffectiveEnvVars local provider URL normalization', () => {
     expect(persisted.presets[0]?.haiku).toBe('qwen3-coder-plus');
   });
 
+  it('migrates stale iflow model aliases (including kimi-k2.5) to supported IDs', () => {
+    const iflowSettingsPath = path.join(tempHome, 'iflow.settings.json');
+    writeSettings(
+      iflowSettingsPath,
+      {
+        ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/iflow',
+        ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+        ANTHROPIC_MODEL: 'kimi-k2.5',
+        ANTHROPIC_DEFAULT_OPUS_MODEL: 'iflow-default',
+        ANTHROPIC_DEFAULT_SONNET_MODEL: 'deepseek-v3.2-chat',
+        ANTHROPIC_DEFAULT_HAIKU_MODEL: 'glm-4.7',
+      },
+      {
+        presets: [
+          {
+            name: 'legacy-iflow',
+            default: 'kimi-k2.5',
+            opus: 'iflow-default',
+            sonnet: 'deepseek-v3.2-chat',
+            haiku: 'minimax-m2.5',
+          },
+        ],
+      }
+    );
+
+    const env = getEffectiveEnvVars('iflow', 8317, iflowSettingsPath);
+    expect(env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+    expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
+
+    const persisted = JSON.parse(fs.readFileSync(iflowSettingsPath, 'utf-8')) as {
+      env: Record<string, string>;
+      presets: Array<Record<string, string>>;
+    };
+    expect(persisted.env.ANTHROPIC_MODEL).toBe('kimi-k2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('qwen3-coder-plus');
+    expect(persisted.env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('deepseek-v3.2');
+    expect(persisted.env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('glm-4.6');
+    expect(persisted.presets[0]?.default).toBe('kimi-k2');
+    expect(persisted.presets[0]?.opus).toBe('qwen3-coder-plus');
+    expect(persisted.presets[0]?.sonnet).toBe('deepseek-v3.2');
+    expect(persisted.presets[0]?.haiku).toBe('qwen3-coder-plus');
+  });
+
   it('repairs existing provider settings files that are missing env keys', () => {
     process.env.CCS_HOME = tempHome;
     const agySettingsPath = path.join(tempHome, '.ccs', 'agy.settings.json');
@@ -220,6 +316,100 @@ describe('getEffectiveEnvVars local provider URL normalization', () => {
     expect(repaired.env?.ANTHROPIC_DEFAULT_OPUS_MODEL).toBeDefined();
     expect(repaired.env?.ANTHROPIC_DEFAULT_SONNET_MODEL).toBeDefined();
     expect(repaired.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBeDefined();
+  });
+
+  it('migrates deprecated agy sonnet 4.6 thinking IDs during ensureProviderSettings', () => {
+    process.env.CCS_HOME = tempHome;
+    const agySettingsPath = path.join(tempHome, '.ccs', 'agy.settings.json');
+    fs.mkdirSync(path.dirname(agySettingsPath), { recursive: true });
+    fs.writeFileSync(
+      agySettingsPath,
+      JSON.stringify(
+        {
+          env: {
+            ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/agy',
+            ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+            ANTHROPIC_MODEL: 'claude-sonnet-4-6-thinking(8192)',
+            ANTHROPIC_DEFAULT_OPUS_MODEL: 'claude-opus-4-6-thinking',
+            ANTHROPIC_DEFAULT_SONNET_MODEL: 'claude-sonnet-4.6-thinking',
+            ANTHROPIC_DEFAULT_HAIKU_MODEL: 'claude-sonnet-4-5',
+          },
+          presets: [
+            {
+              name: 'legacy',
+              default: 'claude-sonnet-4-6-thinking',
+              opus: 'claude-opus-4.6-thinking',
+              sonnet: 'claude-sonnet-4.6-thinking',
+              haiku: 'claude-sonnet-4-5',
+            },
+          ],
+        },
+        null,
+        2
+      )
+    );
+
+    ensureProviderSettings('agy');
+
+    const repaired = JSON.parse(fs.readFileSync(agySettingsPath, 'utf-8')) as {
+      env?: Record<string, string>;
+      presets?: Array<Record<string, string>>;
+    };
+    expect(repaired.env?.ANTHROPIC_MODEL).toBe('claude-sonnet-4-6(8192)');
+    expect(repaired.env?.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('claude-opus-4-6-thinking');
+    expect(repaired.env?.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('claude-sonnet-4-6');
+    expect(repaired.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('claude-sonnet-4-6');
+    expect(repaired.presets?.[0]?.default).toBe('claude-sonnet-4-6');
+    expect(repaired.presets?.[0]?.opus).toBe('claude-opus-4-6-thinking');
+    expect(repaired.presets?.[0]?.sonnet).toBe('claude-sonnet-4-6');
+    expect(repaired.presets?.[0]?.haiku).toBe('claude-sonnet-4-6');
+  });
+
+  it('migrates codex effort-suffixed preset IDs during ensureProviderSettings', () => {
+    process.env.CCS_HOME = tempHome;
+    const codexSettingsPath = path.join(tempHome, '.ccs', 'codex.settings.json');
+    fs.mkdirSync(path.dirname(codexSettingsPath), { recursive: true });
+    fs.writeFileSync(
+      codexSettingsPath,
+      JSON.stringify(
+        {
+          env: {
+            ANTHROPIC_BASE_URL: 'http://127.0.0.1:8317/api/provider/codex',
+            ANTHROPIC_AUTH_TOKEN: 'ccs-internal-managed',
+            ANTHROPIC_MODEL: ' gpt-5.3-codex-xhigh ',
+            ANTHROPIC_DEFAULT_OPUS_MODEL: 'gpt-5.3-codex-xhigh',
+            ANTHROPIC_DEFAULT_SONNET_MODEL: 'gpt-5.3-codex-high',
+            ANTHROPIC_DEFAULT_HAIKU_MODEL: 'gpt-5-mini-medium',
+          },
+          presets: [
+            {
+              name: 'legacy',
+              default: 'gpt-5.3-codex-xhigh',
+              opus: 'gpt-5.3-codex-xhigh',
+              sonnet: 'gpt-5.3-codex-high',
+              haiku: 'gpt-5-mini-medium',
+            },
+          ],
+        },
+        null,
+        2
+      )
+    );
+
+    ensureProviderSettings('codex');
+
+    const repaired = JSON.parse(fs.readFileSync(codexSettingsPath, 'utf-8')) as {
+      env?: Record<string, string>;
+      presets?: Array<Record<string, string>>;
+    };
+    expect(repaired.env?.ANTHROPIC_MODEL).toBe('gpt-5.3-codex');
+    expect(repaired.env?.ANTHROPIC_DEFAULT_OPUS_MODEL).toBe('gpt-5.3-codex');
+    expect(repaired.env?.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('gpt-5.3-codex');
+    expect(repaired.env?.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('gpt-5-mini');
+    expect(repaired.presets?.[0]?.default).toBe('gpt-5.3-codex');
+    expect(repaired.presets?.[0]?.opus).toBe('gpt-5.3-codex');
+    expect(repaired.presets?.[0]?.sonnet).toBe('gpt-5.3-codex');
+    expect(repaired.presets?.[0]?.haiku).toBe('gpt-5-mini');
   });
 
   it('recovers malformed provider settings files by writing defaults and backup copy', () => {

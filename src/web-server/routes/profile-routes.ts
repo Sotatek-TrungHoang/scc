@@ -13,27 +13,13 @@ import {
   updateApiProfileTarget,
 } from '../../api/services/profile-writer';
 import { apiProfileExists, listApiProfiles } from '../../api/services/profile-reader';
-import type { TargetType } from '../../targets/target-adapter';
 import { normalizeDroidProvider } from '../../targets/droid-provider';
-import { updateSettingsFile } from './route-helpers';
+import { updateSettingsFile, parseTarget } from './route-helpers';
 
 const router = Router();
 
-export function parseTarget(rawTarget: unknown): TargetType | null {
-  if (rawTarget === undefined || rawTarget === null || rawTarget === '') {
-    return null;
-  }
-
-  if (typeof rawTarget !== 'string') {
-    return null;
-  }
-
-  const normalized = rawTarget.trim().toLowerCase();
-  if (normalized === 'claude' || normalized === 'droid') {
-    return normalized;
-  }
-
-  return null;
+function isDenylistError(message: string | undefined): boolean {
+  return typeof message === 'string' && message.toLowerCase().includes('denylist');
 }
 
 // ==================== Profile CRUD ====================
@@ -113,7 +99,8 @@ router.post('/', (req: Request, res: Response): void => {
   );
 
   if (!result.success) {
-    res.status(500).json({ error: result.error || 'Failed to create profile' });
+    const errorMessage = result.error || 'Failed to create profile';
+    res.status(isDenylistError(errorMessage) ? 400 : 500).json({ error: errorMessage });
     return;
   }
 
@@ -203,7 +190,8 @@ router.put('/:name', (req: Request, res: Response): void => {
       ...(hasTargetUpdate && parsedTarget && { target: parsedTarget }),
     });
   } catch (error) {
-    res.status(500).json({ error: (error as Error).message });
+    const errorMessage = (error as Error).message;
+    res.status(isDenylistError(errorMessage) ? 400 : 500).json({ error: errorMessage });
   }
 });
 

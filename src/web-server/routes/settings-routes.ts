@@ -25,9 +25,16 @@ import {
   mutateUnifiedConfig,
 } from '../../config/unified-config-loader';
 import type { Settings } from '../../types/config';
+import type { CLIProxyProvider } from '../../cliproxy/types';
+import { mapExternalProviderName } from '../../cliproxy/provider-capabilities';
+import {
+  canonicalizeModelIdForProvider,
+  extractProviderFromPathname,
+  getDeniedModelIdReasonForProvider,
+} from '../../cliproxy/model-id-normalizer';
+import { createRouteErrorHelpers } from './route-helpers';
 
 const router = Router();
-const CODEX_EFFORT_SUFFIX_REGEX = /-(xhigh|high|medium)$/i;
 const MODEL_ENV_KEYS = [
   'ANTHROPIC_MODEL',
   'ANTHROPIC_DEFAULT_OPUS_MODEL',
@@ -36,23 +43,7 @@ const MODEL_ENV_KEYS = [
 ] as const;
 const PRESET_MODEL_KEYS = ['default', 'opus', 'sonnet', 'haiku'] as const;
 
-function logRouteError(context: string, error: unknown): void {
-  if (error instanceof Error) {
-    console.error(`[settings-routes] ${context}: ${error.message}`);
-    return;
-  }
-  console.error(`[settings-routes] ${context}: unknown error`);
-}
-
-function respondInternalError(
-  res: Response,
-  error: unknown,
-  fallbackMessage: string,
-  statusCode = 500
-): void {
-  logRouteError(fallbackMessage, error);
-  res.status(statusCode).json({ error: fallbackMessage });
-}
+const { logRouteError, respondInternalError } = createRouteErrorHelpers('settings-routes');
 
 function isLoopbackAddress(value: string | undefined): boolean {
   if (!value) return false;
@@ -72,10 +63,10 @@ function requireSensitiveLocalAccess(req: Request, res: Response): boolean {
     return true;
   }
 
-  const forwarded = req.headers['x-forwarded-for'];
-  const firstForwarded =
-    typeof forwarded === 'string' ? forwarded.split(',')[0]?.trim() : undefined;
-  const candidateAddress = firstForwarded || req.socket.remoteAddress || req.ip;
+  // Use only socket-level address for security decisions.
+  // X-Forwarded-For is trivially spoofable and must NOT be trusted
+  // without an explicit trust proxy configuration.
+  const candidateAddress = req.socket.remoteAddress;
 
   if (isLoopbackAddress(candidateAddress)) {
     return true;
@@ -122,18 +113,105 @@ function resolveSettingsPath(profileOrVariant: string): string {
   return path.join(ccsDir, `${profileOrVariant}.settings.json`);
 }
 
-function isCodexProfile(profileOrVariant: string): boolean {
-  if (profileOrVariant.toLowerCase() === 'codex') return true;
+function resolveProviderForProfile(profileOrVariant: string): CLIProxyProvider | null {
+  const directProvider = mapExternalProviderName(profileOrVariant);
+  if (directProvider) {
+    return directProvider;
+  }
+
   const variants = listVariants();
-  return variants[profileOrVariant]?.provider === 'codex';
+  const variantProvider = variants[profileOrVariant]?.provider;
+  if (typeof variantProvider === 'string') {
+    return mapExternalProviderName(variantProvider);
+  }
+
+  return null;
 }
 
-function stripCodexEffortSuffix(modelId: string): string {
-  return modelId.replace(CODEX_EFFORT_SUFFIX_REGEX, '');
+function resolveProviderFromBaseUrl(baseUrl: unknown): CLIProxyProvider | null {
+  if (typeof baseUrl !== 'string' || baseUrl.trim().length === 0) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(baseUrl);
+    const extracted = extractProviderFromPathname(parsed.pathname);
+    return extracted ? mapExternalProviderName(extracted) : null;
+  } catch {
+    const extracted = extractProviderFromPathname(baseUrl);
+    return extracted ? mapExternalProviderName(extracted) : null;
+  }
 }
 
-function canonicalizeCodexSettings(profileOrVariant: string, settings: Settings): Settings {
-  if (!isCodexProfile(profileOrVariant)) return settings;
+function resolveProviderForSettings(
+  profileOrVariant: string,
+  settings?: Pick<Settings, 'env'>
+): CLIProxyProvider | null {
+  const providerFromProfile = resolveProviderForProfile(profileOrVariant);
+  if (providerFromProfile) {
+    return providerFromProfile;
+  }
+
+  const baseUrl =
+    settings?.env && typeof settings.env === 'object' ? settings.env.ANTHROPIC_BASE_URL : undefined;
+  return resolveProviderFromBaseUrl(baseUrl);
+}
+
+function canonicalizeProfileModelId(
+  profileOrVariant: string,
+  modelId: string,
+  settings?: Settings
+): string {
+  const provider = resolveProviderForSettings(profileOrVariant, settings);
+  if (!provider) return modelId;
+  return canonicalizeModelIdForProvider(modelId, provider);
+}
+
+function findDeniedProfileModel(
+  profileOrVariant: string,
+  modelId: string,
+  settings?: Settings
+): string | null {
+  const provider = resolveProviderForSettings(profileOrVariant, settings);
+  if (!provider) return null;
+  return getDeniedModelIdReasonForProvider(modelId, provider);
+}
+
+function validateProfileSettingsModelDenylist(
+  profileOrVariant: string,
+  settings: Settings
+): string | null {
+  if (settings.env && typeof settings.env === 'object') {
+    for (const key of MODEL_ENV_KEYS) {
+      const value = settings.env[key];
+      if (typeof value !== 'string') continue;
+      const deniedReason = findDeniedProfileModel(profileOrVariant, value, settings);
+      if (deniedReason) {
+        return `${key}: ${deniedReason}`;
+      }
+    }
+  }
+
+  if (!Array.isArray(settings.presets)) return null;
+
+  for (const preset of settings.presets) {
+    for (const key of PRESET_MODEL_KEYS) {
+      const value = preset[key];
+      if (typeof value !== 'string') continue;
+      const deniedReason = findDeniedProfileModel(profileOrVariant, value, settings);
+      if (deniedReason) {
+        const presetName = typeof preset.name === 'string' ? preset.name : 'unnamed';
+        return `Preset '${presetName}' (${key}): ${deniedReason}`;
+      }
+    }
+  }
+
+  return null;
+}
+
+function canonicalizeProfileSettings(profileOrVariant: string, settings: Settings): Settings {
+  const provider = resolveProviderForSettings(profileOrVariant, settings);
+  if (!provider) return settings;
 
   let changed = false;
   const next: Settings = { ...settings };
@@ -143,7 +221,7 @@ function canonicalizeCodexSettings(profileOrVariant: string, settings: Settings)
     for (const key of MODEL_ENV_KEYS) {
       const value = env[key];
       if (typeof value !== 'string') continue;
-      const canonical = stripCodexEffortSuffix(value);
+      const canonical = canonicalizeModelIdForProvider(value, provider);
       if (canonical !== value) {
         env[key] = canonical;
         changed = true;
@@ -153,13 +231,19 @@ function canonicalizeCodexSettings(profileOrVariant: string, settings: Settings)
   }
 
   if (Array.isArray(settings.presets)) {
-    const normalizedPresets = settings.presets.map((preset) => {
+    const normalizedPresets = settings.presets.flatMap((preset) => {
       const normalizedPreset = { ...preset };
       let presetChanged = false;
 
       for (const key of PRESET_MODEL_KEYS) {
         const value = normalizedPreset[key];
-        const canonical = stripCodexEffortSuffix(value);
+        if (typeof value !== 'string') continue;
+        const deniedReason = getDeniedModelIdReasonForProvider(value, provider);
+        if (deniedReason) {
+          changed = true;
+          return [];
+        }
+        const canonical = canonicalizeModelIdForProvider(value, provider);
         if (canonical !== value) {
           normalizedPreset[key] = canonical;
           presetChanged = true;
@@ -173,6 +257,35 @@ function canonicalizeCodexSettings(profileOrVariant: string, settings: Settings)
   }
 
   return changed ? next : settings;
+}
+
+function writeSettingsAtomically(settingsPath: string, settings: Settings): void {
+  const tempPath = settingsPath + '.tmp';
+  fs.writeFileSync(tempPath, JSON.stringify(settings, null, 2) + '\n');
+  fs.renameSync(tempPath, settingsPath);
+}
+
+function loadCanonicalProfileSettings(
+  profileOrVariant: string,
+  settingsPath: string,
+  persist = false,
+  strictPersist = false
+): Settings {
+  const loaded = loadSettings(settingsPath);
+  const canonicalized = canonicalizeProfileSettings(profileOrVariant, loaded);
+
+  if (persist && canonicalized !== loaded) {
+    try {
+      writeSettingsAtomically(settingsPath, canonicalized);
+    } catch (error) {
+      if (strictPersist) {
+        throw error;
+      }
+      logRouteError(`Failed to persist canonicalized settings for ${profileOrVariant}`, error);
+    }
+  }
+
+  return canonicalized;
 }
 
 /**
@@ -205,8 +318,8 @@ router.get('/:profile', (req: Request, res: Response): void => {
       return;
     }
 
+    const settings = loadCanonicalProfileSettings(profile, settingsPath, true);
     const stat = fs.statSync(settingsPath);
-    const settings = canonicalizeCodexSettings(profile, loadSettings(settingsPath));
     const masked = maskApiKeys(settings);
 
     res.json({
@@ -233,8 +346,8 @@ router.get('/:profile/raw', (req: Request, res: Response): void => {
       return;
     }
 
+    const settings = loadCanonicalProfileSettings(profile, settingsPath, true);
     const stat = fs.statSync(settingsPath);
-    const settings = canonicalizeCodexSettings(profile, loadSettings(settingsPath));
 
     res.json({
       profile,
@@ -270,7 +383,13 @@ router.put('/:profile', (req: Request, res: Response): void => {
       return;
     }
 
-    const normalizedSettings = canonicalizeCodexSettings(profile, settings as Settings);
+    const deniedModelReason = validateProfileSettingsModelDenylist(profile, settings as Settings);
+    if (deniedModelReason) {
+      res.status(400).json({ error: deniedModelReason });
+      return;
+    }
+
+    const normalizedSettings = canonicalizeProfileSettings(profile, settings as Settings);
 
     // Deduplicate CCS hooks to prevent accumulation (fixes #450)
     // This handles cases where duplicate hooks were added by previous versions
@@ -355,7 +474,7 @@ router.get('/:profile/presets', (req: Request, res: Response): void => {
       return;
     }
 
-    const settings = canonicalizeCodexSettings(profile, loadSettings(settingsPath));
+    const settings = loadCanonicalProfileSettings(profile, settingsPath, true);
     res.json({ presets: settings.presets || [] });
   } catch (error) {
     respondInternalError(res, error, 'Internal server error.');
@@ -383,7 +502,7 @@ router.post('/:profile/presets', (req: Request, res: Response): void => {
       fs.writeFileSync(settingsPath, JSON.stringify({ env: {}, presets: [] }, null, 2) + '\n');
     }
 
-    const settings = loadSettings(settingsPath);
+    const settings = loadCanonicalProfileSettings(profile, settingsPath, false);
     settings.presets = settings.presets || [];
 
     // Check for duplicate name
@@ -393,7 +512,20 @@ router.post('/:profile/presets', (req: Request, res: Response): void => {
     }
 
     const normalizePresetModel = (modelId: string): string =>
-      isCodexProfile(profile) ? stripCodexEffortSuffix(modelId) : modelId;
+      canonicalizeProfileModelId(profile, modelId, settings);
+
+    for (const modelId of [
+      defaultModel,
+      opus || defaultModel,
+      sonnet || defaultModel,
+      haiku || defaultModel,
+    ]) {
+      const deniedReason = findDeniedProfileModel(profile, modelId, settings);
+      if (deniedReason) {
+        res.status(400).json({ error: deniedReason });
+        return;
+      }
+    }
 
     const normalizedDefaultModel = normalizePresetModel(defaultModel);
     const normalizedOpusModel = normalizePresetModel(opus || defaultModel);
@@ -409,13 +541,12 @@ router.post('/:profile/presets', (req: Request, res: Response): void => {
     };
 
     settings.presets.push(preset);
+    const canonicalizedSettings = canonicalizeProfileSettings(profile, settings);
+    writeSettingsAtomically(settingsPath, canonicalizedSettings);
 
-    // Atomic write: temp file + rename
-    const tempPath = settingsPath + '.tmp';
-    fs.writeFileSync(tempPath, JSON.stringify(settings, null, 2) + '\n');
-    fs.renameSync(tempPath, settingsPath);
-
-    res.status(201).json({ preset });
+    const persistedPreset =
+      canonicalizedSettings.presets?.find((entry) => entry.name === name) || preset;
+    res.status(201).json({ preset: persistedPreset });
   } catch (error) {
     respondInternalError(res, error, 'Internal server error.');
   }
@@ -434,18 +565,15 @@ router.delete('/:profile/presets/:name', (req: Request, res: Response): void => 
       return;
     }
 
-    const settings = loadSettings(settingsPath);
+    const settings = loadCanonicalProfileSettings(profile, settingsPath, false);
     if (!settings.presets || !settings.presets.some((p) => p.name === name)) {
       res.status(404).json({ error: 'Preset not found' });
       return;
     }
 
     settings.presets = settings.presets.filter((p) => p.name !== name);
-
-    // Atomic write: temp file + rename
-    const tempPath = settingsPath + '.tmp';
-    fs.writeFileSync(tempPath, JSON.stringify(settings, null, 2) + '\n');
-    fs.renameSync(tempPath, settingsPath);
+    const canonicalizedSettings = canonicalizeProfileSettings(profile, settings);
+    writeSettingsAtomically(settingsPath, canonicalizedSettings);
 
     res.json({ success: true });
   } catch (error) {

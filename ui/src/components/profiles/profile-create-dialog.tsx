@@ -11,7 +11,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import {
   Select,
   SelectContent,
@@ -32,6 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCreateProfile } from '@/hooks/use-profiles';
 import { useOpenRouterCatalog } from '@/hooks/use-openrouter-models';
 import { Loader2, Plus, AlertTriangle, Info, Eye, EyeOff, Settings2, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
@@ -49,6 +49,7 @@ import {
 } from '@/lib/openrouter-utils';
 import type { CategorizedModel } from '@/lib/openrouter-types';
 import type { CliTarget } from '@/lib/api-client';
+import i18n from '@/lib/i18n';
 
 const schema = z.object({
   name: z
@@ -71,7 +72,7 @@ interface ProfileCreateDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (name: string) => void;
-  initialMode?: 'normal' | 'openrouter';
+  initialMode?: 'normal' | 'openrouter' | 'alibaba-coding-plan';
 }
 
 // Common URL mistakes to warn about
@@ -104,6 +105,7 @@ export function ProfileCreateDialog({
   onSuccess,
   initialMode = 'openrouter',
 }: ProfileCreateDialogProps) {
+  const { t } = useTranslation();
   const createMutation = useCreateProfile();
   const [activeTab, setActiveTab] = useState('basic');
   const [urlWarning, setUrlWarning] = useState<string | null>(null);
@@ -178,7 +180,8 @@ export function ProfileCreateDialog({
         setSelectedPreset(CUSTOM_PRESET_ID);
         applyPresetToForm(null);
       } else {
-        const defaultPreset = getPresetById(DEFAULT_PRESET_ID);
+        const presetId = initialMode === 'openrouter' ? DEFAULT_PRESET_ID : initialMode;
+        const defaultPreset = getPresetById(presetId);
         if (defaultPreset) {
           setSelectedPreset(defaultPreset.id);
           applyPresetToForm(defaultPreset);
@@ -242,7 +245,7 @@ export function ProfileCreateDialog({
   const onSubmit = async (data: FormData) => {
     // Validate API key - required unless preset has requiresApiKey: false
     if (currentPreset?.requiresApiKey !== false && !data.apiKey) {
-      toast.error('API key is required');
+      toast.error(i18n.t('commonToast.apiKeyRequired'));
       return;
     }
     // Use user-provided baseUrl (allows customization of preset URLs)
@@ -271,7 +274,7 @@ export function ProfileCreateDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+      <DialogContent className="sm:max-w-[700px] p-0 gap-0 overflow-hidden max-h-[90vh] !flex !flex-col">
         <DialogHeader className="p-6 pb-4 border-b">
           <DialogTitle className="flex items-center gap-2">
             <Plus className="w-5 h-5 text-primary" />
@@ -290,7 +293,9 @@ export function ProfileCreateDialog({
           <div className="px-6 py-3 border-b bg-muted/30 space-y-2">
             {/* Main Options: OpenRouter + Custom */}
             <div>
-              <Label className="text-xs text-muted-foreground mb-1.5 block">Provider</Label>
+              <Label className="text-xs text-muted-foreground mb-1.5 block">
+                {t('profileEditor.provider')}
+              </Label>
               <div className="flex gap-2">
                 {RECOMMENDED_PRESETS.map((preset) => (
                   <CompactPresetCard
@@ -312,7 +317,7 @@ export function ProfileCreateDialog({
                   )}
                 >
                   <Settings2 className="w-4 h-4" />
-                  <span>Custom</span>
+                  <span>{t('profileEditor.custom')}</span>
                 </button>
               </div>
             </div>
@@ -359,7 +364,7 @@ export function ProfileCreateDialog({
               </TabsList>
             </div>
 
-            <ScrollArea className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               <TabsContent value="basic" className="p-6 space-y-4 mt-0">
                 {/* Profile Name */}
                 <div className="space-y-1.5">
@@ -603,7 +608,7 @@ export function ProfileCreateDialog({
                   </div>
                 </div>
               </TabsContent>
-            </ScrollArea>
+            </div>
 
             <DialogFooter className="p-6 pt-4 border-t bg-muted/10">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

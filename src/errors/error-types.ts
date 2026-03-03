@@ -156,6 +156,20 @@ export class UserAbortError extends CCSError {
 }
 
 /**
+ * Input validation errors (model denylist, invalid format, length limits)
+ * Distinguishes user-input validation failures from system errors
+ */
+export class ValidationError extends CCSError {
+  constructor(
+    message: string,
+    public readonly field?: string
+  ) {
+    super(message, ExitCode.GENERAL_ERROR, false);
+    this.name = 'ValidationError';
+  }
+}
+
+/**
  * Type guard to check if an error is a CCSError
  */
 export function isCCSError(error: unknown): error is CCSError {

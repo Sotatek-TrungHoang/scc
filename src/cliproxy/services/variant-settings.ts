@@ -18,6 +18,7 @@ import { ensureProfileHooks } from '../../utils/websearch/profile-hook-injector'
 import { ensureProfileHooks as ensureImageAnalyzerHooks } from '../../utils/hooks/image-analyzer-profile-hook-injector';
 import { getEffectiveApiKey } from '../auth-token-manager';
 import { warn } from '../../utils/ui';
+import { normalizeModelIdForProvider } from '../model-id-normalizer';
 
 /** Environment settings structure */
 interface SettingsEnv {
@@ -41,8 +42,10 @@ function canonicalizeModelForProvider(
   provider: CLIProxyProfileName | undefined,
   model: string
 ): string {
-  if (provider !== 'codex') return model;
-  return model.replace(CODEX_EFFORT_SUFFIX_REGEX, '');
+  const withoutCodexSuffix =
+    provider === 'codex' ? model.replace(CODEX_EFFORT_SUFFIX_REGEX, '') : model;
+  if (!provider) return withoutCodexSuffix;
+  return normalizeModelIdForProvider(withoutCodexSuffix, provider);
 }
 
 /**

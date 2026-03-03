@@ -35,10 +35,13 @@ import { useSidebar } from '@/hooks/use-sidebar';
 import { useCliproxyUpdateCheck } from '@/hooks/use-cliproxy';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useTranslation } from 'react-i18next';
+import { cn } from '@/lib/utils';
 
 interface SidebarBadge {
-  text: string;
-  icon: string;
+  icon?: string;
+  icons?: string[];
+  text?: string;
 }
 
 interface SidebarChildItem {
@@ -62,66 +65,75 @@ interface SidebarGroupDef {
   items: SidebarItem[];
 }
 
-// Define navigation groups
-const navGroups: SidebarGroupDef[] = [
-  {
-    title: 'General',
-    items: [
-      { path: '/', icon: Home, label: 'Home' },
-      { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-    ],
-  },
-  {
-    title: 'Identity & Access',
-    items: [
-      {
-        path: '/providers',
-        icon: Key,
-        label: 'API Profiles',
-        badge: { text: 'OpenRouter', icon: '/icons/openrouter.svg' },
-      },
-      {
-        path: '/cliproxy',
-        icon: Zap,
-        label: 'CLIProxy Plus',
-        isCollapsible: true,
-        children: [
-          { path: '/cliproxy', label: 'Overview' },
-          { path: '/cliproxy/control-panel', icon: Gauge, label: 'Control Panel' },
-        ],
-      },
-      { path: '/copilot', icon: Github, label: 'GitHub Copilot' },
-      { path: '/cursor', iconSrc: '/assets/sidebar/cursor.svg', label: 'Cursor IDE' },
-      {
-        path: '/accounts',
-        icon: Users,
-        label: 'Accounts',
-        isCollapsible: true,
-        children: [
-          { path: '/accounts', label: 'All Accounts' },
-          { path: '/shared', icon: FolderOpen, label: 'Shared Data' },
-        ],
-      },
-    ],
-  },
-  {
-    title: 'Compatible CLIs',
-    items: [{ path: '/droid', icon: TerminalSquare, label: 'Factory Droid' }],
-  },
-  {
-    title: 'System',
-    items: [
-      { path: '/health', icon: Activity, label: 'Health' },
-      { path: '/settings', icon: Settings, label: 'Settings' },
-    ],
-  },
-];
+function buildNavGroups(t: (key: string) => string): SidebarGroupDef[] {
+  return [
+    {
+      title: t('nav.general'),
+      items: [
+        { path: '/', icon: Home, label: t('nav.home') },
+        { path: '/analytics', icon: BarChart3, label: t('nav.analytics') },
+      ],
+    },
+    {
+      title: t('nav.identityAccess'),
+      items: [
+        {
+          path: '/providers',
+          icon: Key,
+          label: t('nav.apiProfiles'),
+          badge: {
+            icons: [
+              '/icons/openrouter.svg',
+              '/assets/providers/alibabacloud-color.svg',
+              '/icons/ollama.svg',
+            ],
+          },
+        },
+        {
+          path: '/cliproxy',
+          icon: Zap,
+          label: t('nav.cliproxyPlus'),
+          isCollapsible: true,
+          children: [
+            { path: '/cliproxy', label: t('nav.cliproxyOverview') },
+            { path: '/cliproxy/control-panel', icon: Gauge, label: t('nav.controlPanel') },
+          ],
+        },
+        { path: '/copilot', icon: Github, label: t('nav.githubCopilot') },
+        { path: '/cursor', iconSrc: '/assets/sidebar/cursor.svg', label: t('nav.cursorIde') },
+        {
+          path: '/accounts',
+          icon: Users,
+          label: t('nav.accounts'),
+          isCollapsible: true,
+          children: [
+            { path: '/accounts', label: t('nav.allAccounts') },
+            { path: '/shared', icon: FolderOpen, label: t('nav.sharedData') },
+          ],
+        },
+      ],
+    },
+    {
+      title: t('nav.compatibleClis'),
+      items: [{ path: '/droid', icon: TerminalSquare, label: t('nav.factoryDroid') }],
+    },
+    {
+      title: t('nav.system'),
+      items: [
+        { path: '/health', icon: Activity, label: t('nav.health') },
+        { path: '/settings', icon: Settings, label: t('nav.settings') },
+      ],
+    },
+  ];
+}
 
 export function AppSidebar() {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useSidebar();
   const { data: updateCheck } = useCliproxyUpdateCheck();
+  const navGroups = buildNavGroups(t);
 
   // Dynamic label for CLIProxy based on backend
   const cliproxyLabel = updateCheck?.backendLabel ?? 'CLIProxy';
@@ -225,18 +237,42 @@ export function AppSidebar() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <span
-                                  className={`group-data-[collapsible=icon]:hidden ml-auto flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
+                                  className={cn(
+                                    'group-data-[collapsible=icon]:hidden ml-auto flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors',
                                     isRouteActive(item.path)
-                                      ? 'bg-sidebar-accent-foreground/20 text-sidebar-accent-foreground border border-sidebar-accent-foreground/30'
+                                      ? 'bg-white/92 border border-white/65 shadow-sm'
                                       : 'bg-accent/15 text-accent border border-accent/30 group-hover/menu-item:bg-sidebar-accent-foreground/20 group-hover/menu-item:text-sidebar-accent-foreground group-hover/menu-item:border-sidebar-accent-foreground/30'
-                                  }`}
+                                  )}
                                 >
-                                  <img src={item.badge.icon} alt="" className="w-3 h-3" />
-                                  <span className="hidden sm:inline">{item.badge.text}</span>
+                                  {(item.badge.icons && item.badge.icons.length > 0
+                                    ? item.badge.icons
+                                    : item.badge.icon
+                                      ? [item.badge.icon]
+                                      : []
+                                  ).map((iconPath) => (
+                                    <span
+                                      key={iconPath}
+                                      className={cn(
+                                        'inline-flex h-4 w-4 items-center justify-center rounded-[3px] border',
+                                        isRouteActive(item.path)
+                                          ? 'bg-white border-black/10'
+                                          : 'bg-background/80 border-border/40 group-hover/menu-item:bg-white/90'
+                                      )}
+                                    >
+                                      <img
+                                        src={iconPath}
+                                        alt=""
+                                        className="h-3 w-3 object-contain"
+                                      />
+                                    </span>
+                                  ))}
+                                  {item.badge.text && (
+                                    <span className="hidden sm:inline">{item.badge.text}</span>
+                                  )}
                                 </span>
                               </TooltipTrigger>
                               <TooltipContent side="right">
-                                <p>349+ models via OpenRouter</p>
+                                <p>{t('nav.openrouterTooltip')}</p>
                               </TooltipContent>
                             </Tooltip>
                           )}

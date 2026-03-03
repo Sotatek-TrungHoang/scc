@@ -6,7 +6,11 @@
  */
 
 import { CLIProxyProvider } from './types';
-import { normalizeModelIdForProvider } from './model-id-normalizer';
+import {
+  isAntigravityProvider,
+  migrateDeniedAntigravityModelAliases,
+  normalizeModelIdForProvider,
+} from './model-id-normalizer';
 
 /**
  * Thinking support configuration for a model.
@@ -92,52 +96,16 @@ export const MODEL_CATALOG: Partial<Record<CLIProxyProvider, ProviderCatalog>> =
         extendedContext: false,
       },
       {
-        id: 'claude-opus-4-5-thinking',
-        name: 'Claude Opus 4.5 Thinking',
-        description: 'Previous flagship, extended thinking',
+        id: 'claude-sonnet-4-6',
+        name: 'Claude Sonnet 4.6',
+        description: 'Latest Sonnet with thinking budget support',
         thinking: {
           type: 'budget',
           min: 1024,
-          max: 100000,
-          zeroAllowed: false,
-          dynamicAllowed: true,
-        },
-      },
-      {
-        id: 'claude-sonnet-4-6-thinking',
-        name: 'Claude Sonnet 4.6 Thinking',
-        description: 'Latest Sonnet with extended thinking',
-        thinking: {
-          type: 'budget',
-          min: 1024,
-          max: 128000,
+          max: 64000,
           zeroAllowed: true,
           dynamicAllowed: true,
         },
-      },
-      {
-        id: 'claude-sonnet-4-6',
-        name: 'Claude Sonnet 4.6',
-        description: 'Latest Sonnet baseline',
-        thinking: { type: 'none' },
-      },
-      {
-        id: 'claude-sonnet-4-5-thinking',
-        name: 'Claude Sonnet 4.5 Thinking',
-        description: 'Balanced with extended thinking',
-        thinking: {
-          type: 'budget',
-          min: 1024,
-          max: 100000,
-          zeroAllowed: false,
-          dynamicAllowed: true,
-        },
-      },
-      {
-        id: 'claude-sonnet-4-5',
-        name: 'Claude Sonnet 4.5',
-        description: 'Fast and capable',
-        thinking: { type: 'none' },
       },
       {
         id: 'gemini-3-pro-preview',
@@ -345,6 +313,14 @@ export function findModel(provider: CLIProxyProvider, modelId: string): ModelEnt
     .trim()
     .toLowerCase();
   const lookupCandidates = new Set([normalizedId, providerNormalizedId]);
+  if (isAntigravityProvider(provider)) {
+    const migratedRaw = migrateDeniedAntigravityModelAliases(normalizedId).trim().toLowerCase();
+    const migratedProvider = migrateDeniedAntigravityModelAliases(providerNormalizedId)
+      .trim()
+      .toLowerCase();
+    lookupCandidates.add(migratedRaw);
+    lookupCandidates.add(migratedProvider);
+  }
 
   return catalog.models.find((m) => lookupCandidates.has(m.id.toLowerCase()));
 }

@@ -10,6 +10,7 @@ import { expandPath } from '../../utils/helpers';
 import {
   loadOrCreateUnifiedConfig,
   saveUnifiedConfig,
+  mutateUnifiedConfig,
   getGlobalEnvConfig,
   getThinkingConfig,
   getConfigYamlPath,
@@ -218,28 +219,27 @@ router.get('/global-env', (_req: Request, res: Response): void => {
  * Updates the global_env section in config.yaml
  */
 router.put('/global-env', (req: Request, res: Response): void => {
-  try {
-    const { enabled, env } = req.body;
-    const config = loadOrCreateUnifiedConfig();
+  const { enabled, env } = req.body;
 
-    // Validate env is an object with string values
-    if (env !== undefined && typeof env === 'object' && env !== null) {
-      for (const [key, value] of Object.entries(env)) {
-        if (typeof value !== 'string') {
-          res.status(400).json({ error: `Invalid value for ${key}: must be a string` });
-          return;
-        }
+  // Validate env values before acquiring write lock
+  if (env !== undefined && typeof env === 'object' && env !== null) {
+    for (const [key, value] of Object.entries(env)) {
+      if (typeof value !== 'string') {
+        res.status(400).json({ error: `Invalid value for ${key}: must be a string` });
+        return;
       }
     }
+  }
 
-    // Update global_env section
-    config.global_env = {
-      enabled: enabled ?? config.global_env?.enabled ?? true,
-      env: env ?? config.global_env?.env ?? {},
-    };
-
-    saveUnifiedConfig(config);
-    res.json({ success: true, config: config.global_env });
+  try {
+    // Atomic read-modify-write — avoids race between load and save
+    const updated = mutateUnifiedConfig((config) => {
+      config.global_env = {
+        enabled: enabled ?? config.global_env?.enabled ?? true,
+        env: env ?? config.global_env?.env ?? {},
+      };
+    });
+    res.json({ success: true, config: updated.global_env });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

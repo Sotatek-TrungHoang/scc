@@ -21,8 +21,11 @@ import {
 } from './port-manager';
 import { getProviderSettingsPath } from './path-resolver';
 import {
+  canonicalizeModelIdForProvider,
   MODEL_ENV_VAR_KEYS,
+  migrateDeniedAntigravityModelAliases,
   normalizeModelEnvVarsForProvider,
+  normalizeIFlowLegacyModelAliases,
   normalizeModelIdForProvider,
 } from '../model-id-normalizer';
 
@@ -37,8 +40,6 @@ const DEPRECATED_MODEL_PREFIX = 'gemini-claude-';
 /** Replacement prefix matching actual upstream model names */
 const UPSTREAM_MODEL_PREFIX = 'claude-';
 const CODEX_EFFORT_SUFFIX_REGEX = /-(xhigh|high|medium)$/i;
-const IFLOW_PLACEHOLDER_MODEL = 'iflow-default';
-const IFLOW_DEFAULT_MODEL = 'qwen3-coder-plus';
 const PRESET_MODEL_KEYS = ['default', 'opus', 'sonnet', 'haiku'] as const;
 const REQUIRED_PROVIDER_ENV_KEYS = [
   'ANTHROPIC_BASE_URL',
@@ -60,7 +61,11 @@ function stripCodexEffortSuffix(modelId: string): string {
  *
  * Returns true if migration was performed and file was updated.
  */
-function migrateDeprecatedModelNames(settingsPath: string, settings: ProviderSettings): boolean {
+function migrateDeprecatedModelNames(
+  settingsPath: string,
+  provider: CLIProxyProvider,
+  settings: ProviderSettings
+): boolean {
   if (!settings.env || typeof settings.env !== 'object') return false;
 
   let migrated = false;
@@ -68,10 +73,37 @@ function migrateDeprecatedModelNames(settingsPath: string, settings: ProviderSet
     const value = settings.env[key];
     if (typeof value !== 'string') continue;
 
-    // Check if the base model name (before any suffixes) uses the deprecated prefix
-    if (value.toLowerCase().startsWith(DEPRECATED_MODEL_PREFIX)) {
-      settings.env[key] = UPSTREAM_MODEL_PREFIX + value.slice(DEPRECATED_MODEL_PREFIX.length);
+    let canonical = value;
+    // Check if the base model name (before any suffixes) uses the deprecated prefix.
+    if (canonical.toLowerCase().startsWith(DEPRECATED_MODEL_PREFIX)) {
+      canonical = UPSTREAM_MODEL_PREFIX + canonical.slice(DEPRECATED_MODEL_PREFIX.length);
+    }
+    canonical = normalizeModelIdForProvider(canonical, provider);
+    if (provider === 'agy') {
+      canonical = migrateDeniedAntigravityModelAliases(canonical);
+    }
+
+    if (canonical !== value) {
+      settings.env[key] = canonical;
       migrated = true;
+    }
+  }
+
+  if (provider === 'agy' && Array.isArray(settings.presets)) {
+    for (const preset of settings.presets) {
+      if (!preset || typeof preset !== 'object') continue;
+      const presetRecord = preset as Record<string, unknown>;
+
+      for (const key of PRESET_MODEL_KEYS) {
+        const value = presetRecord[key];
+        if (typeof value !== 'string') continue;
+        let canonical = normalizeModelIdForProvider(value, provider);
+        canonical = migrateDeniedAntigravityModelAliases(canonical);
+        if (canonical !== value) {
+          presetRecord[key] = canonical;
+          migrated = true;
+        }
+      }
     }
   }
 
@@ -139,8 +171,8 @@ function migrateCodexEffortSuffixes(
 }
 
 /**
- * Migrate legacy iFlow placeholder model IDs to a real default model.
- * Example: iflow-default -> qwen3-coder-plus
+ * Migrate legacy iFlow model IDs to current upstream model IDs.
+ * Example: iflow-default -> qwen3-coder-plus, kimi-k2.5 -> kimi-k2
  */
 function migrateIFlowPlaceholderModel(
   settingsPath: string,
@@ -151,14 +183,13 @@ function migrateIFlowPlaceholderModel(
   if (!settings.env || typeof settings.env !== 'object') return false;
 
   let migrated = false;
-  const normalize = (value: string): string => value.trim().toLowerCase();
-  const replaceIfPlaceholder = (value: string): string =>
-    normalize(value) === IFLOW_PLACEHOLDER_MODEL ? IFLOW_DEFAULT_MODEL : value;
+  const replaceLegacyIFlowModel = (value: string): string =>
+    normalizeIFlowLegacyModelAliases(value);
 
   for (const key of MODEL_ENV_VAR_KEYS) {
     const value = settings.env[key];
     if (typeof value !== 'string') continue;
-    const replaced = replaceIfPlaceholder(value);
+    const replaced = replaceLegacyIFlowModel(value);
     if (replaced !== value) {
       settings.env[key] = replaced;
       migrated = true;
@@ -173,7 +204,7 @@ function migrateIFlowPlaceholderModel(
       for (const key of PRESET_MODEL_KEYS) {
         const value = presetRecord[key];
         if (typeof value !== 'string') continue;
-        const replaced = replaceIfPlaceholder(value);
+        const replaced = replaceLegacyIFlowModel(value);
         if (replaced !== value) {
           presetRecord[key] = replaced;
           migrated = true;
@@ -409,7 +440,7 @@ export function getEffectiveEnvVars(
 
         if (settings.env && typeof settings.env === 'object') {
           // Migrate deprecated gemini-claude-* model names if present
-          migrateDeprecatedModelNames(expandedPath, settings);
+          migrateDeprecatedModelNames(expandedPath, provider, settings);
           // Migrate codex effort suffixes to canonical IDs if present
           migrateCodexEffortSuffixes(expandedPath, provider, settings);
           // Migrate legacy iFlow placeholders to supported model IDs
@@ -444,7 +475,7 @@ export function getEffectiveEnvVars(
 
       if (settings.env && typeof settings.env === 'object') {
         // Migrate deprecated gemini-claude-* model names if present
-        migrateDeprecatedModelNames(settingsPath, settings);
+        migrateDeprecatedModelNames(settingsPath, provider, settings);
         // Migrate codex effort suffixes to canonical IDs if present
         migrateCodexEffortSuffixes(settingsPath, provider, settings);
         // Migrate legacy iFlow placeholders to supported model IDs
@@ -532,6 +563,40 @@ export function ensureProviderSettings(provider: CLIProxyProvider): void {
     }
   }
 
+  // Canonicalize provider-specific model aliases (e.g., AGY Sonnet 4.6 thinking legacy IDs).
+  for (const key of MODEL_ENV_VAR_KEYS) {
+    const current = mergedEnv[key];
+    if (typeof current !== 'string' || current.trim().length === 0) continue;
+    let canonical = canonicalizeModelIdForProvider(current, provider);
+    if (provider === 'agy') {
+      canonical = migrateDeniedAntigravityModelAliases(canonical);
+    }
+    if (canonical !== current) {
+      mergedEnv[key] = canonical;
+      mutated = true;
+    }
+  }
+
+  const presetsCandidate = parsed.presets;
+  if (Array.isArray(presetsCandidate)) {
+    for (const preset of presetsCandidate) {
+      if (!preset || typeof preset !== 'object') continue;
+      const presetRecord = preset as Record<string, unknown>;
+      for (const key of PRESET_MODEL_KEYS) {
+        const value = presetRecord[key];
+        if (typeof value !== 'string') continue;
+        let canonical = canonicalizeModelIdForProvider(value, provider);
+        if (provider === 'agy') {
+          canonical = migrateDeniedAntigravityModelAliases(canonical);
+        }
+        if (canonical !== value) {
+          presetRecord[key] = canonical;
+          mutated = true;
+        }
+      }
+    }
+  }
+
   if (!mutated) {
     return;
   }
@@ -584,7 +649,7 @@ export function getRemoteEnvVars(
         const content = fs.readFileSync(expandedPath, 'utf-8');
         const settings: ProviderSettings = JSON.parse(content);
         if (settings.env && typeof settings.env === 'object') {
-          migrateDeprecatedModelNames(expandedPath, settings);
+          migrateDeprecatedModelNames(expandedPath, provider, settings);
           migrateCodexEffortSuffixes(expandedPath, provider, settings);
           migrateIFlowPlaceholderModel(expandedPath, provider, settings);
           userEnvVars = settings.env as Record<string, string>;
@@ -604,7 +669,7 @@ export function getRemoteEnvVars(
         const content = fs.readFileSync(settingsPath, 'utf-8');
         const settings: ProviderSettings = JSON.parse(content);
         if (settings.env && typeof settings.env === 'object') {
-          migrateDeprecatedModelNames(settingsPath, settings);
+          migrateDeprecatedModelNames(settingsPath, provider, settings);
           migrateCodexEffortSuffixes(settingsPath, provider, settings);
           migrateIFlowPlaceholderModel(settingsPath, provider, settings);
           userEnvVars = settings.env as Record<string, string>;

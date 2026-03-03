@@ -35,8 +35,11 @@ export interface UsageDiskCache {
 }
 
 // Current cache version - increment to invalidate old caches
+// v1: Initial cache format (daily, monthly, session)
+// v2: Added multi-instance aggregation
 // v3: Added hourly data to cache
-const CACHE_VERSION = 3;
+// v4: Pricing fix for Claude 4.6 models (invalidate stale costs)
+const CACHE_VERSION = 4;
 
 /**
  * Ensure ~/.ccs/cache directory exists

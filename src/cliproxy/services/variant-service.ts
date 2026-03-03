@@ -21,6 +21,10 @@ import { warn } from '../../utils/ui';
 import { getCcsDir } from '../../utils/config-manager';
 import { validateCompositeTiers } from '../composite-validator';
 import {
+  canonicalizeModelIdForProvider,
+  getDeniedModelIdReasonForProvider,
+} from '../model-id-normalizer';
+import {
   createSettingsFile,
   createSettingsFileUnified,
   createCompositeSettingsFile,
@@ -115,6 +119,12 @@ export function createVariant(
   target: TargetType = 'claude'
 ): VariantOperationResult {
   try {
+    const canonicalModel = canonicalizeModelIdForProvider(model, provider);
+    const deniedModelReason = getDeniedModelIdReasonForProvider(canonicalModel, provider);
+    if (deniedModelReason) {
+      return { success: false, error: deniedModelReason };
+    }
+
     // Validate provider/backend compatibility (block kiro/ghcp on original backend)
     const backendError = validateProviderBackend(provider);
     if (backendError) {
@@ -127,7 +137,7 @@ export function createVariant(
     let settingsPath: string;
 
     if (isUnifiedMode()) {
-      settingsPath = createSettingsFileUnified(name, provider, model, port);
+      settingsPath = createSettingsFileUnified(name, provider, canonicalModel, port);
       saveVariantUnified(
         name,
         provider as CLIProxyProvider,
@@ -137,7 +147,7 @@ export function createVariant(
         target
       );
     } else {
-      settingsPath = createSettingsFile(name, provider, model, port);
+      settingsPath = createSettingsFile(name, provider, canonicalModel, port);
       saveVariantLegacy(
         name,
         provider,
@@ -151,7 +161,7 @@ export function createVariant(
     return {
       success: true,
       settingsPath,
-      variant: { provider, model, account, port, target },
+      variant: { provider, model: canonicalModel, account, port, target },
     };
   } catch (error) {
     return {
@@ -247,12 +257,27 @@ export function updateVariant(name: string, updates: UpdateVariantOptions): Vari
     const existingTarget = existing.target || 'claude';
     const targetChanged = updates.target !== undefined && updates.target !== existingTarget;
     const hasModelUpdate = updates.model !== undefined && updates.model.trim().length > 0;
+    const providerForModelUpdate = (updates.provider ?? existing.provider) as CLIProxyProfileName;
+    const canonicalModelUpdate =
+      updates.model !== undefined
+        ? canonicalizeModelIdForProvider(updates.model.trim(), providerForModelUpdate)
+        : undefined;
 
     if (providerChanged && !hasModelUpdate) {
       return {
         success: false,
         error: 'Changing provider requires model update in the same request',
       };
+    }
+
+    if (hasModelUpdate) {
+      const deniedModelReason = getDeniedModelIdReasonForProvider(
+        canonicalModelUpdate || '',
+        providerForModelUpdate
+      );
+      if (deniedModelReason) {
+        return { success: false, error: deniedModelReason };
+      }
     }
 
     // Update settings file
@@ -262,11 +287,15 @@ export function updateVariant(name: string, updates: UpdateVariantOptions): Vari
         updateSettingsProviderAndModel(
           settingsPath,
           updates.provider as CLIProxyProfileName,
-          updates.model?.trim() || '',
+          canonicalModelUpdate || '',
           existing.port
         );
       } else if (updates.model !== undefined) {
-        updateSettingsModel(settingsPath, updates.model, existing.provider as CLIProxyProfileName);
+        updateSettingsModel(
+          settingsPath,
+          canonicalModelUpdate || '',
+          existing.provider as CLIProxyProfileName
+        );
       }
     }
 
@@ -309,7 +338,7 @@ export function updateVariant(name: string, updates: UpdateVariantOptions): Vari
       success: true,
       variant: {
         provider: updates.provider ?? existing.provider,
-        model: updates.model?.trim() || existing.model,
+        model: canonicalModelUpdate || existing.model,
         account: updates.account !== undefined ? updates.account : existing.account,
         port: existing.port,
         settings: existing.settings,

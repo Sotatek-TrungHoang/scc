@@ -7,7 +7,7 @@
 import { Router, Request, Response } from 'express';
 import { isReservedName, RESERVED_PROFILE_NAMES } from '../../config/reserved-names';
 import type { CLIProxyProvider } from '../../cliproxy/types';
-import type { TargetType } from '../../targets/target-adapter';
+import { parseTarget } from './route-helpers';
 import {
   createVariant,
   removeVariant,
@@ -23,23 +23,6 @@ import {
 } from '../../cliproxy/composite-validator';
 
 const router = Router();
-
-export function parseTarget(rawTarget: unknown): TargetType | null {
-  if (rawTarget === undefined || rawTarget === null || rawTarget === '') {
-    return null;
-  }
-
-  if (typeof rawTarget !== 'string') {
-    return null;
-  }
-
-  const normalized = rawTarget.trim().toLowerCase();
-  if (normalized === 'claude' || normalized === 'droid') {
-    return normalized;
-  }
-
-  return null;
-}
 
 /**
  * GET /api/cliproxy - List cliproxy variants
