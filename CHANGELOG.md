@@ -1,3 +1,68 @@
+## [7.52.1](https://github.com/kaitranntt/ccs/compare/v7.52.0...v7.52.1) (2026-03-03)
+
+### Bug Fixes
+
+* **ci:** strip ANSI codes before detecting published release ([6e16f1c](https://github.com/kaitranntt/ccs/commit/6e16f1cf3e2a3d43fa600a6fbadd35a513bf5db7))
+
+## [7.52.0](https://github.com/kaitranntt/ccs/compare/v7.51.0...v7.52.0) (2026-03-03)
+
+### Features
+
+* **analytics:** integrate CLIProxy multi-provider usage into dashboard ([c5124a9](https://github.com/kaitranntt/ccs/commit/c5124a9cee7e37caaef811051852946467ee97e1))
+* **api:** add Alibaba Coding Plan preset and providers promotion ([8811e53](https://github.com/kaitranntt/ccs/commit/8811e5320fe6d5340ad2bcdca24fd98599ceb716))
+* **continuity:** support cross-profile continuity inheritance from account profiles ([0b9f982](https://github.com/kaitranntt/ccs/commit/0b9f9826e2c838e19c4bf9bc406ab14a5456fbcc))
+* **i18n:** add comprehensive Vietnamese dashboard locale ([7893436](https://github.com/kaitranntt/ccs/commit/789343603803cd6fc90b5e162df969b25ad858da))
+* **i18n:** Added support for Chinese language pack ([7ffb8a4](https://github.com/kaitranntt/ccs/commit/7ffb8a42340abc7e36282b2d67665c226203c5af))
+* **pricing:** fix claude sonnet 4.6 and claude opus 4.6 pricing ([9a7ca3f](https://github.com/kaitranntt/ccs/commit/9a7ca3f1c0f6e5518d8f130d9d061599d3c27ad0))
+
+### Bug Fixes
+
+* **agy:** harden preset canonicalization and migration coverage ([747c706](https://github.com/kaitranntt/ccs/commit/747c70636950e72fcbdf0bf92fe54f7800fa0a8a))
+* **agy:** harden self-migration across settings load/update paths ([3a26aba](https://github.com/kaitranntt/ccs/commit/3a26abac71e36d6f1d95333a47feb3c3cd08cce5))
+* **agy:** normalize sonnet 4.6 model ids and migrate legacy thinking alias ([8a2b554](https://github.com/kaitranntt/ccs/commit/8a2b55449bd12df5183587fd801aa87581800b0a))
+* **agy:** remove deprecated 4.5 selector options ([5913f73](https://github.com/kaitranntt/ccs/commit/5913f730ac370720febd31ad874bcbfa040a2671))
+* **api-profiles:** keep AGY denylist when droid provider is set ([2710139](https://github.com/kaitranntt/ccs/commit/27101390fe3e6c2020088e83e004f4b5037b59c5))
+* **auth:** harden continuity inheritance resolution ([8a45727](https://github.com/kaitranntt/ccs/commit/8a45727b314194af42533ec0cad95a3314ada162))
+* **auth:** scope km alias mapping to settings profiles ([d827c3a](https://github.com/kaitranntt/ccs/commit/d827c3ab0baaacaf116e81c7aabf7f426f5201da))
+* **ci:** harden release workflows against PAT checkout failures ([b35c85d](https://github.com/kaitranntt/ccs/commit/b35c85d308ef2ddff8f04e46bd005eae5983bc91))
+* **ci:** remove PAT dependency from release workflow checkouts ([a259d95](https://github.com/kaitranntt/ccs/commit/a259d957b15c97381c86570080a4b173d657aefa))
+* **cliproxy:** denylist deprecated agy 4.5 models ([f63e2cd](https://github.com/kaitranntt/ccs/commit/f63e2cd5a31a73c980d199b65eb3a320094c46ae))
+* **cliproxy:** harden agy model canonicalization and migration paths ([0b57e41](https://github.com/kaitranntt/ccs/commit/0b57e41b3a0c1d277d202dc84f6c9c13be76e222))
+* **cliproxy:** normalize iflow aliases for explicit routing ([7e471e6](https://github.com/kaitranntt/ccs/commit/7e471e663c8b0a8f7cdee10a9146e5a9b6035411))
+* **cliproxy:** normalize stale iflow model aliases ([546c4ee](https://github.com/kaitranntt/ccs/commit/546c4ee4ee006589f179b544c6b73e362b7ebbe6))
+* **cliproxy:** restore agy legacy 4.5 lookup compatibility ([ed05cfc](https://github.com/kaitranntt/ccs/commit/ed05cfc5a7bc6e7335d360acca88b86d521826c8))
+* **config:** merge legacy and unified continuity maps ([1eb41cc](https://github.com/kaitranntt/ccs/commit/1eb41cc4e217554021be4d0c20d8ff2f13ebedcd))
+* **ghcp:** improve oauth failure diagnostics in device flow ([c2f564a](https://github.com/kaitranntt/ccs/commit/c2f564ac662534e7abb6d090e75820581cf46012))
+* **i18n:** complete Vietnamese dashboard copy QA polish ([b07c62c](https://github.com/kaitranntt/ccs/commit/b07c62cc219d02005ca2e308fbe6c30308ca7a59))
+* **i18n:** harden unstable dialog and complete cursor locale key ([552eee3](https://github.com/kaitranntt/ccs/commit/552eee31692d9150e429abbc2ec2dff076ed740a))
+* **i18n:** polish remaining Vietnamese copy for dashboard context ([f3f315e](https://github.com/kaitranntt/ccs/commit/f3f315e86aad3f65075b503026657f30718e0e06))
+* **i18n:** refine Vietnamese dashboard translation quality ([758fcc7](https://github.com/kaitranntt/ccs/commit/758fcc7754b20faf1bf48ca564eb86283c231ac9))
+* **pricing:** handle date-stamped 4.6 thinking model IDs ([d31f85b](https://github.com/kaitranntt/ccs/commit/d31f85b0d4ccbf0edddcd2f58a49c1f9777cc6e1))
+* respect auto_update preference by disabling Claude auto-updater ([4cdb659](https://github.com/kaitranntt/ccs/commit/4cdb6594f80df8f40118202ae285d3f03adfadab))
+* **security:** harden API endpoints and resolve PR [#674](https://github.com/kaitranntt/ccs/issues/674) review findings ([a4c5bb7](https://github.com/kaitranntt/ccs/commit/a4c5bb7421748e744c07eb7ab5c7cfb3a55b8081))
+* **ui:** improve providers badge readability and albb preset ([3b38f1a](https://github.com/kaitranntt/ccs/commit/3b38f1ac90ac027011711d00fe7d545be717ddc4))
+* **ui:** restore scrolling in API profile create dialog ([6f8514b](https://github.com/kaitranntt/ccs/commit/6f8514b74b4383e94788224e25e78b9ede7c56d0))
+* **usage:** coalesce refresh and force live sync on refresh ([09ce1a9](https://github.com/kaitranntt/ccs/commit/09ce1a93797da942629f504821a3303afd5e2e4f))
+* **web-server:** run usage cleanup during dashboard shutdown ([e8519b6](https://github.com/kaitranntt/ccs/commit/e8519b6ac3465738cb7a09059d095fbdab94d36c))
+
+### Documentation
+
+* **i18n:** add dashboard localization guide and links ([2dddf02](https://github.com/kaitranntt/ccs/commit/2dddf02a216d14c53af6d5bcb585aa2ce346f36f))
+
+### Code Refactoring
+
+* **routes:** resolve DRY violations, config race, and error leaks ([e255855](https://github.com/kaitranntt/ccs/commit/e255855775c59dab3ad5b39a97d8176c77e0e889))
+
+### Tests
+
+* **auth:** cover legacy alias isolation for continuity ([26f4fb3](https://github.com/kaitranntt/ccs/commit/26f4fb3a99035dff9ef5e012b2e169bee9a9587b))
+* **pricing:** cover Claude 4.6 cache token cost rates ([91050bf](https://github.com/kaitranntt/ccs/commit/91050bfebf15fa39eefdc819af3cd0450c79889e))
+* **usage:** add cliproxy sync and integration coverage ([383ac94](https://github.com/kaitranntt/ccs/commit/383ac94623f69fc024e12008c6d40f059ae12491))
+
+### CI
+
+* **release:** use PAT_TOKEN for semantic-release branch protection bypass ([343c36f](https://github.com/kaitranntt/ccs/commit/343c36f97d949dfb85ee92a7161c60197413cf11))
+
 ## [7.51.0](https://github.com/kaitranntt/ccs/compare/v7.50.0...v7.51.0) (2026-02-26)
 
 ### Features
