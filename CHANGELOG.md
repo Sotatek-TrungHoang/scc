@@ -1,3 +1,27 @@
+## [7.52.2](https://github.com/kaitranntt/ccs/compare/v7.52.1...v7.52.2) (2026-03-04)
+
+### Bug Fixes
+
+* **ci:** remove LOC count from maintainability gate ([619c47d](https://github.com/kaitranntt/ccs/commit/619c47d89ae405690cddc849dcf15e8cc3240ab5))
+* **ci:** strip ANSI codes before detecting published release ([a8d7f7c](https://github.com/kaitranntt/ccs/commit/a8d7f7caafb361e961aa2f17e0084d551b4674f7))
+* **cliproxy:** reduce gemini alias model bloat ([276649f](https://github.com/kaitranntt/ccs/commit/276649f05d8da2948b10db5ab1d7a78c60e1e654))
+* **copilot:** harden daemon lifecycle and validate config updates ([1fd128e](https://github.com/kaitranntt/ccs/commit/1fd128e50feb3fe779ac30e8706c722024e77543))
+* **copilot:** improve daemon liveness and flag aliases ([4b1cda2](https://github.com/kaitranntt/ccs/commit/4b1cda25d945e6482be68804907177a8ad38489e))
+* **copilot:** refine ownership checks and command error handling ([930d66f](https://github.com/kaitranntt/ccs/commit/930d66fc0d31468ecc53fc50bd6db81aaed1fb7b))
+* **copilot:** sync alias UX and harden daemon stop safety ([f4678d6](https://github.com/kaitranntt/ccs/commit/f4678d639772699d9f3504dcd05bc9e311f67527))
+
+### Code Refactoring
+
+* **daemon:** share process ownership guard for safe shutdown ([5ad2416](https://github.com/kaitranntt/ccs/commit/5ad2416a863e8190351a1ee42e00646093e3e70f))
+
+### Tests
+
+* **cliproxy:** strengthen alias non-enrichment assertions ([e28d9c8](https://github.com/kaitranntt/ccs/commit/e28d9c8abcea772b8fff7e6587582aac692a2726))
+
+### CI
+
+* **release:** use PAT_TOKEN for semantic-release branch protection bypass ([91280e3](https://github.com/kaitranntt/ccs/commit/91280e3043bd981b86b187fbfbead5ca6f31139d))
+
 ## [7.52.1](https://github.com/kaitranntt/ccs/compare/v7.52.0...v7.52.1) (2026-03-03)
 
 ### Bug Fixes
