@@ -113,7 +113,6 @@ describe('Model Catalog', () => {
       assert.strictEqual(MODEL_CATALOG.claude.provider, 'claude');
       assert.strictEqual(MODEL_CATALOG.claude.displayName, 'Claude (Anthropic)');
     });
-
     it('has correct default model', () => {
       const { MODEL_CATALOG } = modelCatalog;
       assert.strictEqual(MODEL_CATALOG.claude.defaultModel, 'claude-sonnet-4-6');
@@ -124,6 +123,13 @@ describe('Model Catalog', () => {
       const sonnet = MODEL_CATALOG.claude.models.find((m) => m.id === 'claude-sonnet-4-6');
       assert(sonnet, 'Should include Claude Sonnet 4.6');
       assert.strictEqual(sonnet.name, 'Claude Sonnet 4.6');
+    });
+
+    it('retains previous 4.5 snapshot models for explicit selection', () => {
+      const { MODEL_CATALOG } = modelCatalog;
+      const ids = MODEL_CATALOG.claude.models.map((m) => m.id);
+      assert(ids.includes('claude-opus-4-5-20251101'));
+      assert(ids.includes('claude-sonnet-4-5-20250929'));
     });
   });
 

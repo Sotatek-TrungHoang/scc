@@ -18,7 +18,7 @@ import type { Profile } from '@/lib/api-client';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929';
+const DEFAULT_MODEL = 'claude-sonnet-4-6';
 
 const schema = z.object({
   name: z

@@ -350,7 +350,7 @@ async function handleCreate(args: string[]): Promise<void> {
   }
 
   // Step 4: Model configuration (use preset default if available)
-  const defaultModel = preset?.defaultModel || 'claude-sonnet-4-5-20250929';
+  const defaultModel = preset?.defaultModel || 'claude-sonnet-4-6';
   let model = parsedArgs.model || openRouterModel || preset?.defaultModel;
   if (!model && !parsedArgs.yes && !preset) {
     model = await InteractivePrompt.input('Default model (ANTHROPIC_MODEL)', {
