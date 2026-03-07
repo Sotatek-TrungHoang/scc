@@ -598,6 +598,10 @@ export interface CliproxyVersionsResponse {
   latest: string;
   currentVersion: string;
   maxStableVersion: string;
+  faultyRange?: {
+    min: string;
+    max: string;
+  };
   fromCache: boolean;
   checkedAt: number;
 }
@@ -606,7 +610,10 @@ export interface CliproxyVersionsResponse {
 export interface CliproxyInstallResult {
   success: boolean;
   version?: string;
-  isUnstable?: boolean;
+  restarted?: boolean;
+  port?: number;
+  isFaulty?: boolean;
+  isExperimental?: boolean;
   requiresConfirmation?: boolean;
   message?: string;
   error?: string;
