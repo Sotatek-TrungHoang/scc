@@ -12,6 +12,7 @@ import {
   stopDaemon,
   getAvailableModels,
   isCopilotApiInstalled,
+  normalizeCopilotConfig,
 } from '../copilot';
 import type { CopilotModel } from '../copilot';
 import { loadOrCreateUnifiedConfig, saveUnifiedConfig } from '../config/unified-config-loader';
@@ -125,7 +126,7 @@ async function handleAuth(): Promise<number> {
  */
 async function handleStatus(): Promise<number> {
   const config = loadOrCreateUnifiedConfig();
-  const copilotConfig = config.copilot ?? DEFAULT_COPILOT_CONFIG;
+  const copilotConfig = normalizeCopilotConfig(config.copilot ?? DEFAULT_COPILOT_CONFIG);
 
   const status = await getCopilotStatus(copilotConfig);
 
@@ -183,7 +184,7 @@ async function handleStatus(): Promise<number> {
  */
 async function handleModels(): Promise<number> {
   const config = loadOrCreateUnifiedConfig();
-  const copilotConfig = config.copilot ?? DEFAULT_COPILOT_CONFIG;
+  const copilotConfig = normalizeCopilotConfig(config.copilot ?? DEFAULT_COPILOT_CONFIG);
 
   console.log('Available Copilot Models');
   console.log('────────────────────────');
