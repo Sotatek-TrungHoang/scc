@@ -18,7 +18,13 @@ From project root:
 bun run dev
 ```
 
-This starts the CCS server and serves the dashboard at `http://localhost:3000`.
+This starts the CCS server, opens a local browser URL, and prints bind/network details for the dashboard.
+
+For LAN access during development, run:
+
+```bash
+bun run dev -- --host 0.0.0.0
+```
 
 From `ui/` only (frontend dev server):
 

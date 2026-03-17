@@ -17,6 +17,7 @@ import { shutdownUsageAggregator } from './usage/aggregator';
 
 export interface ServerOptions {
   port: number;
+  host?: string;
   staticDir?: string;
   dev?: boolean;
 }
@@ -113,7 +114,7 @@ export async function startServer(options: ServerOptions): Promise<ServerInstanc
 
   // Start listening
   return new Promise<ServerInstance>((resolve) => {
-    server.listen(options.port, () => {
+    server.listen(options.port, options.host, () => {
       // Usage cache loads on-demand when Analytics page is visited
       // This keeps server startup instant for users who don't need analytics
       resolve({ server, wss, cleanup });

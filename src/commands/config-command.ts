@@ -3,7 +3,7 @@
  *
  * Launches web-based configuration dashboard.
  * Ensures CLIProxy service is running for dashboard features.
- * Usage: ccs config [--port PORT] [--dev]
+ * Usage: ccs config [--port PORT] [--host HOST] [--dev]
  */
 
 import getPort from 'get-port';
@@ -12,97 +12,10 @@ import { startServer } from '../web-server';
 import { setupGracefulShutdown } from '../web-server/shutdown';
 import { ensureCliproxyService } from '../cliproxy/service-manager';
 import { CLIPROXY_DEFAULT_PORT } from '../cliproxy/config-generator';
+import { getDashboardAuthConfig } from '../config/unified-config-loader';
 import { initUI, header, ok, info, warn, fail } from '../utils/ui';
-import { extractOption, hasAnyFlag } from './arg-extractor';
-
-interface ConfigOptions {
-  port?: number;
-  dev?: boolean;
-}
-
-/**
- * Parse command line arguments
- */
-function parseArgs(args: string[]): ConfigOptions {
-  const result: ConfigOptions = {};
-
-  if (hasAnyFlag(args, ['--help', '-h'])) {
-    showHelp();
-    process.exit(0);
-  }
-
-  const portOption = extractOption(args, ['--port', '-p']);
-  if (portOption.found) {
-    if (portOption.missingValue || !portOption.value) {
-      console.error(fail('Invalid port number'));
-      process.exit(1);
-    }
-
-    const port = parseInt(portOption.value, 10);
-    if (!isNaN(port) && port > 0 && port < 65536) {
-      result.port = port;
-    } else {
-      console.error(fail('Invalid port number'));
-      process.exit(1);
-    }
-  }
-
-  result.dev = hasAnyFlag(args, ['--dev']);
-  return result;
-}
-
-/**
- * Show help message
- */
-function showHelp(): void {
-  console.log('');
-  console.log('Usage: ccs config [command] [options]');
-  console.log('');
-  console.log('Open web-based configuration dashboard');
-  console.log('Includes a dedicated Claude IDE Extension page for VS Code-compatible hosts.');
-  console.log('');
-  console.log('Commands:');
-  console.log('  auth               Manage dashboard authentication');
-  console.log('    auth setup       Configure username and password');
-  console.log('    auth show        Display current auth status');
-  console.log('    auth disable     Disable authentication');
-  console.log('');
-  console.log('  image-analysis     Manage image analysis settings');
-  console.log('    --enable         Enable image analysis via CLIProxy');
-  console.log('    --disable        Disable image analysis');
-  console.log('    --timeout <s>    Set analysis timeout (seconds)');
-  console.log('    --set-model <p> <m>  Set model for provider');
-  console.log('');
-  console.log('  Claude IDE Extension');
-  console.log('    Dashboard page   Generate copy-ready setup for VS Code, Cursor, Windsurf');
-  console.log('    Shared settings  Shows preferred ~/.claude/settings.json setup');
-  console.log('    IDE-local JSON   Shows extension-specific environmentVariables snippets');
-  console.log('');
-  console.log('  thinking           Manage thinking/reasoning settings');
-  console.log('    --mode <mode>    Set mode (auto, off, manual)');
-  console.log('    --override <l>   Set persistent override level');
-  console.log('    --clear-override Remove persistent override');
-  console.log('    --tier <t> <l>   Set tier default level');
-  console.log('    --provider-override <p> <t> <l> Set provider tier override');
-  console.log('    --clear-provider-override <p> [t] Remove provider override');
-  console.log('');
-  console.log('Options:');
-  console.log('  --port, -p PORT    Specify server port (default: auto-detect)');
-  console.log('  --dev              Development mode with Vite HMR');
-  console.log('  --help, -h         Show this help message');
-  console.log('');
-  console.log('Examples:');
-  console.log('  ccs config              Auto-detect available port');
-  console.log('  ccs config --port 3000  Use specific port');
-  console.log('  ccs config --dev        Development mode with hot reload');
-  console.log('  ccs config auth setup   Configure dashboard login');
-  console.log('  ccs config              Open dashboard, then choose Claude IDE Extension');
-  console.log('  ccs config image-analysis          Show image settings');
-  console.log('  ccs config image-analysis --enable Enable feature');
-  console.log('  ccs config thinking                Show thinking settings');
-  console.log('  ccs config thinking --mode auto    Set auto mode');
-  console.log('');
-}
+import { isLoopbackHost, resolveDashboardUrls } from './config-dashboard-host';
+import { parseConfigCommandArgs, showConfigCommandHelp } from './config-command-options';
 
 /**
  * Handle config command
@@ -131,8 +44,18 @@ export async function handleConfigCommand(args: string[]): Promise<void> {
 
   await initUI();
 
-  const options = parseArgs(args);
-  const verbose = options.dev || false;
+  const parsed = parseConfigCommandArgs(args);
+  if (parsed.help) {
+    showConfigCommandHelp();
+    process.exit(0);
+  }
+  if (parsed.error) {
+    console.error(fail(parsed.error));
+    process.exit(1);
+  }
+
+  const options = parsed.options;
+  const verbose = options.dev;
 
   console.log(header('CCS Config Dashboard'));
   console.log('');
@@ -167,28 +90,50 @@ export async function handleConfigCommand(args: string[]): Promise<void> {
 
   try {
     // Start server
-    const { server, wss, cleanup } = await startServer({ port, dev: options.dev });
+    const { server, wss, cleanup } = await startServer({
+      port,
+      host: options.host,
+      dev: options.dev,
+    });
 
     // Setup graceful shutdown
     setupGracefulShutdown(server, wss, cleanup);
 
-    const url = `http://localhost:${port}`;
+    const urls = resolveDashboardUrls(options.host, port);
 
     if (options.dev) {
-      console.log(ok(`Dev Server: ${url}`));
+      console.log(ok(`Dev Server: ${urls.browserUrl}`));
       console.log('');
       console.log(info('HMR enabled - UI changes will hot-reload'));
     } else {
-      console.log(ok(`Dashboard: ${url}`));
+      console.log(ok(`Dashboard: ${urls.browserUrl}`));
+    }
+
+    if (!isLoopbackHost(urls.bindHost)) {
+      console.log(info(`Bind host: ${urls.bindHost}`));
+      if (urls.networkUrl) {
+        console.log(info(`Network URL: ${urls.networkUrl}`));
+      }
+    }
+
+    if (options.hostProvided && !isLoopbackHost(urls.bindHost)) {
+      const authConfig = getDashboardAuthConfig();
+      console.log(warn('Dashboard may be reachable from other devices on your network.'));
+      if (!authConfig.enabled) {
+        console.log(info('Protect it before sharing: ccs config auth setup'));
+      }
+      if (!urls.networkUrl) {
+        console.log(info('Use your machine IP or hostname from the other device.'));
+      }
     }
     console.log('');
 
     // Open browser
     try {
-      await open(url, { wait: false });
+      await open(urls.browserUrl, { wait: false });
       console.log(info('Browser opened automatically'));
     } catch {
-      console.log(info(`Open manually: ${url}`));
+      console.log(info(`Open manually: ${urls.browserUrl}`));
     }
 
     console.log('');

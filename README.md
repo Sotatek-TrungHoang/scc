@@ -50,8 +50,17 @@ bun add -g @kaitranntt/ccs         # bun (30x faster)
 
 ```bash
 ccs config
-# Opens http://localhost:3000
+# Opens a local browser URL and prints bind/network details
 ```
+
+Expose the dashboard to another device on your network:
+
+```bash
+ccs config --host 0.0.0.0
+# Terminal prints the LAN URL to open from the other device
+```
+
+If you expose the dashboard beyond localhost, protect it first with `ccs config auth setup`.
 
 Dashboard updates hub: `http://localhost:3000/updates`
 
