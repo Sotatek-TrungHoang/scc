@@ -245,7 +245,7 @@ export function ProfileCreateDialog({
   };
 
   // Check for common URL mistakes - only for truly custom URLs
-  // Presets (OpenRouter, GLM, GLMT, Kimi) have vetted URLs that may require full paths
+  // Presets (OpenRouter, GLM, Kimi) have vetted URLs that may require full paths
   useEffect(() => {
     // Only warn for custom URLs, not preset-selected ones
     const isCustomUrl = selectedPreset === CUSTOM_PRESET_ID;

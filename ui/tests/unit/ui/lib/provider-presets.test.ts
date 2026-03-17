@@ -28,6 +28,10 @@ describe('resolvePresetApiKeyValue', () => {
 });
 
 describe('provider preset metadata', () => {
+  it('maps legacy glmt preset requests to glm', () => {
+    expect(getPresetById('glmt')?.id).toBe('glm');
+  });
+
   it('uses the llama.cpp provider logo asset for the local llama.cpp preset', () => {
     expect(getPresetById('llamacpp')?.icon).toBe('/assets/providers/llama-cpp.svg');
   });

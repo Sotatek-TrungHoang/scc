@@ -40,7 +40,7 @@ src/
 │   ├── cli.ts                # CLI types (ParsedArgs, ExitCode)
 │   ├── config.ts             # Config types (Settings, EnvVars)
 │   ├── delegation.ts         # Delegation types (sessions, events)
-│   ├── glmt.ts               # GLMT types (messages, transforms)
+│   ├── glmt.ts               # Legacy transformer types (messages, transforms)
 │   └── utils.ts              # Utility types (ErrorCode, LogLevel)
 │
 ├── commands/                 # CLI command handlers
@@ -115,11 +115,11 @@ src/
 │   ├── index.ts              # Barrel export
 │   └── copilot-package-manager.ts  # Package management (515 lines)
 │
-├── glmt/                     # GLM/GLMT integration
+├── glmt/                     # Legacy transformer internals kept for compatibility
 │   ├── index.ts              # Barrel export
 │   ├── pipeline/             # Processing pipeline
 │   │   └── index.ts
-│   ├── glmt-proxy.ts         # Main proxy (675 lines)
+│   ├── glmt-proxy.ts         # Legacy proxy runtime kept for internal compatibility
 │   └── delta-accumulator.ts  # Delta processing (484 lines)
 │
 ├── delegation/               # Task delegation & headless execution
@@ -201,7 +201,7 @@ src/
 | Targets | `targets/` | Multi-CLI adapter pattern (Claude Code, Factory Droid, extensible) |
 | Auth | `auth/`, `cliproxy/auth/` | Authentication across providers |
 | Config | `config/`, `types/` | Configuration & type definitions |
-| Providers | `cliproxy/`, `copilot/`, `glmt/` | Provider integrations (7 CLIProxy providers: gemini, codex, agy, qwen, iflow, kiro, ghcp) |
+| Providers | `cliproxy/`, `copilot/`, `glmt/` | Provider integrations plus retained legacy transformer internals |
 | Quota | `cliproxy/quota-*.ts`, `account-manager.ts` | Hybrid quota management (v7.14) |
 | Remote Proxy | `cliproxy/remote-*.ts`, `proxy-config-resolver.ts` | Remote CLIProxy support (v7.1) |
 | Image Analysis | `utils/image-analysis/`, `utils/hooks/` | Vision model proxying (v7.34) |
@@ -477,7 +477,7 @@ ui/src/
 | File | Lines | Status |
 |------|-------|--------|
 | model-pricing.ts | 676 | Data file - acceptable |
-| glmt-proxy.ts | 675 | Complex streaming - acceptable |
+| glmt-proxy.ts | 675 | Legacy internal compatibility path - acceptable for now |
 | cliproxy-executor.ts | 666 | Core logic - acceptable |
 | cliproxy-command.ts | 634 | Could split if needed |
 | usage/handlers.ts | 633 | Could split if needed |

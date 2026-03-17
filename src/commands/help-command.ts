@@ -131,7 +131,6 @@ Run ${color('ccs config', 'command')} for web dashboard`.trim();
     [
       ['ccs', 'Use default Claude account'],
       ['ccs glm', 'GLM 5 (API key required)'],
-      ['ccs glmt', 'GLM with thinking mode'],
       ['ccs km', 'Kimi for Coding (API key)'],
       [
         'ccs api create --preset alibaba-coding-plan',

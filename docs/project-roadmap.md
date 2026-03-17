@@ -41,6 +41,7 @@ All major modularization work is complete. The codebase evolved from monolithic 
 
 ### Recent Fixes
 
+- **2026-03-17**: Deprecated user-facing GLMT discovery across CLI help, completions, presets, and docs. Existing `glmt` profiles now run through a compatibility path that normalizes legacy proxy settings to the direct GLM endpoint.
 - **#748**: API profile creation now keeps provider selection compact by collapsing advanced presets behind an explicit toggle, shrinking chooser cards so the form fields stay visually primary, and giving `llama.cpp` a dedicated provider logo.
 - **#744**: API profile creation now keeps featured providers in a horizontal rail with scroll fallback, moves Anthropic Direct API to the end, reuses the shared Claude logo, and separates the custom-endpoint entry point from advanced template discovery.
 - **#724**: Codex startup is now free-plan safe. CCS defaults new Codex sessions to a cross-plan model and auto-repairs stale paid-only Codex defaults when the active account is on the free plan.
@@ -60,7 +61,7 @@ All major modularization work is complete. The codebase evolved from monolithic 
 
 **CLI** (complex core logic):
 - `model-pricing.ts` (676 lines) - Data file
-- `glmt-proxy.ts` (675 lines) - Streaming proxy
+- `glmt-proxy.ts` (675 lines) - Legacy internal compatibility proxy
 - `cliproxy-executor.ts` (666 lines) - Core execution
 - `ccs.ts` (596 lines) - Entry point
 

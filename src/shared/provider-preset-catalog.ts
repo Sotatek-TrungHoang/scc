@@ -14,7 +14,6 @@ export const PROVIDER_PRESET_IDS = [
   'llamacpp',
   'anthropic',
   'glm',
-  'glmt',
   'km',
   'foundry',
   'mm',
@@ -54,6 +53,7 @@ export const OPENROUTER_BASE_URL = 'https://openrouter.ai/api';
  * Keep this minimal and explicit to avoid hidden implicit behavior.
  */
 export const PROVIDER_PRESET_ALIASES: Readonly<Record<string, ProviderPresetId>> = Object.freeze({
+  glmt: 'glm',
   kimi: 'km',
   alibaba: 'alibaba-coding-plan',
   acp: 'alibaba-coding-plan',
@@ -138,7 +138,7 @@ const RAW_PROVIDER_PRESET_DEFINITIONS: readonly ProviderPresetDefinition[] = [
   {
     id: 'glm',
     name: 'GLM',
-    description: 'Claude via Z.AI',
+    description: 'Direct Z.AI Anthropic-compatible API profile',
     baseUrl: 'https://api.z.ai/api/anthropic',
     defaultProfileName: 'glm',
     defaultModel: 'glm-5',
@@ -147,29 +147,6 @@ const RAW_PROVIDER_PRESET_DEFINITIONS: readonly ProviderPresetDefinition[] = [
     category: 'alternative',
     requiresApiKey: true,
     badge: 'Z.AI',
-    icon: '/icons/zai.svg',
-  },
-  {
-    id: 'glmt',
-    name: 'GLMT',
-    description: 'GLM with Thinking mode support',
-    baseUrl: 'https://api.z.ai/api/coding/paas/v4/chat/completions',
-    defaultProfileName: 'glmt',
-    defaultModel: 'glm-5',
-    apiKeyPlaceholder: 'ghp_...',
-    apiKeyHint: 'Same API key as GLM',
-    category: 'alternative',
-    requiresApiKey: true,
-    extraEnv: {
-      ANTHROPIC_TEMPERATURE: '0.2',
-      ANTHROPIC_MAX_TOKENS: '65536',
-      MAX_THINKING_TOKENS: '32768',
-      ENABLE_STREAMING: 'true',
-      ANTHROPIC_SAFE_MODE: 'false',
-      API_TIMEOUT_MS: '3000000',
-    },
-    alwaysThinkingEnabled: true,
-    badge: 'Thinking',
     icon: '/icons/zai.svg',
   },
   {

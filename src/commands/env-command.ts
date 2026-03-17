@@ -209,6 +209,11 @@ export async function handleEnvCommand(args: string[]): Promise<void> {
   let envVars: Record<string, string>;
   try {
     const resolved = await resolveClaudeExtensionSetup(profile);
+    if (resolved.warnings.length > 0) {
+      for (const message of resolved.warnings) {
+        console.error(warn(message));
+      }
+    }
     envVars = resolved.extensionEnv;
     if (format === 'claude-extension') {
       console.log(renderClaudeExtensionSettingsJson(resolved, ide));

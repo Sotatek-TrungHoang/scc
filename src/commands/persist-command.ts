@@ -679,7 +679,7 @@ async function showHelp(): Promise<void> {
   );
   console.log('');
   console.log(subheader('Supported Profile Types'));
-  console.log(`  ${color('API profiles', 'command')}      glm, glmt, km, custom API profiles`);
+  console.log(`  ${color('API profiles', 'command')}      glm, km, custom API profiles`);
   console.log(`  ${color('CLIProxy', 'command')}          gemini, codex, agy, qwen, kiro, ghcp`);
   console.log(`  ${color('Copilot', 'command')}           copilot (requires copilot-api daemon)`);
   console.log(
