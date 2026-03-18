@@ -106,8 +106,8 @@ class ProfileContextSyncLock {
     return this.tryRemoveLockIfUnchanged(lockPath, snapshot.raw);
   }
 
-  async withLock<T>(profileName: string, callback: () => Promise<T>): Promise<T> {
-    const lockPath = this.getLockPath(profileName);
+  async withNamedLock<T>(lockName: string, callback: () => Promise<T>): Promise<T> {
+    const lockPath = this.getLockPath(lockName);
     const retryDelayMs = 50;
     const staleLockMs = 30000;
     const timeoutMs = staleLockMs + 5000;
@@ -159,7 +159,7 @@ class ProfileContextSyncLock {
         }
 
         if (Date.now() - start > timeoutMs) {
-          throw new Error(`Timed out waiting for profile context lock: ${profileName}`);
+          throw new Error(`Timed out waiting for profile context lock: ${lockName}`);
         }
 
         await new Promise((resolve) => setTimeout(resolve, retryDelayMs));
@@ -171,6 +171,10 @@ class ProfileContextSyncLock {
     } finally {
       this.tryRemoveLockIfUnchanged(lockPath, ownerPayloadRaw);
     }
+  }
+
+  async withLock<T>(profileName: string, callback: () => Promise<T>): Promise<T> {
+    return this.withNamedLock(profileName, callback);
   }
 }
 

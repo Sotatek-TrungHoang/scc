@@ -11,6 +11,12 @@ describe('InstanceManager MCP sync', () => {
   let originalCcsHome: string | undefined;
   let originalCcsDir: string | undefined;
 
+  const claudeDir = () => path.join(tempRoot, '.claude');
+  const marketplacePath = (configDir: string, name = 'claude-code-plugins') =>
+    path.join(configDir, 'plugins', 'marketplaces', name);
+  const readJson = (filePath: string) =>
+    JSON.parse(fs.readFileSync(filePath, 'utf8')) as Record<string, unknown>;
+
   function writeMarketplaceRegistry(registryPath: string, installLocation: string): void {
     fs.mkdirSync(path.dirname(registryPath), { recursive: true });
     fs.writeFileSync(
@@ -26,6 +32,11 @@ describe('InstanceManager MCP sync', () => {
       ),
       'utf8'
     );
+  }
+
+  function expectMarketplaceLocation(registryPath: string, expectedLocation: string): void {
+    const parsed = readJson(registryPath) as Record<string, { installLocation?: string }>;
+    expect(parsed['claude-code-plugins']?.installLocation).toBe(expectedLocation);
   }
 
   beforeEach(() => {
@@ -95,9 +106,10 @@ describe('InstanceManager MCP sync', () => {
     const synced = manager.syncMcpServers(instancePath);
     expect(synced).toBe(true);
 
-    const instanceContent = JSON.parse(
-      fs.readFileSync(path.join(instancePath, '.claude.json'), 'utf8')
-    );
+    const instanceContent = readJson(path.join(instancePath, '.claude.json')) as {
+      otherKey: string;
+      mcpServers: Record<string, { command: string }>;
+    };
     expect(instanceContent.otherKey).toBe('keep-me');
     expect(instanceContent.mcpServers).toEqual({
       globalOnly: { command: 'global-cmd' },
@@ -134,9 +146,9 @@ describe('InstanceManager MCP sync', () => {
 
     const manager = new InstanceManager();
     const instancePath = manager.getInstancePath('sandbox');
-    const sharedRegistryPath = path.join(tempRoot, '.claude', 'plugins', 'known_marketplaces.json');
+    const globalRegistryPath = path.join(claudeDir(), 'plugins', 'known_marketplaces.json');
     writeMarketplaceRegistry(
-      sharedRegistryPath,
+      globalRegistryPath,
       path.join(
         tempRoot,
         '.ccs',
@@ -150,20 +162,16 @@ describe('InstanceManager MCP sync', () => {
 
     await manager.ensureInstance('sandbox', { mode: 'isolated' }, { bare: true });
 
-    const normalized = JSON.parse(fs.readFileSync(sharedRegistryPath, 'utf8'));
-
     expect(linkSharedSpy).not.toHaveBeenCalled();
     expect(fs.existsSync(instancePath)).toBe(true);
-    expect(normalized['claude-code-plugins'].installLocation).toBe(
-      path.join(tempRoot, '.claude', 'plugins', 'marketplaces', 'claude-code-plugins')
-    );
+    expectMarketplaceLocation(globalRegistryPath, marketplacePath(claudeDir()));
     expect(fs.existsSync(path.join(instancePath, 'plugins', 'known_marketplaces.json'))).toBe(
       false
     );
     expect(syncMcpSpy).not.toHaveBeenCalled();
   });
 
-  it('normalizes shared plugin metadata for existing non-bare instances', async () => {
+  it('rewrites existing non-bare instance marketplace metadata to the instance-local plugin dir', async () => {
     spyOn(SharedManager.prototype, 'syncProjectContext').mockResolvedValue(undefined);
     spyOn(SharedManager.prototype, 'syncAdvancedContinuityArtifacts').mockResolvedValue(undefined);
     const syncMcpSpy = spyOn(InstanceManager.prototype, 'syncMcpServers').mockImplementation(
@@ -174,38 +182,28 @@ describe('InstanceManager MCP sync', () => {
     const instancePath = manager.getInstancePath('work');
     writeMarketplaceRegistry(
       path.join(instancePath, 'plugins', 'known_marketplaces.json'),
-      path.join(
-        tempRoot,
-        '.ccs',
-        'instances',
-        'work',
-        'plugins',
-        'marketplaces',
-        'claude-code-plugins'
-      )
+      path.join(tempRoot, '.claude', 'plugins', 'marketplaces', 'claude-code-plugins')
     );
 
     await manager.ensureInstance('work', { mode: 'isolated' });
 
-    const normalized = JSON.parse(
-      fs.readFileSync(path.join(instancePath, 'plugins', 'known_marketplaces.json'), 'utf8')
-    );
-    expect(normalized['claude-code-plugins'].installLocation).toBe(
-      path.join(tempRoot, '.claude', 'plugins', 'marketplaces', 'claude-code-plugins')
+    expectMarketplaceLocation(
+      path.join(instancePath, 'plugins', 'known_marketplaces.json'),
+      marketplacePath(instancePath)
     );
     expect(syncMcpSpy).toHaveBeenCalledWith(instancePath);
   });
 
-  it('normalizes shared plugin metadata during new non-bare instance creation', async () => {
+  it('writes new non-bare instance marketplace metadata without clobbering the global copy', async () => {
     spyOn(SharedManager.prototype, 'syncProjectContext').mockResolvedValue(undefined);
     spyOn(SharedManager.prototype, 'syncAdvancedContinuityArtifacts').mockResolvedValue(undefined);
     const syncMcpSpy = spyOn(InstanceManager.prototype, 'syncMcpServers').mockImplementation(
       () => false
     );
 
-    const registryPath = path.join(tempRoot, '.claude', 'plugins', 'known_marketplaces.json');
+    const globalRegistryPath = path.join(claudeDir(), 'plugins', 'known_marketplaces.json');
     writeMarketplaceRegistry(
-      registryPath,
+      globalRegistryPath,
       path.join(
         tempRoot,
         '.ccs',
@@ -220,20 +218,51 @@ describe('InstanceManager MCP sync', () => {
     const manager = new InstanceManager();
     const instancePath = await manager.ensureInstance('work', { mode: 'isolated' });
 
-    const expected = path.join(
-      tempRoot,
-      '.claude',
-      'plugins',
-      'marketplaces',
-      'claude-code-plugins'
+    expectMarketplaceLocation(globalRegistryPath, marketplacePath(claudeDir()));
+    expectMarketplaceLocation(
+      path.join(instancePath, 'plugins', 'known_marketplaces.json'),
+      marketplacePath(instancePath)
     );
-    const normalizedShared = JSON.parse(fs.readFileSync(registryPath, 'utf8'));
-    const normalizedInstance = JSON.parse(
-      fs.readFileSync(path.join(instancePath, 'plugins', 'known_marketplaces.json'), 'utf8')
+    expect(syncMcpSpy).toHaveBeenCalledWith(instancePath);
+  });
+
+  it('keeps alternating instances independently valid for Claude Code validation', async () => {
+    spyOn(SharedManager.prototype, 'syncProjectContext').mockResolvedValue(undefined);
+    spyOn(SharedManager.prototype, 'syncAdvancedContinuityArtifacts').mockResolvedValue(undefined);
+    spyOn(InstanceManager.prototype, 'syncMcpServers').mockImplementation(() => false);
+
+    const globalRegistryPath = path.join(claudeDir(), 'plugins', 'known_marketplaces.json');
+    writeMarketplaceRegistry(
+      globalRegistryPath,
+      path.join(tempRoot, '.claude', 'plugins', 'marketplaces', 'claude-code-plugins')
     );
 
-    expect(normalizedShared['claude-code-plugins'].installLocation).toBe(expected);
-    expect(normalizedInstance['claude-code-plugins'].installLocation).toBe(expected);
-    expect(syncMcpSpy).toHaveBeenCalledWith(instancePath);
+    const manager = new InstanceManager();
+    const workPath = await manager.ensureInstance('work', { mode: 'isolated' });
+    const personalPath = await manager.ensureInstance('personal', { mode: 'isolated' });
+    await manager.ensureInstance('work', { mode: 'isolated' });
+
+    const workInstallLocation = (
+      readJson(path.join(workPath, 'plugins', 'known_marketplaces.json')) as Record<
+        string,
+        { installLocation?: string }
+      >
+    )['claude-code-plugins']?.installLocation;
+    const personalInstallLocation = (
+      readJson(path.join(personalPath, 'plugins', 'known_marketplaces.json')) as Record<
+        string,
+        { installLocation?: string }
+      >
+    )['claude-code-plugins']?.installLocation;
+
+    expect(workInstallLocation).toBe(marketplacePath(workPath));
+    expect(personalInstallLocation).toBe(marketplacePath(personalPath));
+    expect(path.resolve(workInstallLocation ?? '')).toStartWith(
+      path.resolve(path.join(workPath, 'plugins', 'marketplaces'))
+    );
+    expect(path.resolve(personalInstallLocation ?? '')).toStartWith(
+      path.resolve(path.join(personalPath, 'plugins', 'marketplaces'))
+    );
+    expectMarketplaceLocation(globalRegistryPath, marketplacePath(claudeDir()));
   });
 });
