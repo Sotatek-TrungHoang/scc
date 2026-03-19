@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { ProviderLogo } from '@/components/cliproxy/provider-logo';
+import { getAiProviderFamilyVisual } from '@/lib/provider-config';
 import { cn } from '@/lib/utils';
 import type {
   AiProviderFamilyId,
@@ -11,21 +12,6 @@ interface FamilyRailProps {
   families: AiProviderFamilyState[];
   selectedFamily: AiProviderFamilyId;
   onSelect: (family: AiProviderFamilyId) => void;
-}
-
-function getFamilyProvider(familyId: AiProviderFamilyId): string {
-  switch (familyId) {
-    case 'gemini-api-key':
-      return 'gemini';
-    case 'codex-api-key':
-      return 'codex';
-    case 'claude-api-key':
-      return 'claude';
-    case 'vertex-api-key':
-      return 'vertex';
-    case 'openai-compatibility':
-      return 'openrouter';
-  }
 }
 
 function getStatusState(status: AiProviderFamilyState['status']) {
@@ -72,7 +58,7 @@ export function FamilyRail({ families, selectedFamily, onSelect }: FamilyRailPro
             )}
           >
             <div className="flex items-center gap-3">
-              <ProviderLogo provider={getFamilyProvider(family.id)} size="md" />
+              <ProviderLogo provider={getAiProviderFamilyVisual(family.id)} size="md" />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="truncate text-sm font-medium">{family.displayName}</span>

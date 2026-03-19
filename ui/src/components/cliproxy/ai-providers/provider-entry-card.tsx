@@ -54,9 +54,11 @@ export function ProviderEntryCard({
         role={onSelect ? 'button' : undefined}
         tabIndex={onSelect ? 0 : undefined}
         className={cn(
-          'group rounded-lg border bg-background px-3 py-3 transition-colors',
+          'group rounded-xl border bg-background px-3 py-3 transition-colors',
           onSelect && 'cursor-pointer',
-          isSelected ? 'border-primary/20 bg-primary/5 shadow-sm' : 'hover:bg-muted/40'
+          isSelected
+            ? 'border-primary/20 bg-primary/5 shadow-sm'
+            : 'border-border/60 hover:bg-muted/40'
         )}
         onClick={onSelect}
         onKeyDown={(event) => {
@@ -84,18 +86,25 @@ export function ProviderEntryCard({
               <span className="truncate text-sm font-medium">{entry.label}</span>
               {renderSecretBadge(entry)}
             </div>
-            <p className="mt-1 truncate text-xs text-muted-foreground">
+            <div className="mt-1 truncate font-mono text-[11px] text-muted-foreground">
               {entry.baseUrl || family.routePath}
-            </p>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
-              <span>{renderCountLabel(entry.models.length, 'alias')}</span>
-              <span className="text-border">•</span>
-              <span>{renderCountLabel(entry.headers.length, 'header')}</span>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                {renderCountLabel(entry.models.length, 'alias')}
+              </Badge>
+              <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                {renderCountLabel(entry.headers.length, 'header')}
+              </Badge>
               {entry.excludedModels.length > 0 && (
-                <>
-                  <span className="text-border">•</span>
-                  <span>{renderCountLabel(entry.excludedModels.length, 'exclusion')}</span>
-                </>
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                  {renderCountLabel(entry.excludedModels.length, 'rule')}
+                </Badge>
+              )}
+              {(entry.proxyUrl || entry.prefix) && (
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                  Routed
+                </Badge>
               )}
             </div>
           </div>
