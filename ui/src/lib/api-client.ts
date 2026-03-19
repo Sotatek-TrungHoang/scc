@@ -96,11 +96,22 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 // Types
 export type CliTarget = 'claude' | 'droid';
 
+export interface CliproxyBridgeMetadata {
+  provider: CLIProxyProvider;
+  providerDisplayName: string;
+  routePath: string;
+  currentBaseUrl: string;
+  source: 'local' | 'remote';
+  usesCurrentTarget: boolean;
+  usesCurrentAuthToken: boolean;
+}
+
 export interface Profile {
   name: string;
   settingsPath: string;
   configured: boolean;
   target?: CliTarget;
+  cliproxyBridge?: CliproxyBridgeMetadata | null;
 }
 
 export interface CreateProfile {
@@ -122,6 +133,19 @@ export interface UpdateProfile {
   sonnetModel?: string;
   haikuModel?: string;
   target?: CliTarget;
+}
+
+export interface CreateCliproxyBridgeProfileRequest {
+  provider: CLIProxyProvider;
+  name?: string;
+  target?: CliTarget;
+}
+
+export interface CreateCliproxyBridgeProfileResponse {
+  name: string;
+  settingsPath: string;
+  target: CliTarget;
+  cliproxyBridge?: CliproxyBridgeMetadata | null;
 }
 
 export interface ProfileValidationIssue {
@@ -759,6 +783,11 @@ export const api = {
     list: () => request<{ profiles: Profile[] }>('/profiles'),
     create: (data: CreateProfile) =>
       request('/profiles', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    createCliproxyBridge: (data: CreateCliproxyBridgeProfileRequest) =>
+      request<CreateCliproxyBridgeProfileResponse>('/profiles/cliproxy-bridge', {
         method: 'POST',
         body: JSON.stringify(data),
       }),

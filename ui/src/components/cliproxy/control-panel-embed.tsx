@@ -12,6 +12,7 @@ import { useQuery } from '@tanstack/react-query';
 import { api, withApiBase } from '@/lib/api-client';
 import type { CliproxyServerConfig } from '@/lib/api-client';
 import { CLIPROXY_DEFAULT_PORT } from '@/lib/preset-utils';
+import { ApiProfileBridgeCallout } from './api-profile-bridge-callout';
 
 interface AuthTokensResponse {
   apiKey: { value: string; isCustom: boolean };
@@ -200,6 +201,9 @@ export function ControlPanelEmbed({ port = CLIPROXY_DEFAULT_PORT }: ControlPanel
             Retry
           </button>
         </div>
+        <div className="border-b bg-muted/20 p-4">
+          <ApiProfileBridgeCallout compact className="max-w-3xl mx-auto" />
+        </div>
         <div className="flex-1 flex items-center justify-center bg-muted/20">
           <div className="text-center max-w-md px-8">
             <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
@@ -219,67 +223,72 @@ export function ControlPanelEmbed({ port = CLIPROXY_DEFAULT_PORT }: ControlPanel
   }
 
   return (
-    <div className="flex-1 flex flex-col relative">
-      {/* Remote indicator and login hint banner */}
-      {showLoginHint && !isLoading && (
-        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
-          <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md text-sm">
-            {isRemote && (
-              <>
-                <Globe className="h-3.5 w-3.5 text-green-600" />
-                <span className="text-green-600 font-medium">Remote</span>
-                <span className="text-blue-300 dark:text-blue-700">|</span>
-              </>
-            )}
-            <Key className="h-3.5 w-3.5 text-blue-600" />
-            <span>
-              Key:{' '}
-              <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded font-mono font-semibold">
-                {authToken && authToken.length > 4
-                  ? `***${authToken.slice(-4)}`
-                  : authToken || 'ccs'}
-              </code>
-            </span>
-            <a
-              href="/settings?tab=auth"
-              className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
-              title="Manage auth tokens"
-            >
-              <Settings className="h-3.5 w-3.5" />
-            </a>
-            <button
-              className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
-              onClick={() => setShowLoginHint(false)}
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+    <div className="flex-1 flex flex-col">
+      <div className="border-b bg-muted/20 p-4">
+        <ApiProfileBridgeCallout compact className="max-w-3xl mx-auto" />
+      </div>
+      <div className="flex-1 flex flex-col relative">
+        {/* Remote indicator and login hint banner */}
+        {showLoginHint && !isLoading && (
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md text-sm">
+              {isRemote && (
+                <>
+                  <Globe className="h-3.5 w-3.5 text-green-600" />
+                  <span className="text-green-600 font-medium">Remote</span>
+                  <span className="text-blue-300 dark:text-blue-700">|</span>
+                </>
+              )}
+              <Key className="h-3.5 w-3.5 text-blue-600" />
+              <span>
+                Key:{' '}
+                <code className="bg-blue-100 dark:bg-blue-900 px-1 rounded font-mono font-semibold">
+                  {authToken && authToken.length > 4
+                    ? `***${authToken.slice(-4)}`
+                    : authToken || 'ccs'}
+                </code>
+              </span>
+              <a
+                href="/settings?tab=auth"
+                className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
+                title="Manage auth tokens"
+              >
+                <Settings className="h-3.5 w-3.5" />
+              </a>
+              <button
+                className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-400"
+                onClick={() => setShowLoginHint(false)}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
-          <div className="text-center">
-            <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
-            <p className="text-sm text-muted-foreground">
-              {isRemote
-                ? `Loading Control Panel from ${displayHost}...`
-                : 'Loading Control Panel...'}
-            </p>
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 z-10">
+            <div className="text-center">
+              <RefreshCw className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                {isRemote
+                  ? `Loading Control Panel from ${displayHost}...`
+                  : 'Loading Control Panel...'}
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Iframe */}
-      <iframe
-        key={`${managementUrl}:${iframeRevision}`}
-        ref={iframeRef}
-        src={managementUrl}
-        className="flex-1 w-full border-0"
-        title="CLIProxy Management Panel"
-        onLoad={handleIframeLoad}
-      />
+        {/* Iframe */}
+        <iframe
+          key={`${managementUrl}:${iframeRevision}`}
+          ref={iframeRef}
+          src={managementUrl}
+          className="flex-1 w-full border-0"
+          title="CLIProxy Management Panel"
+          onLoad={handleIframeLoad}
+        />
+      </div>
     </div>
   );
 }

@@ -8,18 +8,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useOpenRouterReady } from '@/hooks/use-openrouter-models';
-import { Sparkles, ExternalLink, ArrowRight, Zap, CloudCog, KeyRound } from 'lucide-react';
+import { Sparkles, ExternalLink, ArrowRight, Zap, CloudCog, KeyRound, Link2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 interface OpenRouterQuickStartProps {
   onOpenRouterClick: () => void;
   onAlibabaCodingPlanClick: () => void;
+  onCliproxyClick: () => void;
   onCustomClick: () => void;
 }
 
 export function OpenRouterQuickStart({
   onOpenRouterClick,
   onAlibabaCodingPlanClick,
+  onCliproxyClick,
   onCustomClick,
 }: OpenRouterQuickStartProps) {
   const { t } = useTranslation();
@@ -141,6 +143,53 @@ export function OpenRouterQuickStart({
                 Alibaba Cloud Model Studio
                 <ExternalLink className="w-3 h-3" />
               </a>
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-emerald-500/30 dark:border-emerald-500/40 bg-gradient-to-br from-emerald-500/5 to-background dark:from-emerald-500/10">
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20">
+                <Link2 className="w-6 h-6 text-emerald-700 dark:text-emerald-300" />
+              </div>
+              <Badge
+                variant="secondary"
+                className="bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-200"
+              >
+                Routed via CLIProxy
+              </Badge>
+            </div>
+            <CardTitle className="text-xl">Use an existing CLIProxy provider</CardTitle>
+            <CardDescription className="text-base">
+              If you already configured Gemini, Codex, Claude, or other providers in CLIProxy,
+              create an API Profile without copying internal URLs or auth tokens.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Link2 className="w-4 h-4 text-emerald-600" />
+                <span>Route /api/provider/&lt;provider&gt;</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <KeyRound className="w-4 h-4 text-emerald-600" />
+                <span>Proxy token resolved automatically</span>
+              </div>
+            </div>
+
+            <Button
+              onClick={onCliproxyClick}
+              className="w-full bg-emerald-600 hover:bg-emerald-600/90 text-white"
+              size="lg"
+            >
+              Create CLIProxy Profile
+              <ArrowRight className="w-4 h-4 ml-2" />
+            </Button>
+
+            <p className="text-xs text-center text-muted-foreground">
+              Configure providers under CLIProxy or the embedded Control Panel, then bridge them
+              here.
             </p>
           </CardContent>
         </Card>

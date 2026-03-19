@@ -15,6 +15,7 @@ import { QuickSetupWizard } from '@/components/quick-setup-wizard';
 import { AddAccountDialog } from '@/components/account/add-account-dialog';
 import { AccountSafetyWarningCard } from '@/components/account/account-safety-warning-card';
 import { ProviderEditor } from '@/components/cliproxy/provider-editor';
+import { ApiProfileBridgeCallout } from '@/components/cliproxy/api-profile-bridge-callout';
 import { ProviderLogo } from '@/components/cliproxy/provider-logo';
 import { ProxyStatusWidget } from '@/components/monitoring/proxy-status-widget';
 import {
@@ -436,93 +437,113 @@ export function CliproxyPage() {
         )}
 
         {selectedVariantData && parentAuthForVariant ? (
-          // Variant selected - show ProviderEditor with variant profile name
-          <ProviderEditor
-            provider={selectedVariantData.name}
-            displayName={t('cliproxyPage.variantDisplay', {
-              name: selectedVariantData.name,
-              provider: selectedVariantData.provider,
-            })}
-            authStatus={parentAuthForVariant}
-            catalog={MODEL_CATALOGS[selectedVariantData.provider]}
-            logoProvider={selectedVariantData.provider}
-            baseProvider={selectedVariantData.provider}
-            defaultTarget={selectedVariantData.target}
-            isRemoteMode={isRemoteMode}
-            port={selectedVariantData.port}
-            onAddAccount={() =>
-              setAddAccountProvider({
+          <>
+            <ApiProfileBridgeCallout
+              provider={selectedVariantData.provider}
+              compact
+              className="mx-4 mt-4"
+            />
+            <ProviderEditor
+              provider={selectedVariantData.name}
+              displayName={t('cliproxyPage.variantDisplay', {
+                name: selectedVariantData.name,
                 provider: selectedVariantData.provider,
-                displayName: parentAuthForVariant.displayName,
-                isFirstAccount: (parentAuthForVariant.accounts?.length || 0) === 0,
-              })
-            }
-            onSetDefault={(accountId) =>
-              setDefaultMutation.mutate({
-                provider: selectedVariantData.provider,
-                accountId,
-              })
-            }
-            onRemoveAccount={(accountId) =>
-              removeMutation.mutate({
-                provider: selectedVariantData.provider,
-                accountId,
-              })
-            }
-            onPauseToggle={(accountId, paused) =>
-              handlePauseToggle(selectedVariantData.provider, accountId, paused)
-            }
-            onSoloMode={(accountId) => handleSoloMode(selectedVariantData.provider, accountId)}
-            onBulkPause={(accountIds) => handleBulkPause(selectedVariantData.provider, accountIds)}
-            onBulkResume={(accountIds) =>
-              handleBulkResume(selectedVariantData.provider, accountIds)
-            }
-            isRemovingAccount={removeMutation.isPending}
-            isPausingAccount={pauseMutation.isPending || resumeMutation.isPending}
-            isSoloingAccount={soloMutation.isPending}
-            isBulkPausing={bulkPauseMutation.isPending}
-            isBulkResuming={bulkResumeMutation.isPending}
-          />
+              })}
+              authStatus={parentAuthForVariant}
+              catalog={MODEL_CATALOGS[selectedVariantData.provider]}
+              logoProvider={selectedVariantData.provider}
+              baseProvider={selectedVariantData.provider}
+              defaultTarget={selectedVariantData.target}
+              isRemoteMode={isRemoteMode}
+              port={selectedVariantData.port}
+              onAddAccount={() =>
+                setAddAccountProvider({
+                  provider: selectedVariantData.provider,
+                  displayName: parentAuthForVariant.displayName,
+                  isFirstAccount: (parentAuthForVariant.accounts?.length || 0) === 0,
+                })
+              }
+              onSetDefault={(accountId) =>
+                setDefaultMutation.mutate({
+                  provider: selectedVariantData.provider,
+                  accountId,
+                })
+              }
+              onRemoveAccount={(accountId) =>
+                removeMutation.mutate({
+                  provider: selectedVariantData.provider,
+                  accountId,
+                })
+              }
+              onPauseToggle={(accountId, paused) =>
+                handlePauseToggle(selectedVariantData.provider, accountId, paused)
+              }
+              onSoloMode={(accountId) => handleSoloMode(selectedVariantData.provider, accountId)}
+              onBulkPause={(accountIds) =>
+                handleBulkPause(selectedVariantData.provider, accountIds)
+              }
+              onBulkResume={(accountIds) =>
+                handleBulkResume(selectedVariantData.provider, accountIds)
+              }
+              isRemovingAccount={removeMutation.isPending}
+              isPausingAccount={pauseMutation.isPending || resumeMutation.isPending}
+              isSoloingAccount={soloMutation.isPending}
+              isBulkPausing={bulkPauseMutation.isPending}
+              isBulkResuming={bulkResumeMutation.isPending}
+            />
+          </>
         ) : selectedStatus ? (
-          <ProviderEditor
-            provider={selectedStatus.provider}
-            displayName={selectedStatus.displayName}
-            authStatus={selectedStatus}
-            catalog={MODEL_CATALOGS[selectedStatus.provider]}
-            isRemoteMode={isRemoteMode}
-            onAddAccount={() =>
-              setAddAccountProvider({
-                provider: selectedStatus.provider,
-                displayName: selectedStatus.displayName,
-                isFirstAccount: (selectedStatus.accounts?.length || 0) === 0,
-              })
-            }
-            onSetDefault={(accountId) =>
-              setDefaultMutation.mutate({
-                provider: selectedStatus.provider,
-                accountId,
-              })
-            }
-            onRemoveAccount={(accountId) =>
-              removeMutation.mutate({
-                provider: selectedStatus.provider,
-                accountId,
-              })
-            }
-            onPauseToggle={(accountId, paused) =>
-              handlePauseToggle(selectedStatus.provider, accountId, paused)
-            }
-            onSoloMode={(accountId) => handleSoloMode(selectedStatus.provider, accountId)}
-            onBulkPause={(accountIds) => handleBulkPause(selectedStatus.provider, accountIds)}
-            onBulkResume={(accountIds) => handleBulkResume(selectedStatus.provider, accountIds)}
-            isRemovingAccount={removeMutation.isPending}
-            isPausingAccount={pauseMutation.isPending || resumeMutation.isPending}
-            isSoloingAccount={soloMutation.isPending}
-            isBulkPausing={bulkPauseMutation.isPending}
-            isBulkResuming={bulkResumeMutation.isPending}
-          />
+          <>
+            <ApiProfileBridgeCallout
+              provider={
+                isValidProvider(selectedStatus.provider) ? selectedStatus.provider : undefined
+              }
+              compact
+              className="mx-4 mt-4"
+            />
+            <ProviderEditor
+              provider={selectedStatus.provider}
+              displayName={selectedStatus.displayName}
+              authStatus={selectedStatus}
+              catalog={MODEL_CATALOGS[selectedStatus.provider]}
+              isRemoteMode={isRemoteMode}
+              onAddAccount={() =>
+                setAddAccountProvider({
+                  provider: selectedStatus.provider,
+                  displayName: selectedStatus.displayName,
+                  isFirstAccount: (selectedStatus.accounts?.length || 0) === 0,
+                })
+              }
+              onSetDefault={(accountId) =>
+                setDefaultMutation.mutate({
+                  provider: selectedStatus.provider,
+                  accountId,
+                })
+              }
+              onRemoveAccount={(accountId) =>
+                removeMutation.mutate({
+                  provider: selectedStatus.provider,
+                  accountId,
+                })
+              }
+              onPauseToggle={(accountId, paused) =>
+                handlePauseToggle(selectedStatus.provider, accountId, paused)
+              }
+              onSoloMode={(accountId) => handleSoloMode(selectedStatus.provider, accountId)}
+              onBulkPause={(accountIds) => handleBulkPause(selectedStatus.provider, accountIds)}
+              onBulkResume={(accountIds) => handleBulkResume(selectedStatus.provider, accountIds)}
+              isRemovingAccount={removeMutation.isPending}
+              isPausingAccount={pauseMutation.isPending || resumeMutation.isPending}
+              isSoloingAccount={soloMutation.isPending}
+              isBulkPausing={bulkPauseMutation.isPending}
+              isBulkResuming={bulkResumeMutation.isPending}
+            />
+          </>
         ) : (
-          <EmptyProviderState onSetup={() => setWizardOpen(true)} />
+          <div className="flex flex-1 flex-col min-h-0">
+            <ApiProfileBridgeCallout compact className="mx-4 mt-4" />
+            <EmptyProviderState onSetup={() => setWizardOpen(true)} />
+          </div>
         )}
       </div>
 
