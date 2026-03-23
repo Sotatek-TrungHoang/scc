@@ -77,12 +77,12 @@ jobs:
           OWNER_LOWER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
           IMAGE="ghcr.io/${OWNER_LOWER}/ccs-dashboard"
           REVISION=$(git rev-parse HEAD)
-          TAGS="${IMAGE}:${VERSION}
-          ${IMAGE}:${MINOR}
-          ${IMAGE}:${MAJOR}"
+          TAGS="${IMAGE}:${VERSION}"
 
           if [[ "${GITHUB_EVENT_NAME}" == "release" ]]; then
             TAGS="${TAGS}
+          ${IMAGE}:${MINOR}
+          ${IMAGE}:${MAJOR}
           ${IMAGE}:latest"
           fi
 
