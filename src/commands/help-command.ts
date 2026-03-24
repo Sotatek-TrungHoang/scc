@@ -311,6 +311,9 @@ Run ${color('ccs config', 'command')} for web dashboard`.trim();
     ['ccs config', 'Open web dashboard (includes Claude IDE Extension setup page)'],
     ['ccs config auth setup', 'Configure dashboard login'],
     ['ccs config auth show', 'Show dashboard auth status'],
+    ['ccs config channels', 'Show Discord Channels status'],
+    ['ccs config channels --enable', 'Auto-enable Discord Channels on native Claude sessions'],
+    ['ccs config channels --set-token <token>', 'Save DISCORD_BOT_TOKEN for Discord Channels'],
     ['ccs config image-analysis', 'Show image analysis settings'],
     ['ccs config image-analysis --enable', 'Enable image analysis'],
     ['ccs config thinking', 'Show thinking/reasoning settings'],
@@ -464,6 +467,17 @@ Run ${color('ccs config', 'command')} for web dashboard`.trim();
     ['Note:', 'When enabled, images/PDFs are analyzed via vision models'],
     ['', 'instead of passing raw data to Claude. Works with CLIProxy'],
     ['', 'providers (agy, gemini, codex, kiro, ghcp).'],
+  ]);
+
+  printSubSection('Discord Channels (official Claude plugin)', [
+    ['ccs config channels', 'Show current status'],
+    ['ccs config channels --enable', 'Auto-add Discord Channels on native Claude sessions'],
+    ['ccs config channels --unattended', 'Also add --dangerously-skip-permissions'],
+    ['ccs config channels --set-token <token>', 'Save DISCORD_BOT_TOKEN'],
+    ['ccs config channels --clear-token', 'Remove saved token'],
+    ['', ''],
+    ['Note:', 'Runtime-only. Applies to native Claude default/account sessions.'],
+    ['', 'CCS stores the token in ~/.claude/channels/discord/.env.'],
   ]);
 
   // CCS Environment Variables

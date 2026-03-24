@@ -60,9 +60,32 @@ export interface GlobalEnvConfig {
   env: Record<string, string>;
 }
 
+// === Discord Channels Types ===
+
+export interface DiscordChannelsConfig {
+  enabled: boolean;
+  unattended: boolean;
+}
+
+export interface DiscordChannelsStatus {
+  bunInstalled: boolean;
+  tokenConfigured: boolean;
+  tokenPath: string;
+  pluginSpec: string;
+  supportedProfiles: string[];
+  manualSetupCommands: string[];
+}
+
 // === Tab Types ===
 
-export type SettingsTab = 'websearch' | 'globalenv' | 'proxy' | 'auth' | 'thinking' | 'backups';
+export type SettingsTab =
+  | 'websearch'
+  | 'channels'
+  | 'globalenv'
+  | 'proxy'
+  | 'auth'
+  | 'thinking'
+  | 'backups';
 
 // === Thinking Types ===
 

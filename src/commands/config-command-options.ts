@@ -83,6 +83,13 @@ export function showConfigCommandHelp(): void {
   console.log('Includes a dedicated Claude IDE Extension page for VS Code-compatible hosts.');
   console.log('');
   console.log('Commands:');
+  console.log('  channels           Manage Discord Channels auto-enable + bot token');
+  console.log('    --enable         Enable runtime auto-add for compatible Claude sessions');
+  console.log('    --disable        Disable runtime auto-add');
+  console.log('    --unattended     Also add --dangerously-skip-permissions at runtime');
+  console.log('    --set-token <t>  Save DISCORD_BOT_TOKEN to Claude channels env');
+  console.log('    --clear-token    Remove saved DISCORD_BOT_TOKEN');
+  console.log('');
   console.log('  auth               Manage dashboard authentication');
   console.log('    auth setup       Configure username and password');
   console.log('    auth show        Display current auth status');
@@ -120,6 +127,9 @@ export function showConfigCommandHelp(): void {
   console.log('  ccs config --host 127.0.0.1      Restrict dashboard to this machine');
   console.log('  ccs config --dev                 Development mode with hot reload');
   console.log('  ccs config auth setup            Configure dashboard login');
+  console.log('  ccs config channels              Show Discord Channels status');
+  console.log('  ccs config channels --enable     Enable runtime auto-add');
+  console.log('  ccs config channels --set-token xxx Save DISCORD_BOT_TOKEN');
   console.log('  ccs config image-analysis        Show image settings');
   console.log('  ccs config image-analysis --enable Enable feature');
   console.log('  ccs config thinking              Show thinking settings');

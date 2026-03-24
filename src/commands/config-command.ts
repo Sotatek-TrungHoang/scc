@@ -25,6 +25,13 @@ import { parseConfigCommandArgs, showConfigCommandHelp } from './config-command-
 
 const CONFIG_SUBCOMMAND_ROUTES: readonly NamedCommandRoute[] = [
   {
+    name: 'channels',
+    handle: async (args) => {
+      const { handleConfigChannelsCommand } = await import('./config-channels-command');
+      await handleConfigChannelsCommand(args);
+    },
+  },
+  {
     name: 'auth',
     handle: async (args) => {
       const { handleConfigAuthCommand } = await import('./config-auth');

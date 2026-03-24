@@ -106,6 +106,12 @@ describe('unified-config-types', () => {
       expect(config.preferences.auto_update).toBe(true);
     });
 
+    it('should default Discord Channels to disabled and attended mode', () => {
+      const config = createEmptyUnifiedConfig();
+      expect(config.discord_channels?.enabled).toBe(false);
+      expect(config.discord_channels?.unattended).toBe(false);
+    });
+
     it('should have CLIProxy providers list', () => {
       const config = createEmptyUnifiedConfig();
       expect(config.cliproxy.providers).toContain('gemini');
@@ -202,13 +208,7 @@ describe('continuity-inheritance-config', () => {
 
     fs.writeFileSync(
       path.join(ccsDir, 'config.yaml'),
-      [
-        'version: 8',
-        'continuity_inherit_from_account:',
-        '  glm: pro',
-        '  empty: ""',
-        '',
-      ].join('\n')
+      ['version: 8', 'continuity_inherit_from_account:', '  glm: pro', '  empty: ""', ''].join('\n')
     );
 
     process.env.CCS_HOME = tempHome;

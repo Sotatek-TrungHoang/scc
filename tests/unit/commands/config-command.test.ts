@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
 
 const startServerCalls: Array<Record<string, unknown>> = [];
 const configAuthCalls: string[][] = [];
+const configChannelsCalls: string[][] = [];
 let logLines: string[] = [];
 let errorLines: string[] = [];
 let dashboardAuthEnabled = false;
@@ -14,6 +15,7 @@ let originalProcessExit: typeof process.exit;
 beforeEach(() => {
   startServerCalls.length = 0;
   configAuthCalls.length = 0;
+  configChannelsCalls.length = 0;
   logLines = [];
   errorLines = [];
   dashboardAuthEnabled = false;
@@ -94,6 +96,11 @@ beforeEach(() => {
       configAuthCalls.push([...args]);
     },
   }));
+  mock.module('../../../src/commands/config-channels-command', () => ({
+    handleConfigChannelsCommand: async (args: string[]) => {
+      configChannelsCalls.push([...args]);
+    },
+  }));
 });
 
 afterEach(() => {
@@ -132,6 +139,15 @@ describe('config command dashboard startup', () => {
     expect(startServerCalls).toHaveLength(0);
   });
 
+  it('routes channels subcommands before dashboard startup', async () => {
+    const handleConfigCommand = await loadHandleConfigCommand();
+
+    await handleConfigCommand(['channels', '--enable']);
+
+    expect(configChannelsCalls).toEqual([['--enable']]);
+    expect(startServerCalls).toHaveLength(0);
+  });
+
   it('rejects unknown config subcommands before dashboard startup', async () => {
     const handleConfigCommand = await loadHandleConfigCommand();
     process.exit = ((code?: number) => {
@@ -155,7 +171,9 @@ describe('config command dashboard startup', () => {
     const rendered = logLines.join('\n');
     expect(rendered).toContain('Dashboard: http://localhost:3000');
     expect(rendered).toContain('Bind host: ::');
-    expect(rendered).toContain('Dashboard may be reachable from other devices that can connect to this machine.');
+    expect(rendered).toContain(
+      'Dashboard may be reachable from other devices that can connect to this machine.'
+    );
     expect(rendered).toContain('Protect it before sharing: ccs config auth setup');
     expect(errorLines).toHaveLength(0);
   });

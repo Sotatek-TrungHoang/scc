@@ -29,11 +29,20 @@ import {
   getWebSearchHookEnv,
   ensureProfileHooks,
 } from './utils/websearch-manager';
-import { getGlobalEnvConfig } from './config/unified-config-loader';
+import { getGlobalEnvConfig, getDiscordChannelsConfig } from './config/unified-config-loader';
 import { ensureProfileHooks as ensureImageAnalyzerHooks } from './utils/hooks/image-analyzer-profile-hook-injector';
 import { getImageAnalysisHookEnv } from './utils/hooks';
 import { fail, info, warn } from './utils/ui';
 import { isCopilotSubcommandToken } from './copilot/constants';
+import {
+  isBunAvailable,
+  resolveDiscordChannelsSyncConfigDir,
+  resolveDiscordChannelsLaunchPlan,
+} from './channels/discord-channels-runtime';
+import {
+  hasConfiguredDiscordBotToken,
+  syncDiscordChannelsEnvToConfigDir,
+} from './channels/discord-channels-store';
 
 // Import centralized error handling
 import { handleError, runCleanup } from './errors';
@@ -128,6 +137,46 @@ async function showCachedUpdateNotification(): Promise<boolean> {
     // Silently fail
   }
   return false;
+}
+
+function resolveNativeClaudeLaunchArgs(
+  args: string[],
+  profileType: 'default' | 'account',
+  targetConfigDir?: string
+): string[] {
+  const config = getDiscordChannelsConfig();
+  const plan = resolveDiscordChannelsLaunchPlan({
+    args,
+    config,
+    target: 'claude',
+    profileType,
+    bunAvailable: isBunAvailable(),
+    tokenConfigured: hasConfiguredDiscordBotToken(),
+  });
+
+  if (plan.skipMessage) {
+    console.error(warn(plan.skipMessage));
+  }
+
+  if (!plan.applied) {
+    return args;
+  }
+
+  const activeConfigDir = resolveDiscordChannelsSyncConfigDir(targetConfigDir);
+  if (activeConfigDir) {
+    const syncResult = syncDiscordChannelsEnvToConfigDir(activeConfigDir);
+    if (!syncResult.synced && syncResult.reason !== 'already_current') {
+      const suffix = syncResult.error ? ` (${syncResult.error})` : '';
+      console.error(
+        warn(
+          `Discord Channels auto-enable skipped: failed to sync token env to ${syncResult.targetPath}${suffix}`
+        )
+      );
+      return args;
+    }
+  }
+
+  return plan.args;
 }
 
 async function main(): Promise<void> {
@@ -838,7 +887,8 @@ async function main(): Promise<void> {
         CCS_WEBSEARCH_SKIP: '1',
         CCS_IMAGE_ANALYSIS_SKIP: '1',
       };
-      execClaude(claudeCli, remainingArgs, envVars);
+      const launchArgs = resolveNativeClaudeLaunchArgs(remainingArgs, 'account', instancePath);
+      execClaude(claudeCli, launchArgs, envVars);
     } else {
       // DEFAULT: No profile configured, use Claude's own defaults
       // Skip WebSearch hook - native Claude has server-side WebSearch
@@ -906,7 +956,12 @@ async function main(): Promise<void> {
         return;
       }
 
-      execClaude(claudeCli, remainingArgs, envVars);
+      const launchArgs = resolveNativeClaudeLaunchArgs(
+        remainingArgs,
+        'default',
+        envVars.CLAUDE_CONFIG_DIR
+      );
+      execClaude(claudeCli, launchArgs, envVars);
     }
   } catch (error) {
     const err = error as ProfileError;

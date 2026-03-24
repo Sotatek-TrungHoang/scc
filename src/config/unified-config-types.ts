@@ -24,8 +24,9 @@ import { CLIPROXY_PROVIDER_IDS } from '../cliproxy/provider-capabilities';
  * Version 8 = Thinking/reasoning budget configuration
  * Version 9 = Real WebSearch backends (DuckDuckGo/Brave) with legacy CLI fallback
  * Version 10 = Exa + Tavily WebSearch backends
+ * Version 11 = Discord Channels runtime auto-enable preferences
  */
-export const UNIFIED_CONFIG_VERSION = 10;
+export const UNIFIED_CONFIG_VERSION = 11;
 
 /**
  * Supported CLIProxy providers.
@@ -695,6 +696,26 @@ export const DEFAULT_THINKING_CONFIG: ThinkingConfig = {
 };
 
 /**
+ * Discord Channels configuration.
+ * Controls runtime-only injection of Anthropic's official Discord channel plugin.
+ */
+export interface DiscordChannelsConfig {
+  /** Enable auto-adding the official Discord channel for compatible sessions */
+  enabled: boolean;
+  /** Also add --dangerously-skip-permissions when auto-enable is active */
+  unattended: boolean;
+}
+
+/**
+ * Default Discord Channels configuration.
+ * Disabled by default because the feature requires explicit user setup.
+ */
+export const DEFAULT_DISCORD_CHANNELS_CONFIG: DiscordChannelsConfig = {
+  enabled: false,
+  unattended: false,
+};
+
+/**
  * Dashboard authentication configuration.
  * Optional login protection for CCS dashboard.
  * Disabled by default for backward compatibility.
@@ -790,6 +811,8 @@ export interface UnifiedConfig {
   quota_management?: QuotaManagementConfig;
   /** Thinking/reasoning budget configuration (v8+) */
   thinking?: ThinkingConfig;
+  /** Discord Channels runtime auto-enable preferences (v11+) */
+  discord_channels?: DiscordChannelsConfig;
   /** Dashboard authentication configuration (optional) */
   dashboard_auth?: DashboardAuthConfig;
   /** Image analysis configuration (vision via CLIProxy) */
@@ -916,6 +939,7 @@ export function createEmptyUnifiedConfig(): UnifiedConfig {
     cliproxy_server: { ...DEFAULT_CLIPROXY_SERVER_CONFIG },
     quota_management: { ...DEFAULT_QUOTA_MANAGEMENT_CONFIG },
     thinking: { ...DEFAULT_THINKING_CONFIG },
+    discord_channels: { ...DEFAULT_DISCORD_CHANNELS_CONFIG },
     dashboard_auth: { ...DEFAULT_DASHBOARD_AUTH_CONFIG },
     image_analysis: { ...DEFAULT_IMAGE_ANALYSIS_CONFIG },
   };

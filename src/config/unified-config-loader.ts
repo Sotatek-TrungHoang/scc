@@ -21,6 +21,7 @@ import {
   DEFAULT_CLIPROXY_SAFETY_CONFIG,
   DEFAULT_QUOTA_MANAGEMENT_CONFIG,
   DEFAULT_THINKING_CONFIG,
+  DEFAULT_DISCORD_CHANNELS_CONFIG,
   DEFAULT_DASHBOARD_AUTH_CONFIG,
   DEFAULT_IMAGE_ANALYSIS_CONFIG,
 } from './unified-config-types';
@@ -29,6 +30,7 @@ import type {
   CLIProxySafetyConfig,
   GlobalEnvConfig,
   ThinkingConfig,
+  DiscordChannelsConfig,
   DashboardAuthConfig,
   ImageAnalysisConfig,
   CursorConfig,
@@ -499,6 +501,11 @@ function mergeWithDefaults(partial: Partial<UnifiedConfig>): UnifiedConfig {
       provider_overrides: partial.thinking?.provider_overrides,
       show_warnings: partial.thinking?.show_warnings ?? DEFAULT_THINKING_CONFIG.show_warnings,
     },
+    discord_channels: {
+      enabled: partial.discord_channels?.enabled ?? DEFAULT_DISCORD_CHANNELS_CONFIG.enabled,
+      unattended:
+        partial.discord_channels?.unattended ?? DEFAULT_DISCORD_CHANNELS_CONFIG.unattended,
+    },
     // Dashboard auth config - disabled by default
     dashboard_auth: {
       enabled: partial.dashboard_auth?.enabled ?? DEFAULT_DASHBOARD_AUTH_CONFIG.enabled,
@@ -758,6 +765,27 @@ function generateYamlWithComments(config: UnifiedConfig): string {
     lines.push(
       yaml
         .dump({ thinking: config.thinking }, { indent: 2, lineWidth: -1, quotingType: '"' })
+        .trim()
+    );
+    lines.push('');
+  }
+
+  // Discord Channels section
+  if (config.discord_channels) {
+    lines.push('# ----------------------------------------------------------------------------');
+    lines.push('# Discord Channels: Runtime auto-enable for Anthropic official Discord plugin');
+    lines.push('# Runtime-only: CCS injects --channels at launch for compatible Claude sessions.');
+    lines.push('# Token storage lives in ~/.claude/channels/discord/.env, not in config.yaml.');
+    lines.push('# unattended adds --dangerously-skip-permissions only when auto-enable is active.');
+    lines.push('# Compatible sessions: native Claude default/account profiles only.');
+    lines.push('# Configure via: ccs config channels or the Settings > Channels dashboard tab.');
+    lines.push('# ----------------------------------------------------------------------------');
+    lines.push(
+      yaml
+        .dump(
+          { discord_channels: config.discord_channels },
+          { indent: 2, lineWidth: -1, quotingType: '"' }
+        )
         .trim()
     );
     lines.push('');
@@ -1135,6 +1163,19 @@ export function getThinkingConfig(): ThinkingConfig {
     },
     provider_overrides: config.thinking?.provider_overrides,
     show_warnings: config.thinking?.show_warnings ?? DEFAULT_THINKING_CONFIG.show_warnings,
+  };
+}
+
+/**
+ * Get Discord Channels configuration.
+ * Returns defaults if not configured.
+ */
+export function getDiscordChannelsConfig(): DiscordChannelsConfig {
+  const config = loadOrCreateUnifiedConfig();
+
+  return {
+    enabled: config.discord_channels?.enabled ?? DEFAULT_DISCORD_CHANNELS_CONFIG.enabled,
+    unattended: config.discord_channels?.unattended ?? DEFAULT_DISCORD_CHANNELS_CONFIG.unattended,
   };
 }
 
