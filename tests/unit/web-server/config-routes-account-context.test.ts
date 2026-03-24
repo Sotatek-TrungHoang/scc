@@ -260,7 +260,20 @@ describe('web-server config-routes account context validation', () => {
       enabled: true,
       env: {
         DEBUG: '1',
+        GH_TOKEN: 'gh-token-secret',
+        GITHUB_TOKEN: 'github-token-secret',
         OPENAI_API_KEY: 'sk-test-123456',
+      },
+    };
+    config.cliproxy.auth = {
+      api_key: 'cliproxy-global-api-key',
+      management_secret: 'cliproxy-global-management-secret',
+    };
+    config.cliproxy.variants.gemini = {
+      provider: 'gemini',
+      auth: {
+        api_key: 'variant-api-key',
+        management_secret: 'variant-management-secret',
       },
     };
     config.cliproxy_server = {
@@ -296,7 +309,13 @@ describe('web-server config-routes account context validation', () => {
     const payload = (await response.json()) as typeof config;
 
     expect(payload.global_env?.env.DEBUG).toBe('1');
+    expect(payload.global_env?.env.GH_TOKEN).toBe('[redacted]');
+    expect(payload.global_env?.env.GITHUB_TOKEN).toBe('[redacted]');
     expect(payload.global_env?.env.OPENAI_API_KEY).toBe('[redacted]');
+    expect(payload.cliproxy.auth?.api_key).toBe('[redacted]');
+    expect(payload.cliproxy.auth?.management_secret).toBe('[redacted]');
+    expect(payload.cliproxy.variants.gemini?.auth?.api_key).toBe('[redacted]');
+    expect(payload.cliproxy.variants.gemini?.auth?.management_secret).toBe('[redacted]');
     expect(payload.cliproxy_server?.remote.auth_token).toBe('[redacted]');
     expect(payload.cliproxy_server?.remote.management_key).toBe('[redacted]');
     expect(payload.dashboard_auth?.password_hash).toBe('[redacted]');
@@ -307,8 +326,18 @@ describe('web-server config-routes account context validation', () => {
 
     expect(rawConfig).toContain('# custom comment');
     expect(rawConfig).toContain('DEBUG: "1"');
+    expect(rawConfig).toContain('GH_TOKEN: [redacted]');
+    expect(rawConfig).toContain('GITHUB_TOKEN: [redacted]');
     expect(rawConfig).toContain('OPENAI_API_KEY: [redacted]');
+    expect(rawConfig).toContain('api_key: [redacted]');
+    expect(rawConfig).toContain('management_secret: [redacted]');
     expect(rawConfig).not.toContain('sk-test-123456');
+    expect(rawConfig).not.toContain('gh-token-secret');
+    expect(rawConfig).not.toContain('github-token-secret');
+    expect(rawConfig).not.toContain('cliproxy-global-api-key');
+    expect(rawConfig).not.toContain('cliproxy-global-management-secret');
+    expect(rawConfig).not.toContain('variant-api-key');
+    expect(rawConfig).not.toContain('variant-management-secret');
     expect(rawConfig).not.toContain('remote-auth-token');
     expect(rawConfig).not.toContain('management-secret');
   });
@@ -320,6 +349,17 @@ describe('web-server config-routes account context validation', () => {
       env: {
         DEBUG: '1',
         OPENAI_API_KEY: 'sk-test-123456',
+      },
+    };
+    config.cliproxy.auth = {
+      api_key: 'cliproxy-global-api-key',
+      management_secret: 'cliproxy-global-management-secret',
+    };
+    config.cliproxy.variants.gemini = {
+      provider: 'gemini',
+      auth: {
+        api_key: 'variant-api-key',
+        management_secret: 'variant-management-secret',
       },
     };
     config.cliproxy_server = {
@@ -357,11 +397,83 @@ describe('web-server config-routes account context validation', () => {
     const savedConfig = loadUnifiedConfig();
     expect(savedConfig?.cliproxy.kiro_no_incognito).toBe(true);
     expect(savedConfig?.global_env?.env.OPENAI_API_KEY).toBe('sk-test-123456');
+    expect(savedConfig?.cliproxy.auth?.api_key).toBe('cliproxy-global-api-key');
+    expect(savedConfig?.cliproxy.auth?.management_secret).toBe(
+      'cliproxy-global-management-secret'
+    );
+    expect(savedConfig?.cliproxy.variants.gemini?.auth?.api_key).toBe('variant-api-key');
+    expect(savedConfig?.cliproxy.variants.gemini?.auth?.management_secret).toBe(
+      'variant-management-secret'
+    );
     expect(savedConfig?.cliproxy_server?.remote.auth_token).toBe('remote-auth-token');
     expect(savedConfig?.cliproxy_server?.remote.management_key).toBe('management-secret');
     expect(savedConfig?.dashboard_auth?.password_hash).toBe(
       '$2b$10$123456789012345678901u4cPFsKnzGWxZmfq6OnpZnN0UiM6Qf7e'
     );
+  });
+
+  it('redacts block-scalar secrets from raw YAML responses', async () => {
+    const yamlPath = path.join(tempHome, '.ccs', 'config.yaml');
+    fs.writeFileSync(
+      yamlPath,
+      [
+        '# block scalar test',
+        'version: 10',
+        'accounts: {}',
+        'profiles: {}',
+        'cliproxy:',
+        '  oauth_accounts: {}',
+        '  providers: []',
+        '  variants:',
+        '    gemini:',
+        '      provider: gemini',
+        '      auth:',
+        '        api_key: |',
+        '          variant-api-secret-line-1',
+        '          variant-api-secret-line-2',
+        '  auth:',
+        '    api_key: >',
+        '      cliproxy-global-api-secret',
+        '    management_secret: |',
+        '      cliproxy-global-management-secret',
+        'global_env:',
+        '  enabled: true',
+        '  env:',
+        '    GITHUB_TOKEN: |',
+        '      github-token-secret-line-1',
+        '      github-token-secret-line-2',
+        'cliproxy_server:',
+        '  remote:',
+        '    enabled: true',
+        '    host: proxy.example.com',
+        '    protocol: https',
+        '    auth_token: >',
+        '      remote-auth-secret',
+        'dashboard_auth:',
+        '  enabled: true',
+        '  username: admin',
+        '  password_hash: |',
+        '    dashboard-password-secret',
+        '',
+      ].join('\n')
+    );
+
+    const rawResponse = await fetch(`${baseUrl}/api/config/raw`);
+    expect(rawResponse.status).toBe(200);
+    const rawConfig = await rawResponse.text();
+
+    expect(rawConfig).toContain('# block scalar test');
+    expect(rawConfig).toContain('GITHUB_TOKEN: [redacted]');
+    expect(rawConfig).toContain('api_key: [redacted]');
+    expect(rawConfig).toContain('management_secret: [redacted]');
+    expect(rawConfig).toContain('auth_token: [redacted]');
+    expect(rawConfig).toContain('password_hash: [redacted]');
+    expect(rawConfig).not.toContain('github-token-secret-line-1');
+    expect(rawConfig).not.toContain('cliproxy-global-api-secret');
+    expect(rawConfig).not.toContain('cliproxy-global-management-secret');
+    expect(rawConfig).not.toContain('variant-api-secret-line-1');
+    expect(rawConfig).not.toContain('remote-auth-secret');
+    expect(rawConfig).not.toContain('dashboard-password-secret');
   });
 
   it('allows deleting visible global env keys while preserving redacted secrets', async () => {

@@ -34,6 +34,8 @@ const LOCAL_CONFIG_ERROR =
   'Local configuration endpoints require localhost access when dashboard auth is disabled.';
 const REDACTED_SECRET_VALUE = '[redacted]';
 const RAW_YAML_REDACTED_PATHS = new Set([
+  'cliproxy.auth.api_key',
+  'cliproxy.auth.management_secret',
   'cliproxy_server.remote.auth_token',
   'cliproxy_server.remote.management_key',
   'dashboard_auth.password_hash',
@@ -67,6 +69,16 @@ function sanitizeUnifiedConfigForDashboard(config: UnifiedConfig): UnifiedConfig
           ),
         }
       : config.global_env,
+    cliproxy: {
+      ...config.cliproxy,
+      auth: sanitizeCliproxyAuthConfig(config.cliproxy.auth),
+      variants: Object.fromEntries(
+        Object.entries(config.cliproxy.variants).map(([variantName, variantConfig]) => [
+          variantName,
+          sanitizeCliproxyVariantAuth(variantConfig),
+        ])
+      ),
+    },
     cliproxy_server: config.cliproxy_server
       ? {
           ...config.cliproxy_server,
@@ -83,6 +95,29 @@ function sanitizeUnifiedConfigForDashboard(config: UnifiedConfig): UnifiedConfig
           password_hash: redactSecretValue(config.dashboard_auth.password_hash) ?? '',
         }
       : config.dashboard_auth,
+  };
+}
+
+function sanitizeCliproxyAuthConfig(
+  auth: UnifiedConfig['cliproxy']['auth']
+): UnifiedConfig['cliproxy']['auth'] {
+  if (!auth) {
+    return auth;
+  }
+
+  return {
+    ...auth,
+    api_key: redactSecretValue(auth.api_key),
+    management_secret: redactSecretValue(auth.management_secret),
+  };
+}
+
+function sanitizeCliproxyVariantAuth(
+  variantConfig: UnifiedConfig['cliproxy']['variants'][string]
+): UnifiedConfig['cliproxy']['variants'][string] {
+  return {
+    ...variantConfig,
+    auth: sanitizeCliproxyAuthConfig(variantConfig.auth),
   };
 }
 
@@ -150,13 +185,7 @@ function redactYamlScalarLine(line: string): string {
   const { value, comment } = splitYamlScalarAndComment(rawTail.slice(leadingSpacing.length));
   const trimmedValue = value.trim();
 
-  if (
-    trimmedValue.length === 0 ||
-    trimmedValue === '""' ||
-    trimmedValue === "''" ||
-    trimmedValue === '|' ||
-    trimmedValue === '>'
-  ) {
+  if (trimmedValue.length === 0 || trimmedValue === '""' || trimmedValue === "''") {
     return line;
   }
 
@@ -171,6 +200,10 @@ function redactYamlScalarLine(line: string): string {
   return `${prefix}${leadingSpacing}${redactedValue}${comment}`;
 }
 
+function isYamlBlockScalarIndicator(value: string): boolean {
+  return /^[>|](?:[1-9][+-]?|[+-]?[1-9])?$/.test(value);
+}
+
 function shouldRedactRawYamlPath(pathKeys: string[]): boolean {
   if (
     pathKeys.length === 3 &&
@@ -181,36 +214,88 @@ function shouldRedactRawYamlPath(pathKeys: string[]): boolean {
     return true;
   }
 
+  if (
+    pathKeys.length === 3 &&
+    pathKeys[0] === 'cliproxy' &&
+    pathKeys[1] === 'auth' &&
+    (pathKeys[2] === 'api_key' || pathKeys[2] === 'management_secret')
+  ) {
+    return true;
+  }
+
+  if (
+    pathKeys.length === 5 &&
+    pathKeys[0] === 'cliproxy' &&
+    pathKeys[1] === 'variants' &&
+    pathKeys[3] === 'auth' &&
+    (pathKeys[4] === 'api_key' || pathKeys[4] === 'management_secret')
+  ) {
+    return true;
+  }
+
   return RAW_YAML_REDACTED_PATHS.has(pathKeys.join('.'));
 }
 
 function redactRawConfigYamlForDashboard(content: string): string {
   const stack: Array<{ indent: number; key: string }> = [];
+  const redactedLines: string[] = [];
+  const lines = content.split('\n');
 
-  return content
-    .split('\n')
-    .map((line) => {
-      const mappingMatch = line.match(/^(\s*)([^:#][^:]*):(.*)$/);
-      if (!mappingMatch) {
-        return line;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const mappingMatch = line.match(/^(\s*)([^:#][^:]*):(.*)$/);
+    if (!mappingMatch) {
+      redactedLines.push(line);
+      continue;
+    }
+
+    const [, indentText, rawKey, rawTail] = mappingMatch;
+    if (rawKey.trimStart().startsWith('-')) {
+      redactedLines.push(line);
+      continue;
+    }
+
+    const indent = indentText.length;
+    while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
+      stack.pop();
+    }
+
+    stack.push({ indent, key: normalizeYamlKey(rawKey) });
+    const currentPath = stack.map((entry) => entry.key);
+
+    if (!shouldRedactRawYamlPath(currentPath)) {
+      redactedLines.push(line);
+      continue;
+    }
+
+    const redactedLine = redactYamlScalarLine(line);
+    redactedLines.push(redactedLine);
+
+    const leadingSpacing = rawTail.match(/^\s*/)?.[0] ?? '';
+    const { value } = splitYamlScalarAndComment(rawTail.slice(leadingSpacing.length));
+    const trimmedValue = value.trim();
+
+    if (!isYamlBlockScalarIndicator(trimmedValue)) {
+      continue;
+    }
+
+    while (index + 1 < lines.length) {
+      const nextLine = lines[index + 1];
+      if (nextLine.trim().length === 0) {
+        index += 1;
+        continue;
       }
 
-      const [, indentText, rawKey] = mappingMatch;
-      if (rawKey.trimStart().startsWith('-')) {
-        return line;
+      const nextIndent = nextLine.match(/^\s*/)?.[0].length ?? 0;
+      if (nextIndent <= indent) {
+        break;
       }
 
-      const indent = indentText.length;
-      while (stack.length > 0 && stack[stack.length - 1].indent >= indent) {
-        stack.pop();
-      }
+      index += 1;
+    }
+  }
 
-      stack.push({ indent, key: normalizeYamlKey(rawKey) });
-      const currentPath = stack.map((entry) => entry.key);
-
-      return shouldRedactRawYamlPath(currentPath) ? redactYamlScalarLine(line) : line;
-    })
-    .join('\n');
+  return redactedLines.join('\n');
 }
 
 function restoreRedactedSecretValue(
@@ -300,6 +385,97 @@ function mergeDashboardAuthConfig(
         nextAuth.password_hash
       ) ?? '',
   };
+}
+
+function mergeCliproxyAuthField(
+  currentValue: string | undefined,
+  nextAuth: NonNullable<UnifiedConfig['cliproxy']['auth']>,
+  key: 'api_key' | 'management_secret'
+): string | undefined {
+  if (!Object.prototype.hasOwnProperty.call(nextAuth, key)) {
+    return undefined;
+  }
+
+  return restoreRedactedSecretValue(currentValue, nextAuth[key]);
+}
+
+function mergeCliproxyAuthConfig(
+  currentAuth: UnifiedConfig['cliproxy']['auth'],
+  nextAuth: UnifiedConfig['cliproxy']['auth']
+): UnifiedConfig['cliproxy']['auth'] {
+  if (!nextAuth) {
+    return undefined;
+  }
+
+  const mergedAuth = { ...nextAuth };
+  const apiKey = mergeCliproxyAuthField(currentAuth?.api_key, nextAuth, 'api_key');
+  const managementSecret = mergeCliproxyAuthField(
+    currentAuth?.management_secret,
+    nextAuth,
+    'management_secret'
+  );
+
+  if (apiKey === undefined) {
+    delete mergedAuth.api_key;
+  } else {
+    mergedAuth.api_key = apiKey;
+  }
+
+  if (managementSecret === undefined) {
+    delete mergedAuth.management_secret;
+  } else {
+    mergedAuth.management_secret = managementSecret;
+  }
+
+  return Object.keys(mergedAuth).length > 0 ? mergedAuth : undefined;
+}
+
+function mergeCliproxyVariantConfig(
+  currentVariant: UnifiedConfig['cliproxy']['variants'][string] | undefined,
+  nextVariant: UnifiedConfig['cliproxy']['variants'][string]
+): UnifiedConfig['cliproxy']['variants'][string] {
+  const mergedVariant = { ...nextVariant };
+  const mergedAuth = mergeCliproxyAuthConfig(currentVariant?.auth, nextVariant.auth);
+
+  if (mergedAuth === undefined) {
+    delete mergedVariant.auth;
+  } else {
+    mergedVariant.auth = mergedAuth;
+  }
+
+  return mergedVariant;
+}
+
+function mergeCliproxyConfig(
+  currentConfig: UnifiedConfig,
+  nextConfig: Partial<UnifiedConfig>
+): UnifiedConfig['cliproxy'] {
+  const nextCliproxy = nextConfig.cliproxy;
+  if (!nextCliproxy) {
+    return currentConfig.cliproxy;
+  }
+
+  const mergedCliproxy = {
+    ...nextCliproxy,
+    variants:
+      nextCliproxy.variants === undefined
+        ? currentConfig.cliproxy.variants
+        : Object.fromEntries(
+            Object.entries(nextCliproxy.variants).map(([variantName, nextVariant]) => [
+              variantName,
+              mergeCliproxyVariantConfig(currentConfig.cliproxy.variants[variantName], nextVariant),
+            ])
+          ),
+  };
+  const mergedAuth = mergeCliproxyAuthConfig(currentConfig.cliproxy.auth, nextCliproxy.auth);
+
+  if (mergedAuth === undefined) {
+    delete mergedCliproxy.auth;
+  } else {
+    mergedCliproxy.auth = mergedAuth;
+  }
+
+  return mergedCliproxy;
 }
 
 function validateAndNormalizeAccountContextMetadata(config: unknown): string | null {
@@ -463,7 +639,7 @@ router.put('/', (req: Request, res: Response): void => {
       }
 
       if (config.cliproxy !== undefined) {
-        currentConfig.cliproxy = config.cliproxy;
+        currentConfig.cliproxy = mergeCliproxyConfig(currentConfig, config);
       }
 
       if (config.preferences !== undefined) {
