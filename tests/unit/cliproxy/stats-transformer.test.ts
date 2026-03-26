@@ -1,6 +1,50 @@
 import { describe, expect, it } from 'bun:test';
-import type { CliproxyUsageApiResponse } from '../../../src/cliproxy/stats-fetcher';
+import type {
+  CliproxyManagementAuthFile,
+  CliproxyRequestDetail,
+  CliproxyUsageApiResponse,
+} from '../../../src/cliproxy/stats-fetcher';
 import { buildCliproxyStatsFromUsageResponse } from '../../../src/cliproxy/stats-transformer';
+
+function createDetail(overrides: Partial<CliproxyRequestDetail> = {}): CliproxyRequestDetail {
+  return {
+    timestamp: '2025-03-26T10:00:00.000Z',
+    source: 'shared@example.com',
+    auth_index: 'shared-auth-index',
+    tokens: {
+      input_tokens: 10,
+      output_tokens: 5,
+      reasoning_tokens: 0,
+      cached_tokens: 0,
+      total_tokens: 15,
+    },
+    failed: false,
+    ...overrides,
+  };
+}
+
+function createInternallyBucketedUsage(
+  details: CliproxyRequestDetail[]
+): CliproxyUsageApiResponse {
+  return {
+    usage: {
+      total_requests: details.length,
+      success_count: details.filter((detail) => !detail.failed).length,
+      failure_count: details.filter((detail) => detail.failed).length,
+      apis: {
+        'ccs-internal-managed': {
+          total_requests: details.length,
+          models: {
+            'gpt-5': {
+              total_requests: details.length,
+              details,
+            },
+          },
+        },
+      },
+    },
+  };
+}
 
 describe('buildCliproxyStatsFromUsageResponse', () => {
   it('keeps duplicate emails isolated by provider', () => {
@@ -120,5 +164,128 @@ describe('buildCliproxyStatsFromUsageResponse', () => {
     expect(stats.successCount).toBe(3);
     expect(stats.failureCount).toBe(2);
     expect(stats.requestsByProvider).toEqual({ codex: 3, gemini: 2 });
+  });
+
+  it('resolves canonical providers from auth_index when usage is internally bucketed', () => {
+    const usage = createInternallyBucketedUsage([
+      createDetail({ auth_index: 'codex-1' }),
+      createDetail({
+        timestamp: '2025-03-26T10:01:00.000Z',
+        auth_index: 'gemini-1',
+        tokens: {
+          input_tokens: 12,
+          output_tokens: 7,
+          reasoning_tokens: 0,
+          cached_tokens: 0,
+          total_tokens: 19,
+        },
+      }),
+      createDetail({
+        timestamp: '2025-03-26T10:02:00.000Z',
+        auth_index: 'agy-1',
+        tokens: {
+          input_tokens: 8,
+          output_tokens: 2,
+          reasoning_tokens: 0,
+          cached_tokens: 0,
+          total_tokens: 10,
+        },
+        failed: true,
+      }),
+    ]);
+    const authFiles: CliproxyManagementAuthFile[] = [
+      { auth_index: 'codex-1', provider: 'codex', email: 'shared@example.com' },
+      { auth_index: 'gemini-1', provider: 'gemini-cli', email: 'shared@example.com' },
+      { auth_index: 'agy-1', provider: 'antigravity', email: 'shared@example.com' },
+    ];
+
+    const stats = buildCliproxyStatsFromUsageResponse(usage, { authFiles });
+
+    expect(stats.accountStats['codex:shared@example.com']).toMatchObject({
+      provider: 'codex',
+      successCount: 1,
+      failureCount: 0,
+    });
+    expect(stats.accountStats['gemini:shared@example.com']).toMatchObject({
+      provider: 'gemini',
+      successCount: 1,
+      failureCount: 0,
+    });
+    expect(stats.accountStats['agy:shared@example.com']).toMatchObject({
+      provider: 'agy',
+      successCount: 0,
+      failureCount: 1,
+    });
+    expect(stats.requestsByProvider).toEqual({ codex: 1, gemini: 1, agy: 1 });
+  });
+
+  it('falls back to the usage provider when auth_index lookup cannot resolve a provider', () => {
+    const usage = createInternallyBucketedUsage([createDetail({ auth_index: 'codex-1' })]);
+    const scenarios: Array<{ label: string; authFiles: CliproxyManagementAuthFile[] }> = [
+      { label: 'empty authFiles', authFiles: [] },
+      {
+        label: 'missing auth_index match',
+        authFiles: [{ auth_index: 'other-auth-index', provider: 'codex', email: 'shared@example.com' }],
+      },
+      {
+        label: 'matching auth_index without provider metadata',
+        authFiles: [{ auth_index: 'codex-1', email: 'shared@example.com' }],
+      },
+    ];
+
+    for (const scenario of scenarios) {
+      const stats = buildCliproxyStatsFromUsageResponse(usage, { authFiles: scenario.authFiles });
+
+      expect(stats.accountStats['ccs-internal-managed:shared@example.com'], scenario.label).toMatchObject({
+        provider: 'ccs-internal-managed',
+        source: 'shared@example.com',
+        successCount: 1,
+        failureCount: 0,
+      });
+      expect(stats.requestsByProvider, scenario.label).toEqual({ 'ccs-internal-managed': 1 });
+    }
+  });
+
+  it('falls back to auth-file source metadata when detail source is blank and supports mixed auth_index outcomes', () => {
+    const usage = createInternallyBucketedUsage([
+      createDetail({ source: '   ', auth_index: 'codex-1' }),
+      createDetail({
+        timestamp: '2025-03-26T10:01:00.000Z',
+        source: 'unmatched@example.com',
+        auth_index: 'missing-auth-index',
+      }),
+      createDetail({
+        timestamp: '2025-03-26T10:02:00.000Z',
+        source: '   ',
+        auth_index: 'providerless-auth-index',
+        failed: true,
+      }),
+    ]);
+    const authFiles: CliproxyManagementAuthFile[] = [
+      { auth_index: 'codex-1', provider: 'codex', email: 'fallback@example.com' },
+      { auth_index: 'providerless-auth-index', email: 'providerless-fallback@example.com' },
+    ];
+
+    const stats = buildCliproxyStatsFromUsageResponse(usage, { authFiles });
+
+    expect(stats.accountStats['codex:fallback@example.com']).toMatchObject({
+      provider: 'codex',
+      source: 'fallback@example.com',
+      successCount: 1,
+      failureCount: 0,
+    });
+    expect(stats.accountStats['ccs-internal-managed:unmatched@example.com']).toMatchObject({
+      provider: 'ccs-internal-managed',
+      source: 'unmatched@example.com',
+      successCount: 1,
+      failureCount: 0,
+    });
+    expect(stats.accountStats['ccs-internal-managed:providerless-fallback@example.com']).toMatchObject({
+      provider: 'ccs-internal-managed',
+      source: 'providerless-fallback@example.com',
+      successCount: 0,
+      failureCount: 1,
+    });
+    expect(stats.requestsByProvider).toEqual({ codex: 1, 'ccs-internal-managed': 2 });
   });
 });
