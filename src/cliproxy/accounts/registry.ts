@@ -21,6 +21,7 @@ import {
   moveTokenToPaused,
   moveTokenFromPaused,
   deleteTokenFile,
+  listRecoverableTokenFiles,
 } from './token-file-ops';
 
 /** Default registry structure */
@@ -29,6 +30,137 @@ function createDefaultRegistry(): AccountsRegistry {
     version: 1,
     providers: {},
   };
+}
+
+function ensureProviderRegistry(
+  registry: AccountsRegistry,
+  provider: CLIProxyProvider
+): NonNullable<AccountsRegistry['providers'][CLIProxyProvider]> {
+  if (!registry.providers[provider]) {
+    registry.providers[provider] = {
+      default: 'default',
+      accounts: {},
+    };
+  }
+
+  return registry.providers[provider] as NonNullable<
+    AccountsRegistry['providers'][CLIProxyProvider]
+  >;
+}
+
+function resolveProviderFromTokenType(typeValue: string): CLIProxyProvider | undefined {
+  for (const [provider, typeValues] of Object.entries(PROVIDER_TYPE_VALUES)) {
+    if (typeValues.includes(typeValue)) {
+      return provider as CLIProxyProvider;
+    }
+  }
+
+  return undefined;
+}
+
+function inferEmailFromTokenFileName(tokenFile: string): string | undefined {
+  const match = tokenFile.match(/([^-]+@[^.]+\.[^.]+)(?=\.json$)/);
+  return match?.[1];
+}
+
+function populateRegistryFromTokenFiles(
+  registry: AccountsRegistry,
+  options: { includePaused?: boolean } = {}
+): void {
+  for (const token of listRecoverableTokenFiles(options)) {
+    try {
+      const content = fs.readFileSync(token.filePath, 'utf-8');
+      const data = JSON.parse(content) as {
+        type?: string;
+        email?: string;
+        project_id?: string;
+      };
+      if (!data.type) {
+        continue;
+      }
+
+      const provider = resolveProviderFromTokenType(data.type.toLowerCase());
+      if (!provider) {
+        continue;
+      }
+
+      const providerAccounts = ensureProviderRegistry(registry, provider);
+      const projectId =
+        typeof data.project_id === 'string' && data.project_id.trim()
+          ? data.project_id.trim()
+          : null;
+      const email =
+        typeof data.email === 'string' && data.email.trim()
+          ? data.email.trim()
+          : inferEmailFromTokenFileName(token.tokenFile);
+
+      const existingEntry = Object.entries(providerAccounts.accounts).find(
+        ([, account]) => account.tokenFile === token.tokenFile
+      );
+      if (existingEntry) {
+        existingEntry[1].paused = token.paused || undefined;
+        if (!token.paused) {
+          existingEntry[1].pausedAt = undefined;
+        }
+        if (provider === 'agy' && projectId) {
+          existingEntry[1].projectId = projectId;
+        }
+        continue;
+      }
+
+      const accountId =
+        PROVIDERS_WITHOUT_EMAIL.includes(provider) && !email
+          ? deriveNoEmailProviderAccountId(provider, token.tokenFile, providerAccounts.accounts)
+          : extractAccountIdFromTokenFile(token.tokenFile, email);
+
+      if (providerAccounts.accounts[accountId]) {
+        continue;
+      }
+
+      if (Object.keys(providerAccounts.accounts).length === 0) {
+        providerAccounts.default = accountId;
+      }
+
+      const stats = fs.statSync(token.filePath);
+      const accountMeta: Omit<AccountInfo, 'id' | 'provider' | 'isDefault'> = {
+        email,
+        nickname: email ? generateNickname(email) : accountId,
+        tokenFile: token.tokenFile,
+        createdAt: stats.birthtime?.toISOString() || new Date().toISOString(),
+        lastUsedAt: (stats.mtime || stats.birthtime || new Date()).toISOString(),
+      };
+
+      if (token.paused) {
+        accountMeta.paused = true;
+      }
+
+      if (provider === 'agy' && projectId) {
+        accountMeta.projectId = projectId;
+      }
+
+      providerAccounts.accounts[accountId] = accountMeta;
+    } catch {
+      continue;
+    }
+  }
+}
+
+function backupCorruptedAccountsRegistry(registryPath: string): void {
+  if (!fs.existsSync(registryPath)) {
+    return;
+  }
+
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const backupPath = `${registryPath}.corrupt-${timestamp}.bak`;
+  fs.renameSync(registryPath, backupPath);
+}
+
+function recoverAccountsRegistryFromCorruption(registryPath: string): AccountsRegistry {
+  backupCorruptedAccountsRegistry(registryPath);
+  const recovered = createDefaultRegistry();
+  populateRegistryFromTokenFiles(recovered, { includePaused: true });
+  writeAccountsRegistryToDisk(recovered);
+  return recovered;
 }
 
 function withAccountsRegistryLock<T>(callback: () => T): T {
@@ -64,12 +196,12 @@ function readAccountsRegistryFromDisk(): AccountsRegistry {
   let data: unknown;
   try {
     data = JSON.parse(content);
-  } catch (error) {
-    throw new Error(`Accounts registry is corrupted: ${(error as Error).message}`);
+  } catch {
+    return recoverAccountsRegistryFromCorruption(registryPath);
   }
 
-  if (!data || typeof data !== 'object') {
-    throw new Error('Accounts registry is corrupted: expected object');
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return recoverAccountsRegistryFromCorruption(registryPath);
   }
 
   const parsed = data as { version?: unknown; providers?: unknown };
@@ -113,7 +245,7 @@ function mutateAccountsRegistry<T>(mutator: (registry: AccountsRegistry) => T): 
  * Load accounts registry
  */
 export function loadAccountsRegistry(): AccountsRegistry {
-  return readAccountsRegistryFromDisk();
+  return withAccountsRegistryLock(() => readAccountsRegistryFromDisk());
 }
 
 /**
@@ -444,109 +576,11 @@ export function setAccountTier(
  * 2. Fallback: provider + index (e.g., kiro-1, kiro-2)
  */
 export function discoverExistingAccounts(): void {
-  const authDir = getAuthDir();
-
-  if (!fs.existsSync(authDir)) {
+  if (!fs.existsSync(getAuthDir())) {
     return;
   }
-
-  const files = fs.readdirSync(authDir);
   mutateAccountsRegistry((registry) => {
     syncRegistryWithTokenFiles(registry);
-
-    for (const file of files) {
-      if (!file.endsWith('.json')) continue;
-
-      const filePath = path.join(authDir, file);
-
-      try {
-        const content = fs.readFileSync(filePath, 'utf-8');
-        const data = JSON.parse(content);
-        if (!data.type) continue;
-
-        const typeValue = data.type.toLowerCase();
-        let provider: CLIProxyProvider | undefined;
-        for (const [prov, typeValues] of Object.entries(PROVIDER_TYPE_VALUES)) {
-          if (typeValues.includes(typeValue)) {
-            provider = prov as CLIProxyProvider;
-            break;
-          }
-        }
-
-        if (!provider) {
-          continue;
-        }
-
-        let email = data.email || undefined;
-        if (!email && file.includes('@')) {
-          const match = file.match(/([^-]+@[^.]+\.[^.]+)(?=\.json$)/);
-          if (match) {
-            email = match[1];
-          }
-        }
-
-        if (!registry.providers[provider]) {
-          registry.providers[provider] = {
-            default: 'default',
-            accounts: {},
-          };
-        }
-
-        const providerAccounts = registry.providers[provider];
-        if (!providerAccounts) continue;
-
-        const existingTokenFiles = Object.values(providerAccounts.accounts).map((a) => a.tokenFile);
-        if (existingTokenFiles.includes(file)) {
-          const projectIdValue =
-            typeof data.project_id === 'string' && data.project_id.trim()
-              ? data.project_id.trim()
-              : null;
-          if (provider === 'agy' && projectIdValue) {
-            const existingEntry = Object.entries(providerAccounts.accounts).find(
-              ([, meta]) => meta.tokenFile === file
-            );
-            if (existingEntry && existingEntry[1].projectId !== projectIdValue) {
-              existingEntry[1].projectId = projectIdValue;
-            }
-          }
-          continue;
-        }
-
-        const accountId =
-          PROVIDERS_WITHOUT_EMAIL.includes(provider) && !email
-            ? deriveNoEmailProviderAccountId(provider, file, providerAccounts.accounts)
-            : extractAccountIdFromTokenFile(file, email);
-
-        if (providerAccounts.accounts[accountId]) {
-          continue;
-        }
-
-        if (Object.keys(providerAccounts.accounts).length === 0) {
-          providerAccounts.default = accountId;
-        }
-
-        const stats = fs.statSync(filePath);
-        const lastModified = stats.mtime || stats.birthtime || new Date();
-        const accountMeta: Omit<AccountInfo, 'id' | 'provider' | 'isDefault'> = {
-          email,
-          nickname: email ? generateNickname(email) : accountId,
-          tokenFile: file,
-          createdAt: stats.birthtime?.toISOString() || new Date().toISOString(),
-          lastUsedAt: lastModified.toISOString(),
-        };
-
-        const discoveredProjectId =
-          typeof data.project_id === 'string' && data.project_id.trim()
-            ? data.project_id.trim()
-            : null;
-        if (provider === 'agy' && discoveredProjectId) {
-          accountMeta.projectId = discoveredProjectId;
-        }
-
-        providerAccounts.accounts[accountId] = accountMeta;
-      } catch {
-        continue;
-      }
-    }
+    populateRegistryFromTokenFiles(registry);
   });
 }

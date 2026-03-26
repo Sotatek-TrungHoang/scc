@@ -53,7 +53,10 @@ describe('account registry integrity', () => {
       const authDir = path.join(cliproxyDir, 'auth');
       const registryPath = path.join(cliproxyDir, 'accounts.json');
       fs.mkdirSync(authDir, { recursive: true });
-      fs.writeFileSync(path.join(authDir, 'kiro-github-ABC123.json'), JSON.stringify({ type: 'kiro' }));
+      fs.writeFileSync(
+        path.join(authDir, 'kiro-github-ABC123.json'),
+        JSON.stringify({ type: 'kiro' })
+      );
       fs.writeFileSync(
         registryPath,
         JSON.stringify({
@@ -89,14 +92,79 @@ describe('account registry integrity', () => {
     });
   });
 
-  it('fails closed on corrupted accounts.json', async () => {
+  it('recovers corrupted accounts.json from token-backed accounts and preserves a backup', async () => {
     await withIsolatedHome(async (homeDir) => {
+      const authDir = path.join(homeDir, '.ccs', 'cliproxy', 'auth');
       const registryPath = path.join(homeDir, '.ccs', 'cliproxy', 'accounts.json');
-      fs.mkdirSync(path.dirname(registryPath), { recursive: true });
+      fs.mkdirSync(authDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(authDir, 'codex-user@example.com.json'),
+        JSON.stringify({ type: 'codex', email: 'user@example.com' }),
+        'utf8'
+      );
       fs.writeFileSync(registryPath, '{not-valid-json', 'utf8');
 
+      const { getProviderAccounts } = await loadAccountManager();
+      const accounts = getProviderAccounts('codex');
       const { loadAccountsRegistry } = await loadRegistryModule();
-      expect(() => loadAccountsRegistry()).toThrow(/corrupted/i);
+      const registry = loadAccountsRegistry();
+
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0]?.id).toBe('user@example.com');
+      expect(accounts[0]?.isDefault).toBe(true);
+      expect(registry.providers.codex?.accounts['user@example.com']?.tokenFile).toBe(
+        'codex-user@example.com.json'
+      );
+
+      const backups = fs
+        .readdirSync(path.dirname(registryPath))
+        .filter((file) => /^accounts\.json\.corrupt-.*\.bak$/.test(file));
+      expect(backups).toHaveLength(1);
+      expect(
+        fs.readFileSync(path.join(path.dirname(registryPath), backups[0] as string), 'utf8')
+      ).toBe('{not-valid-json');
+    });
+  });
+
+  it('recovers paused token-backed accounts when rebuilding a corrupted registry', async () => {
+    await withIsolatedHome(async (homeDir) => {
+      const pausedDir = path.join(homeDir, '.ccs', 'cliproxy', 'auth-paused');
+      const registryPath = path.join(homeDir, '.ccs', 'cliproxy', 'accounts.json');
+      fs.mkdirSync(pausedDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pausedDir, 'codex-paused@example.com.json'),
+        JSON.stringify({ type: 'codex', email: 'paused@example.com' }),
+        'utf8'
+      );
+      fs.writeFileSync(registryPath, '{"providers":', 'utf8');
+
+      const { getProviderAccounts } = await loadAccountManager();
+      const accounts = getProviderAccounts('codex');
+
+      expect(accounts).toHaveLength(1);
+      expect(accounts[0]?.id).toBe('paused@example.com');
+      expect(accounts[0]?.paused).toBe(true);
+    });
+  });
+
+  it('does not repopulate paused tokens during normal startup discovery', async () => {
+    await withIsolatedHome(async (homeDir) => {
+      const pausedDir = path.join(homeDir, '.ccs', 'cliproxy', 'auth-paused');
+      const registryPath = path.join(homeDir, '.ccs', 'cliproxy', 'accounts.json');
+      fs.mkdirSync(pausedDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pausedDir, 'codex-paused@example.com.json'),
+        JSON.stringify({ type: 'codex', email: 'paused@example.com' }),
+        'utf8'
+      );
+
+      const { discoverExistingAccounts } = await loadRegistryModule();
+      discoverExistingAccounts();
+
+      expect(fs.existsSync(registryPath)).toBe(false);
+
+      const { getProviderAccounts } = await loadAccountManager();
+      expect(getProviderAccounts('codex')).toEqual([]);
     });
   });
 });
