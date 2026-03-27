@@ -18,6 +18,9 @@ import type {
   DockerUpOptions,
 } from './docker-types';
 
+const LOCAL_DOCKER_SYNC_TIMEOUT_MS = 10_000;
+const REMOTE_DOCKER_SYNC_TIMEOUT_MS = 30_000;
+
 function quotePosix(value: string): string {
   return `'${value.replace(/'/g, `'\"'\"'`)}'`;
 }
@@ -35,6 +38,37 @@ interface DockerSyncRunOptions {
   cwd?: string;
   env?: NodeJS.ProcessEnv;
   remote?: boolean;
+  timeoutMs?: number;
+}
+
+function formatTimeout(timeoutMs: number): string {
+  return timeoutMs % 1000 === 0 ? `${timeoutMs / 1000}s` : `${timeoutMs}ms`;
+}
+
+function buildTimeoutMessage(
+  command: string,
+  args: string[],
+  timeoutMs: number,
+  remote: boolean
+): string {
+  return [
+    `Command timed out after ${formatTimeout(timeoutMs)} while running a ${
+      remote ? 'remote' : 'local'
+    } Docker command.`,
+    `Command: ${renderCommand(command, args)}`,
+    remote
+      ? 'Check SSH reachability and the remote Docker host, then try again.'
+      : 'Check Docker availability on this machine, then try again.',
+  ].join('\n');
+}
+
+function applyDefaultTimeouts(options: DockerSyncRunOptions): DockerSyncRunOptions {
+  return {
+    ...options,
+    timeoutMs:
+      options.timeoutMs ??
+      (options.remote ? REMOTE_DOCKER_SYNC_TIMEOUT_MS : LOCAL_DOCKER_SYNC_TIMEOUT_MS),
+  };
 }
 
 function runSync(
@@ -42,21 +76,32 @@ function runSync(
   args: string[],
   options: DockerSyncRunOptions = {}
 ): DockerCommandResult {
+  const normalizedOptions = applyDefaultTimeouts(options);
   const result = spawnSync(command, args, {
-    cwd: options.cwd,
-    env: options.env,
+    cwd: normalizedOptions.cwd,
+    env: normalizedOptions.env,
     encoding: 'utf8',
     stdio: 'pipe',
+    timeout: normalizedOptions.timeoutMs,
     windowsHide: true,
   });
-  const stderr = [normalizeOutput(result.stderr), result.error?.message].filter(Boolean).join('\n');
+  const errorMessage =
+    result.error && 'code' in result.error && result.error.code === 'ETIMEDOUT'
+      ? buildTimeoutMessage(
+          command,
+          args,
+          normalizedOptions.timeoutMs ?? LOCAL_DOCKER_SYNC_TIMEOUT_MS,
+          normalizedOptions.remote ?? false
+        )
+      : result.error?.message;
+  const stderr = [normalizeOutput(result.stderr), errorMessage].filter(Boolean).join('\n');
 
   return {
     command: renderCommand(command, args),
     exitCode: result.status ?? 1,
     stdout: normalizeOutput(result.stdout),
     stderr,
-    remote: options.remote ?? false,
+    remote: normalizedOptions.remote ?? false,
   };
 }
 
@@ -78,12 +123,27 @@ function runStreaming(command: string, args: string[]): Promise<void> {
   });
 }
 
+let cachedLocalComposePrefix: string[] | undefined;
+
 function resolveLocalComposePrefix(): string[] {
-  if (runSync('docker', ['compose', 'version']).exitCode === 0) {
-    return ['docker', 'compose'];
+  if (cachedLocalComposePrefix) {
+    return [...cachedLocalComposePrefix];
   }
-  if (runSync('docker-compose', ['version']).exitCode === 0) {
-    return ['docker-compose'];
+  if (
+    runSync('docker', ['compose', 'version'], {
+      timeoutMs: LOCAL_DOCKER_SYNC_TIMEOUT_MS,
+    }).exitCode === 0
+  ) {
+    cachedLocalComposePrefix = ['docker', 'compose'];
+    return [...cachedLocalComposePrefix];
+  }
+  if (
+    runSync('docker-compose', ['version'], {
+      timeoutMs: LOCAL_DOCKER_SYNC_TIMEOUT_MS,
+    }).exitCode === 0
+  ) {
+    cachedLocalComposePrefix = ['docker-compose'];
+    return [...cachedLocalComposePrefix];
   }
   throw new Error('Docker Compose is not available. Install Docker Desktop or docker-compose.');
 }
@@ -129,7 +189,7 @@ export class DockerExecutor {
     return createDockerConfigSummary(options);
   }
 
-  async up(options: DockerUpOptions): Promise<void> {
+  up(options: DockerUpOptions): void {
     if (options.host) {
       this.stageRemoteAssets(options.host);
     }
@@ -144,11 +204,11 @@ export class DockerExecutor {
     );
   }
 
-  async down(options: DockerCommandTarget): Promise<void> {
+  down(options: DockerCommandTarget): void {
     this.ensureSuccess(this.runCompose(['down'], options), 'Docker stack shutdown', options);
   }
 
-  async status(options: DockerCommandTarget): Promise<DockerStatusResult> {
+  status(options: DockerCommandTarget): DockerStatusResult {
     const compose = this.runCompose(['ps'], options);
     this.ensureSuccess(compose, 'Docker status', options);
     let supervisor: DockerCommandResult | undefined;
@@ -161,7 +221,7 @@ export class DockerExecutor {
     return { compose, supervisor };
   }
 
-  async update(options: DockerCommandTarget): Promise<void> {
+  update(options: DockerCommandTarget): void {
     const script =
       'npm install -g @kaitranntt/ccs@latest --force && ccs cliproxy --latest && supervisorctl -c /etc/supervisord.conf restart ccs-dashboard cliproxy';
     this.ensureSuccess(
@@ -268,7 +328,11 @@ export class DockerExecutor {
     args: string[],
     options: DockerSyncRunOptions = {}
   ): DockerCommandResult {
-    return this.deps.runSync?.(command, args, options) ?? runSync(command, args, options);
+    const normalizedOptions = applyDefaultTimeouts(options);
+    return (
+      this.deps.runSync?.(command, args, normalizedOptions) ??
+      runSync(command, args, normalizedOptions)
+    );
   }
 
   private async runStreaming(command: string, args: string[]): Promise<void> {

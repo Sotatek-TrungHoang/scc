@@ -17,6 +17,7 @@ type SyncCall = {
     cwd?: string;
     env?: NodeJS.ProcessEnv;
     remote?: boolean;
+    timeoutMs?: number;
   };
 };
 
@@ -47,18 +48,12 @@ describe('docker executor', () => {
 
     expect(calls).toHaveLength(1);
     expect(calls[0].command).toBe('docker');
-    expect(calls[0].args).toEqual([
-      'compose',
-      '-f',
-      fakeAssets.composeFile,
-      'up',
-      '-d',
-      '--build',
-    ]);
+    expect(calls[0].args).toEqual(['compose', '-f', fakeAssets.composeFile, 'up', '-d', '--build']);
     expect(calls[0].options?.cwd).toBe(fakeAssets.dockerDir);
     expect(calls[0].options?.env?.CCS_NPM_VERSION).toBe('7.59.0');
     expect(calls[0].options?.env?.CCS_DASHBOARD_PORT).toBe('4000');
     expect(calls[0].options?.env?.CCS_CLIPROXY_PORT).toBe('9317');
+    expect(calls[0].options?.timeoutMs).toBe(10_000);
   });
 
   it('stages bundled assets before remote compose startup', async () => {
@@ -78,7 +73,7 @@ describe('docker executor', () => {
     expect(calls[0]).toEqual({
       command: 'ssh',
       args: ['docker', 'mkdir -p ~/.ccs/docker'],
-      options: { remote: true },
+      options: { remote: true, timeoutMs: 30_000 },
     });
     expect(calls[1].command).toBe('scp');
     expect(calls[1].args).toEqual([
@@ -88,13 +83,14 @@ describe('docker executor', () => {
       fakeAssets.entrypoint,
       'docker:~/.ccs/docker/',
     ]);
-    expect(calls[1].options).toEqual({ remote: true });
+    expect(calls[1].options).toEqual({ remote: true, timeoutMs: 30_000 });
     expect(calls[2].command).toBe('ssh');
     expect(calls[2].args[0]).toBe('docker');
     expect(calls[2].args[1]).toContain("CCS_NPM_VERSION='7.59.0'");
     expect(calls[2].args[1]).toContain("CCS_DASHBOARD_PORT='3000'");
     expect(calls[2].args[1]).toContain("CCS_CLIPROXY_PORT='8317'");
     expect(calls[2].args[1]).toContain('docker-compose version >/dev/null 2>&1');
+    expect(calls[2].options?.timeoutMs).toBe(30_000);
   });
 
   it('uses npm install latest rather than npm update during in-container updates', async () => {
@@ -161,5 +157,31 @@ describe('docker executor', () => {
     expect(status.compose.exitCode).toBe(0);
     expect(status.supervisor?.exitCode).toBe(7);
     expect(status.supervisor?.stderr).toContain('supervisor.sock');
+  });
+
+  it('surfaces a clear timeout message for blocked sync commands', () => {
+    const executor = new DockerExecutor({
+      assets: fakeAssets,
+    });
+
+    const result = (
+      executor as unknown as {
+        runSync: (
+          command: string,
+          args: string[],
+          options?: { remote?: boolean; timeoutMs?: number }
+        ) => DockerCommandResult;
+      }
+    ).runSync(process.execPath, ['-e', 'setTimeout(() => {}, 1000)'], {
+      remote: true,
+      timeoutMs: 25,
+    });
+
+    expect(result.exitCode).toBe(1);
+    expect(result.stderr).toContain(
+      'Command timed out after 25ms while running a remote Docker command.'
+    );
+    expect(result.stderr).toContain(`Command: ${process.execPath}`);
+    expect(result.stderr).toContain('Check SSH reachability and the remote Docker host');
   });
 });

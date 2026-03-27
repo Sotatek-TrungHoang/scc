@@ -21,9 +21,9 @@ async function prepareIntegratedRuntime(): Promise<{ binaryPath: string; configP
   return { binaryPath, configPath };
 }
 
-async function runCliproxy(): Promise<void> {
+async function runCliproxy(): Promise<number> {
   const { binaryPath, configPath } = await prepareIntegratedRuntime();
-  await new Promise<void>((resolve, reject) => {
+  return new Promise<number>((resolve, reject) => {
     const child = spawn(binaryPath, ['--config', configPath], {
       stdio: 'inherit',
       env: {
@@ -34,27 +34,30 @@ async function runCliproxy(): Promise<void> {
 
     child.on('error', reject);
     child.on('close', (code) => {
-      process.exit(code ?? 1);
+      resolve(code ?? 1);
     });
-    child.on('spawn', () => resolve());
   });
 }
 
-async function main(): Promise<void> {
+async function main(): Promise<number> {
   const command = process.argv[2];
   if (command !== 'run-cliproxy') {
     console.error('[X] Usage: node dist/docker/docker-bootstrap.js run-cliproxy');
-    process.exit(1);
+    return 1;
   }
 
-  await runCliproxy();
+  return runCliproxy();
 }
 
 if (require.main === module) {
-  void main().catch((error) => {
-    console.error(
-      `[X] Failed to prepare Docker runtime: ${error instanceof Error ? error.message : String(error)}`
-    );
-    process.exit(1);
-  });
+  void main()
+    .then((exitCode) => {
+      process.exitCode = exitCode;
+    })
+    .catch((error) => {
+      console.error(
+        `[X] Failed to prepare Docker runtime: ${error instanceof Error ? error.message : String(error)}`
+      );
+      process.exitCode = 1;
+    });
 }

@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as path from 'path';
 import { getCcsDir } from '../utils/config-manager';
 import type { DockerConfigSummary } from './docker-types';
@@ -22,8 +21,31 @@ export interface DockerAssetPaths {
   entrypoint: string;
 }
 
+let hasWarnedAboutVersionFallback = false;
+
 function getPackageRoot(): string {
   return path.resolve(__dirname, '..', '..');
+}
+
+function ensureBundledAsset(assetPath: string): void {
+  try {
+    require.resolve(assetPath);
+  } catch {
+    throw new Error(
+      `Missing bundled Docker asset: ${assetPath}\nReinstall CCS or use a package build that includes docker/ assets.`
+    );
+  }
+}
+
+function warnAboutVersionFallback(error: unknown): void {
+  if (hasWarnedAboutVersionFallback) {
+    return;
+  }
+  hasWarnedAboutVersionFallback = true;
+  const detail = error instanceof Error ? error.message : String(error);
+  console.error(
+    `[!] Failed to determine the installed CCS version from package metadata; falling back to latest.\n${detail}`
+  );
 }
 
 export function getDockerAssetPaths(): DockerAssetPaths {
@@ -37,13 +59,10 @@ export function getDockerAssetPaths(): DockerAssetPaths {
     entrypoint: path.join(dockerDir, 'entrypoint-integrated.sh'),
   };
 
-  for (const assetPath of Object.values(assets)) {
-    if (!fs.existsSync(assetPath)) {
-      throw new Error(
-        `Missing bundled Docker asset: ${assetPath}\nReinstall CCS or use a package build that includes docker/ assets.`
-      );
-    }
-  }
+  ensureBundledAsset(assets.composeFile);
+  ensureBundledAsset(assets.dockerfile);
+  ensureBundledAsset(assets.supervisordConfig);
+  ensureBundledAsset(assets.entrypoint);
 
   return assets;
 }
@@ -51,11 +70,10 @@ export function getDockerAssetPaths(): DockerAssetPaths {
 export function getInstalledCcsVersion(): string {
   const packageJsonPath = path.join(getPackageRoot(), 'package.json');
   try {
-    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8')) as {
-      version?: string;
-    };
+    const packageJson = require(packageJsonPath) as { version?: string };
     return packageJson.version?.trim() || 'latest';
-  } catch {
+  } catch (error) {
+    warnAboutVersionFallback(error);
     return 'latest';
   }
 }
