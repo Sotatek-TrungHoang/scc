@@ -223,6 +223,7 @@ jobs:
           anthropic_api_key: ${{ secrets.GLM_API_KEY }}
           github_token: ${{ steps.app-token.outputs.token }}
           allowed_non_write_users: ${{ needs.prepare.outputs.contributor_source == 'external' && '*' || '' }}
+          show_full_output: true # Visible logs for debugging slow/failing reviews
           track_progress: false # Disabled - no progress comments, just final review
           prompt: |
             ultrathink
