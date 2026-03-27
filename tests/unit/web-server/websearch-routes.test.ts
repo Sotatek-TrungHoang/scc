@@ -4,7 +4,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import type { Server } from 'http';
-import { loadOrCreateUnifiedConfig, mutateUnifiedConfig } from '../../../src/config/unified-config-loader';
+import {
+  loadOrCreateUnifiedConfig,
+  mutateUnifiedConfig,
+} from '../../../src/config/unified-config-loader';
 import websearchRoutes from '../../../src/web-server/routes/websearch-routes';
 
 const WEBSEARCH_ENV_KEYS = [
@@ -21,11 +24,20 @@ describe('websearch routes', () => {
   let baseUrl = '';
   let tempHome: string;
   let originalCcsHome: string | undefined;
+  let originalDashboardAuthEnabled: string | undefined;
   let originalEnvValues: Record<(typeof WEBSEARCH_ENV_KEYS)[number], string | undefined>;
+  let forcedRemoteAddress = '127.0.0.1';
 
   beforeAll(async () => {
     const app = express();
     app.use(express.json());
+    app.use((req, _res, next) => {
+      Object.defineProperty(req.socket, 'remoteAddress', {
+        value: forcedRemoteAddress,
+        configurable: true,
+      });
+      next();
+    });
     app.use('/api/websearch', websearchRoutes);
 
     await new Promise<void>((resolve, reject) => {
@@ -54,7 +66,10 @@ describe('websearch routes', () => {
   beforeEach(() => {
     tempHome = fs.mkdtempSync(path.join(os.tmpdir(), 'ccs-websearch-routes-test-'));
     originalCcsHome = process.env.CCS_HOME;
+    originalDashboardAuthEnabled = process.env.CCS_DASHBOARD_AUTH_ENABLED;
     process.env.CCS_HOME = tempHome;
+    process.env.CCS_DASHBOARD_AUTH_ENABLED = 'false';
+    forcedRemoteAddress = '127.0.0.1';
 
     originalEnvValues = WEBSEARCH_ENV_KEYS.reduce(
       (acc, key) => {
@@ -73,6 +88,12 @@ describe('websearch routes', () => {
       delete process.env.CCS_HOME;
     }
 
+    if (originalDashboardAuthEnabled !== undefined) {
+      process.env.CCS_DASHBOARD_AUTH_ENABLED = originalDashboardAuthEnabled;
+    } else {
+      delete process.env.CCS_DASHBOARD_AUTH_ENABLED;
+    }
+
     for (const key of WEBSEARCH_ENV_KEYS) {
       const value = originalEnvValues[key];
       if (value !== undefined) {
@@ -85,6 +106,41 @@ describe('websearch routes', () => {
     if (tempHome && fs.existsSync(tempHome)) {
       fs.rmSync(tempHome, { recursive: true, force: true });
     }
+  });
+
+  it('blocks remote access when dashboard auth is disabled', async () => {
+    forcedRemoteAddress = '10.10.0.24';
+
+    const getResponse = await fetch(`${baseUrl}/api/websearch`);
+    expect(getResponse.status).toBe(403);
+    expect(await getResponse.json()).toEqual({
+      error: 'WebSearch endpoints require localhost access when dashboard auth is disabled.',
+    });
+
+    const putResponse = await fetch(`${baseUrl}/api/websearch`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apiKeys: {
+          exa: 'exa-secret-abcdefgh',
+        },
+      }),
+    });
+    expect(putResponse.status).toBe(403);
+    expect(await putResponse.json()).toEqual({
+      error: 'WebSearch endpoints require localhost access when dashboard auth is disabled.',
+    });
+
+    const config = loadOrCreateUnifiedConfig();
+    expect(config.global_env?.env.EXA_API_KEY).toBeUndefined();
+  });
+
+  it('allows remote access when dashboard auth is enabled', async () => {
+    forcedRemoteAddress = '10.10.0.24';
+    process.env.CCS_DASHBOARD_AUTH_ENABLED = 'true';
+
+    const response = await fetch(`${baseUrl}/api/websearch`);
+    expect(response.status).toBe(200);
   });
 
   it('returns masked API key state from dashboard-managed global env', async () => {
@@ -128,7 +184,9 @@ describe('websearch routes', () => {
     expect(statusPayload.readiness).toMatchObject({
       status: 'ready',
     });
-    expect(statusPayload.providers.find((provider: { id: string }) => provider.id === 'exa')).toMatchObject({
+    expect(
+      statusPayload.providers.find((provider: { id: string }) => provider.id === 'exa')
+    ).toMatchObject({
       available: true,
       detail: 'API key detected (7 results)',
     });
@@ -217,5 +275,52 @@ describe('websearch routes', () => {
 
     const config = loadOrCreateUnifiedConfig();
     expect(config.global_env?.env.EXA_API_KEY).toBe('exa-secret-12345678');
+  });
+
+  it('rejects non-object request bodies', async () => {
+    const response = await fetch(`${baseUrl}/api/websearch`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: '[]',
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: 'Invalid request body. Must be an object.',
+    });
+  });
+
+  it('rejects unsupported API key providers', async () => {
+    const response = await fetch(`${baseUrl}/api/websearch`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apiKeys: {
+          invalid: 'secret',
+        },
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: 'Unsupported WebSearch provider: invalid',
+    });
+  });
+
+  it('rejects non-string API key values', async () => {
+    const response = await fetch(`${baseUrl}/api/websearch`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        apiKeys: {
+          exa: 123,
+        },
+      }),
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error: 'Invalid value for exa API key',
+    });
   });
 });
