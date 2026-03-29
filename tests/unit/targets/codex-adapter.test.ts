@@ -167,12 +167,14 @@ describe('CodexAdapter', () => {
   test('injects CCS_CODEX_API_KEY for CCS-backed launches only', () => {
     const originalCodeXHome = process.env.CODEX_HOME;
     const originalCodeXCi = process.env.CODEX_CI;
+    const originalCodeXManagedByBun = process.env.CODEX_MANAGED_BY_BUN;
     const originalCodeXThreadId = process.env.CODEX_THREAD_ID;
     const originalAnthropicBaseUrl = process.env.ANTHROPIC_BASE_URL;
 
     try {
       process.env.CODEX_HOME = '/tmp/codex-home';
       process.env.CODEX_CI = '1';
+      process.env.CODEX_MANAGED_BY_BUN = '1';
       process.env.CODEX_THREAD_ID = 'thread-123';
       process.env.ANTHROPIC_BASE_URL = 'https://stale-proxy.invalid';
 
@@ -187,6 +189,7 @@ describe('CodexAdapter', () => {
       expect(settingsEnv.CCS_CODEX_API_KEY).toBe('cliproxy-token');
       expect(settingsEnv.CODEX_HOME).toBe('/tmp/codex-home');
       expect(settingsEnv.CODEX_CI).toBeUndefined();
+      expect(settingsEnv.CODEX_MANAGED_BY_BUN).toBeUndefined();
       expect(settingsEnv.CODEX_THREAD_ID).toBeUndefined();
       expect(settingsEnv.ANTHROPIC_BASE_URL).toBeUndefined();
 
@@ -201,6 +204,7 @@ describe('CodexAdapter', () => {
       expect(defaultEnv.CCS_CODEX_API_KEY).toBeUndefined();
       expect(defaultEnv.CODEX_HOME).toBe('/tmp/codex-home');
       expect(defaultEnv.CODEX_CI).toBeUndefined();
+      expect(defaultEnv.CODEX_MANAGED_BY_BUN).toBeUndefined();
       expect(defaultEnv.CODEX_THREAD_ID).toBeUndefined();
       expect(defaultEnv.ANTHROPIC_BASE_URL).toBeUndefined();
     } finally {
@@ -213,6 +217,11 @@ describe('CodexAdapter', () => {
         delete process.env.CODEX_CI;
       } else {
         process.env.CODEX_CI = originalCodeXCi;
+      }
+      if (originalCodeXManagedByBun === undefined) {
+        delete process.env.CODEX_MANAGED_BY_BUN;
+      } else {
+        process.env.CODEX_MANAGED_BY_BUN = originalCodeXManagedByBun;
       }
       if (originalCodeXThreadId === undefined) {
         delete process.env.CODEX_THREAD_ID;

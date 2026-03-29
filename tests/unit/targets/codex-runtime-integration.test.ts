@@ -82,11 +82,11 @@ const out = process.env.CCS_TEST_CODEX_ARGS_OUT;
 if (out) {
   fs.appendFileSync(out, JSON.stringify(process.argv.slice(2)) + '\\n');
 }
-if (process.argv[2] === '--version') {
+if (process.argv[2] === '--version' || process.argv[2] === '-v') {
   process.stdout.write(process.env.CCS_TEST_CODEX_VERSION || 'codex-cli 0.118.0-alpha.3');
   process.exit(0);
 }
-if (process.argv[2] === '--help') {
+if (process.argv[2] === '--help' || process.argv[2] === '-h') {
   process.stdout.write(
     process.env.CCS_TEST_CODEX_HELP ||
       '  -c, --config <key=value>\\n  -p, --profile <CONFIG_PROFILE>\\n'
@@ -144,23 +144,45 @@ process.exit(0);
     expect(calls).toEqual([['fix failing tests']]);
   });
 
-  it('passes ccsx --version straight through to the native Codex binary', () => {
-    if (process.platform === 'win32') return;
+  for (const versionFlag of ['--version', '-v']) {
+    it(`passes ccsx ${versionFlag} straight through to the native Codex binary`, () => {
+      if (process.platform === 'win32') return;
 
-    const result = runCodexAlias(['--version'], {
-      ...process.env,
-      CI: '1',
-      NO_COLOR: '1',
-      CCS_HOME: tmpHome,
-      CCS_CODEX_PATH: fakeCodexPath,
-      CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
-      CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
+      const result = runCodexAlias([versionFlag], {
+        ...process.env,
+        CI: '1',
+        NO_COLOR: '1',
+        CCS_HOME: tmpHome,
+        CCS_CODEX_PATH: fakeCodexPath,
+        CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+        CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
+      });
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain('codex-cli 9.9.9-test');
+      expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([[versionFlag]]);
     });
+  }
 
-    expect(result.status).toBe(0);
-    expect(result.stdout).toContain('codex-cli 9.9.9-test');
-    expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([['--version']]);
-  });
+  for (const helpFlag of ['--help', '-h']) {
+    it(`passes ccsx ${helpFlag} straight through to the native Codex binary`, () => {
+      if (process.platform === 'win32') return;
+
+      const result = runCodexAlias([helpFlag], {
+        ...process.env,
+        CI: '1',
+        NO_COLOR: '1',
+        CCS_HOME: tmpHome,
+        CCS_CODEX_PATH: fakeCodexPath,
+        CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+        CCS_TEST_CODEX_HELP: 'codex native help text',
+      });
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain('codex native help text');
+      expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([[helpFlag]]);
+    });
+  }
 
   it('fails fast when native Codex reasoning overrides need unsupported --config support', () => {
     if (process.platform === 'win32') return;
