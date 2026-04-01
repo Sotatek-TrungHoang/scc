@@ -5,6 +5,23 @@ import { escapeShellArg } from '../utils/shell-executor';
 import type { TargetBinaryInfo } from './target-adapter';
 
 const CODEX_CONFIG_OVERRIDE_FEATURE = 'config-overrides';
+const CODEX_CONFIG_OVERRIDE_PROBE_ARGS = ['-c', 'model="gpt-5"', '--version'];
+
+function buildWindowsCodexCandidates(matches: string[]): string[] {
+  const shellCandidates = matches.filter((entry) => /\.(exe|cmd|bat|ps1)$/i.test(entry));
+  const bareCandidates = matches.filter((entry) => !/\.(exe|cmd|bat|ps1)$/i.test(entry));
+  const prioritized: string[] = [];
+
+  for (const entry of shellCandidates) {
+    if (/\.(cmd|bat)$/i.test(entry)) {
+      prioritized.push(entry.replace(/\.(cmd|bat)$/i, '.ps1'));
+    }
+    prioritized.push(entry);
+  }
+
+  prioritized.push(...bareCandidates);
+  return [...new Set(prioritized)];
+}
 
 function runCodexProbe(codexPath: string, args: string[]): string | undefined {
   const isWindows = process.platform === 'win32';
@@ -49,9 +66,25 @@ export function readCodexVersion(codexPath: string): string | undefined {
   return runCodexProbe(codexPath, ['--version'])?.trim();
 }
 
+function codexHelpAdvertisesConfigOverrides(helpText: string | undefined): boolean {
+  if (!helpText) {
+    return false;
+  }
+
+  return /(^|\n)\s*-c,\s*--config\b/m.test(helpText) || helpText.includes('--config <key=value>');
+}
+
+function codexSupportsConfigOverrideProbe(codexPath: string): boolean {
+  return !!runCodexProbe(codexPath, CODEX_CONFIG_OVERRIDE_PROBE_ARGS)?.trim();
+}
+
 function detectCodexFeatures(codexPath: string): readonly string[] {
+  if (codexSupportsConfigOverrideProbe(codexPath)) {
+    return [CODEX_CONFIG_OVERRIDE_FEATURE];
+  }
+
   const helpText = runCodexProbe(codexPath, ['--help']);
-  return helpText?.includes('--config <key=value>') ? [CODEX_CONFIG_OVERRIDE_FEATURE] : [];
+  return codexHelpAdvertisesConfigOverrides(helpText) ? [CODEX_CONFIG_OVERRIDE_FEATURE] : [];
 }
 
 export function detectCodexCli(): string | null {
@@ -95,12 +128,7 @@ export function detectCodexCli(): string | null {
       .map((entry) => entry.trim())
       .filter(Boolean);
 
-    const candidates = isWindows
-      ? [
-          ...matches.filter((entry) => /\.(exe|cmd|bat|ps1)$/i.test(entry)),
-          ...matches.filter((entry) => !/\.(exe|cmd|bat|ps1)$/i.test(entry)),
-        ]
-      : matches;
+    const candidates = isWindows ? buildWindowsCodexCandidates(matches) : matches;
 
     for (const candidate of candidates) {
       try {

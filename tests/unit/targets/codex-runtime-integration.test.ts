@@ -126,7 +126,17 @@ if (envOut) {
     }) + '\\n'
   );
 }
-if (cliArgs.includes('--version') || cliArgs.includes('-v')) {
+const configFlagIndex = cliArgs.findIndex((arg) => arg === '-c' || arg === '--config');
+if (process.env.CCS_TEST_CODEX_CONFIG_OVERRIDE_STATUS === 'unsupported' && configFlagIndex !== -1) {
+  process.stderr.write('codex: unknown option --config\\n');
+  process.exit(1);
+}
+if (
+  cliArgs.includes('--version') ||
+  cliArgs.includes('-v') ||
+  (configFlagIndex !== -1 &&
+    (cliArgs[configFlagIndex + 2] === '--version' || cliArgs[configFlagIndex + 2] === '-v'))
+) {
   process.stdout.write(process.env.CCS_TEST_CODEX_VERSION || 'codex-cli 0.118.0-alpha.3');
   process.exit(0);
 }
@@ -260,6 +270,120 @@ process.exit(0);
     ]);
   });
 
+  it('creates an explicit CODEX_HOME directory before routed native Codex launches', () => {
+    if (process.platform === 'win32') return;
+
+    const freshCodexHome = path.join(tmpHome, 'fresh-codex-home');
+    const result = runCcs(['default', '--target', 'codex', '--effort', 'high', 'fix failing tests'], {
+      ...process.env,
+      CI: '1',
+      NO_COLOR: '1',
+      CCS_HOME: tmpHome,
+      CCS_CODEX_PATH: fakeCodexPath,
+      CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+      CCS_TEST_CODEX_ENV_OUT: codexEnvLogPath,
+      CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
+      CODEX_HOME: freshCodexHome,
+    });
+
+    expect(result.status).toBe(0);
+    expect(fs.existsSync(freshCodexHome)).toBe(true);
+    expect(fs.statSync(freshCodexHome).isDirectory()).toBe(true);
+    expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([
+      ['-c', 'model="gpt-5"', '--version'],
+      ['-c', 'model_reasoning_effort="high"', 'fix failing tests'],
+    ]);
+    const loggedEnv = readLoggedCodexEnv(codexEnvLogPath);
+    expect(loggedEnv).toHaveLength(2);
+    expect(loggedEnv.map((entry) => entry.CODEX_HOME)).toEqual([freshCodexHome, freshCodexHome]);
+    expect(loggedEnv[1]).toEqual({
+      CODEX_HOME: freshCodexHome,
+      CODEX_CI: undefined,
+      CODEX_MANAGED_BY_BUN: undefined,
+      CODEX_THREAD_ID: undefined,
+      ANTHROPIC_BASE_URL: undefined,
+    });
+  });
+
+  it('fails with a clean error when routed launches receive a file CODEX_HOME path', () => {
+    if (process.platform === 'win32') return;
+
+    const invalidCodexHome = path.join(tmpHome, 'codex-home-file');
+    fs.writeFileSync(invalidCodexHome, 'not-a-directory');
+
+    const result = runCcs(
+      ['default', '--target', 'codex', '--effort', 'high', 'fix failing tests'],
+      {
+      ...process.env,
+      CI: '1',
+      NO_COLOR: '1',
+      CCS_HOME: tmpHome,
+      CCS_CODEX_PATH: fakeCodexPath,
+      CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+      CODEX_HOME: invalidCodexHome,
+      }
+    );
+
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain(`[X] CODEX_HOME path is not a directory: ${invalidCodexHome}`);
+    expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([['-c', 'model="gpt-5"', '--version']]);
+  });
+
+  it('keeps passthrough version launches aligned with native warning-only CODEX_HOME behavior', () => {
+    if (process.platform === 'win32') return;
+
+    const readOnlyRoot = path.join(tmpHome, 'readonly-root');
+    fs.mkdirSync(readOnlyRoot, { recursive: true });
+    fs.chmodSync(readOnlyRoot, 0o555);
+
+    try {
+      const result = runCodexAlias(['--version'], {
+        ...process.env,
+        CI: '1',
+        NO_COLOR: '1',
+        CCS_HOME: tmpHome,
+        CCS_CODEX_PATH: fakeCodexPath,
+        CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+        CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
+        CODEX_HOME: path.join(readOnlyRoot, 'missing-codex-home'),
+      });
+
+      expect(result.status).toBe(0);
+      expect(result.stdout).toContain('codex-cli 9.9.9-test');
+      expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([['--version']]);
+    } finally {
+      fs.chmodSync(readOnlyRoot, 0o755);
+    }
+  });
+
+  it('normalizes explicit CODEX_HOME before launching native Codex', () => {
+    if (process.platform === 'win32') return;
+
+    const result = runCodexAlias(['--version'], {
+      ...process.env,
+      CI: '1',
+      NO_COLOR: '1',
+      HOME: tmpHome,
+      CCS_HOME: tmpHome,
+      CCS_CODEX_PATH: fakeCodexPath,
+      CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+      CCS_TEST_CODEX_ENV_OUT: codexEnvLogPath,
+      CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
+      CODEX_HOME: '~/.codex-lit',
+    });
+
+    expect(result.status).toBe(0);
+    expect(readLoggedCodexEnv(codexEnvLogPath)).toEqual([
+      {
+        CODEX_HOME: path.join(tmpHome, '.codex-lit'),
+        CODEX_CI: undefined,
+        CODEX_MANAGED_BY_BUN: undefined,
+        CODEX_THREAD_ID: undefined,
+        ANTHROPIC_BASE_URL: undefined,
+      },
+    ]);
+  });
+
   it('keeps ccsxp pinned to native Codex even when a user passes another --target override', () => {
     if (process.platform === 'win32') return;
 
@@ -324,6 +448,7 @@ process.exit(0);
         CCS_HOME: tmpHome,
         CCS_CODEX_PATH: fakeCodexPath,
         CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+        CCS_TEST_CODEX_CONFIG_OVERRIDE_STATUS: 'unsupported',
         CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
         CCS_TEST_CODEX_HELP: '  -p, --profile <CONFIG_PROFILE>\\n',
       }
@@ -333,7 +458,31 @@ process.exit(0);
     expect(result.stderr).toContain('Codex CLI (codex-cli 9.9.9-test)');
     expect(result.stderr).toContain('does not advertise --config overrides');
     const calls = readLoggedCodexCalls(codexArgsLogPath);
-    expect(calls).toEqual([['--help'], ['--version']]);
+    expect(calls).toEqual([['-c', 'model="gpt-5"', '--version'], ['--help'], ['--version']]);
+  });
+
+  it('accepts native Codex reasoning overrides when the direct -c probe succeeds', () => {
+    if (process.platform === 'win32') return;
+
+    const result = runCcs(
+      ['default', '--target', 'codex', '--effort', 'high', 'fix failing tests'],
+      {
+        ...process.env,
+        CI: '1',
+        NO_COLOR: '1',
+        CCS_HOME: tmpHome,
+        CCS_CODEX_PATH: fakeCodexPath,
+        CCS_TEST_CODEX_ARGS_OUT: codexArgsLogPath,
+        CCS_TEST_CODEX_VERSION: 'codex-cli 9.9.9-test',
+        CCS_TEST_CODEX_HELP: '  -p, --profile <CONFIG_PROFILE>\\n',
+      }
+    );
+
+    expect(result.status).toBe(0);
+    expect(readLoggedCodexCalls(codexArgsLogPath)).toEqual([
+      ['-c', 'model="gpt-5"', '--version'],
+      ['-c', 'model_reasoning_effort="high"', 'fix failing tests'],
+    ]);
   });
 
   it('reports unsupported generic settings profiles before Codex install guidance', () => {
