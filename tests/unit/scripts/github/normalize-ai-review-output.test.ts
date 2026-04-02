@@ -104,13 +104,16 @@ describe('normalize-ai-review-output', () => {
         reviewableFiles: 34,
         selectedChanges: 620,
         reviewableChanges: 2140,
+        packetIncludedFiles: 6,
+        packetTotalFiles: 8,
+        packetOmittedFiles: 2,
         maxTurns: 6,
         timeoutMinutes: 5,
       },
     });
 
     expect(markdown).toContain(
-      '> 🧭 Review context: mode `triage`; hotspot-based bounded review (non-exhaustive); scope 8/34 reviewable files; 620/2140 reviewable changed lines; turn budget 6 turns; workflow cap 5 minutes.'
+      '> 🧭 Review context: mode `triage`; expanded packaged review with broader coverage; scope 8/34 reviewable files; 620/2140 reviewable changed lines; packet 6/8 selected files included in the final review packet; 2 selected files omitted for packet budget; turn budget 6 turns; workflow cap 5 minutes.'
     );
     expect(markdown).toContain('**⚠️ APPROVED WITH NOTES**');
   });
@@ -174,6 +177,9 @@ describe('normalize-ai-review-output', () => {
         AI_REVIEW_REVIEWABLE_FILES: '46',
         AI_REVIEW_SELECTED_CHANGES: '700',
         AI_REVIEW_REVIEWABLE_CHANGES: '2310',
+        AI_REVIEW_PACKET_INCLUDED_FILES: '7',
+        AI_REVIEW_PACKET_TOTAL_FILES: '10',
+        AI_REVIEW_PACKET_OMITTED_FILES: '3',
         AI_REVIEW_MAX_TURNS: '25',
         AI_REVIEW_TIMEOUT_MINUTES: '5',
         AI_REVIEW_OUTPUT_FILE: outputFile,
@@ -189,14 +195,17 @@ describe('normalize-ai-review-output', () => {
       expect(markdown).toContain(
         'The `triage` review reached its 25-turn runtime budget before it produced validated structured output.'
       );
-      expect(markdown).toContain('- Review mode: `triage` (hotspot-based bounded review (non-exhaustive))');
+      expect(markdown).toContain('- Review mode: `triage` (expanded packaged review with broader coverage)');
       expect(markdown).toContain('- Review scope: 10/46 reviewable files; 700/2310 reviewable changed lines');
+      expect(markdown).toContain(
+        '- Packet coverage: 7/10 selected files included in the final review packet; 3 selected files omitted for packet budget'
+      );
       expect(markdown).toContain('- Runtime budget: 25 turns / 5 minutes');
       expect(markdown).toContain(
         '- Hotspot files in this pass: `.github/workflows/ai-review.yml`, `scripts/github/prepare-ai-review-scope.mjs`, `src/ccs.ts`'
       );
-      expect(markdown).toContain('- Remaining reviewable scope not fully covered: 36 files; 1610 changed lines');
-      expect(markdown).toContain('- Manual follow-up: Focus manual review on the hotspot files above');
+      expect(markdown).toContain('- Remaining reviewable scope not fully covered: 39 files');
+      expect(markdown).toContain('- Manual follow-up: Focus manual review on the selected files above');
       expect(markdown).toContain('Runtime tools: `Bash`, `Edit`, `Read`');
       expect(markdown).toContain('Turns used: 25');
       expect(markdown).not.toContain('Now let me verify the findings');
@@ -231,6 +240,9 @@ describe('normalize-ai-review-output', () => {
         AI_REVIEW_REVIEWABLE_FILES: '52',
         AI_REVIEW_SELECTED_CHANGES: '640',
         AI_REVIEW_REVIEWABLE_CHANGES: '2480',
+        AI_REVIEW_PACKET_INCLUDED_FILES: '5',
+        AI_REVIEW_PACKET_TOTAL_FILES: '6',
+        AI_REVIEW_PACKET_OMITTED_FILES: '1',
         AI_REVIEW_MAX_TURNS: '5',
         AI_REVIEW_TIMEOUT_MINUTES: '5',
         AI_REVIEW_STATUS: 'cancelled',
@@ -246,13 +258,16 @@ describe('normalize-ai-review-output', () => {
       expect(markdown).toContain(
         'The `fast` review hit the workflow runtime cap before it produced validated structured output. The run stayed bounded to 5 minutes.'
       );
-      expect(markdown).toContain('- Review mode: `fast` (diff-focused bounded review)');
+      expect(markdown).toContain('- Review mode: `fast` (selected-file packaged review)');
       expect(markdown).toContain('- Review scope: 6/52 reviewable files; 640/2480 reviewable changed lines');
+      expect(markdown).toContain(
+        '- Packet coverage: 5/6 selected files included in the final review packet; 1 selected file omitted for packet budget'
+      );
       expect(markdown).toContain('- Runtime budget: 5 turns / 5 minutes');
       expect(markdown).toContain(
         '- Hotspot files in this pass: `src/commands/help-command.ts`, `src/ccs.ts`'
       );
-      expect(markdown).toContain('- Remaining reviewable scope not fully covered: 46 files; 1840 changed lines');
+      expect(markdown).toContain('- Remaining reviewable scope not fully covered: 47 files');
       expect(markdown).not.toContain('Partial draft that should never reach the published markdown.');
     });
   });

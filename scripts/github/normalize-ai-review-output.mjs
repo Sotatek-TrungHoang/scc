@@ -22,9 +22,9 @@ const STATUS_LABELS = {
 };
 
 const REVIEW_MODE_DETAILS = {
-  fast: 'diff-focused bounded review',
-  triage: 'hotspot-based bounded review (non-exhaustive)',
-  deep: 'expanded surrounding-code review',
+  fast: 'selected-file packaged review',
+  triage: 'expanded packaged review with broader coverage',
+  deep: 'maintainer-triggered expanded packet review',
 };
 
 const RENDERER_OWNED_MARKUP_PATTERNS = [
@@ -77,6 +77,9 @@ function normalizeRenderingMetadata(raw) {
   const reviewableFiles = parsePositiveInteger(raw.reviewableFiles);
   const selectedChanges = parsePositiveInteger(raw.selectedChanges);
   const reviewableChanges = parsePositiveInteger(raw.reviewableChanges);
+  const packetIncludedFiles = parsePositiveInteger(raw.packetIncludedFiles);
+  const packetTotalFiles = parsePositiveInteger(raw.packetTotalFiles);
+  const packetOmittedFiles = parsePositiveInteger(raw.packetOmittedFiles);
   const scopeLabel = cleanText(raw.scopeLabel).toLowerCase();
   const metadata = {};
 
@@ -88,6 +91,9 @@ function normalizeRenderingMetadata(raw) {
   if (reviewableFiles) metadata.reviewableFiles = reviewableFiles;
   if (selectedChanges) metadata.selectedChanges = selectedChanges;
   if (reviewableChanges) metadata.reviewableChanges = reviewableChanges;
+  if (packetIncludedFiles !== null) metadata.packetIncludedFiles = packetIncludedFiles;
+  if (packetTotalFiles !== null) metadata.packetTotalFiles = packetTotalFiles;
+  if (packetOmittedFiles !== null) metadata.packetOmittedFiles = packetOmittedFiles;
   if (scopeLabel === 'reviewable files' || scopeLabel === 'changed files') metadata.scopeLabel = scopeLabel;
 
   return metadata;
@@ -143,6 +149,22 @@ function formatScopeSummary(rendering) {
   return fileScope;
 }
 
+function formatPacketCoverage(rendering) {
+  if (
+    typeof rendering.packetIncludedFiles !== 'number' ||
+    typeof rendering.packetTotalFiles !== 'number'
+  ) {
+    return null;
+  }
+
+  const packetSummary = `${rendering.packetIncludedFiles}/${rendering.packetTotalFiles} selected files included in the final review packet`;
+  if (typeof rendering.packetOmittedFiles === 'number' && rendering.packetOmittedFiles > 0) {
+    return `${packetSummary}; ${rendering.packetOmittedFiles} selected file${rendering.packetOmittedFiles === 1 ? '' : 's'} omitted for packet budget`;
+  }
+
+  return packetSummary;
+}
+
 function formatReviewContext(rendering) {
   const parts = [];
 
@@ -154,6 +176,11 @@ function formatReviewContext(rendering) {
   const scopeSummary = formatScopeSummary(rendering);
   if (scopeSummary) {
     parts.push(`scope ${scopeSummary}`);
+  }
+
+  const packetCoverage = formatPacketCoverage(rendering);
+  if (packetCoverage) {
+    parts.push(`packet ${packetCoverage}`);
   }
 
   const turnBudget = formatTurnBudget(rendering);
@@ -317,14 +344,19 @@ function formatHotspotFiles(files) {
 
 function formatRemainingCoverage(rendering) {
   if (
-    typeof rendering.selectedFiles !== 'number' ||
-    typeof rendering.reviewableFiles !== 'number'
+    typeof rendering.reviewableFiles !== 'number' ||
+    (typeof rendering.packetIncludedFiles !== 'number' && typeof rendering.selectedFiles !== 'number')
   ) {
     return null;
   }
 
-  const remainingFiles = Math.max(rendering.reviewableFiles - rendering.selectedFiles, 0);
+  const coveredFiles = typeof rendering.packetIncludedFiles === 'number'
+    ? rendering.packetIncludedFiles
+    : rendering.selectedFiles;
+  const remainingFiles = Math.max(rendering.reviewableFiles - coveredFiles, 0);
+  const packetOmittedFiles = typeof rendering.packetOmittedFiles === 'number' ? rendering.packetOmittedFiles : 0;
   const hasChangeCounts =
+    packetOmittedFiles === 0 &&
     typeof rendering.selectedChanges === 'number' &&
     typeof rendering.reviewableChanges === 'number';
   const remainingChanges = hasChangeCounts
@@ -344,7 +376,7 @@ function formatRemainingCoverage(rendering) {
 
 function formatFallbackFollowUp(rendering) {
   if (rendering.mode === 'triage') {
-    return 'Focus manual review on the hotspot files above, and use `/review` for a deeper pass when release, auth, config, or workflow paths changed.';
+    return 'Focus manual review on the selected files above, and use `/review` for a deeper pass when release, auth, config, or workflow paths changed.';
   }
 
   return 'Use `/review` when you need a deeper maintainer rerun with more surrounding context.';
@@ -541,6 +573,10 @@ export function renderIncompleteReview({
   if (scopeSummary) {
     lines.push(`- Review scope: ${escapeMarkdownText(scopeSummary)}`);
   }
+  const packetCoverage = formatPacketCoverage(rendering);
+  if (packetCoverage) {
+    lines.push(`- Packet coverage: ${escapeMarkdownText(packetCoverage)}`);
+  }
   const runtimeBudget = formatCombinedBudget(rendering);
   if (runtimeBudget) {
     lines.push(`- Runtime budget: ${escapeMarkdownText(runtimeBudget)}`);
@@ -579,6 +615,9 @@ export function writeReviewFromEnv(env = process.env) {
     reviewableFiles: env.AI_REVIEW_REVIEWABLE_FILES,
     selectedChanges: env.AI_REVIEW_SELECTED_CHANGES,
     reviewableChanges: env.AI_REVIEW_REVIEWABLE_CHANGES,
+    packetIncludedFiles: env.AI_REVIEW_PACKET_INCLUDED_FILES,
+    packetTotalFiles: env.AI_REVIEW_PACKET_TOTAL_FILES,
+    packetOmittedFiles: env.AI_REVIEW_PACKET_OMITTED_FILES,
     scopeLabel: env.AI_REVIEW_SCOPE_LABEL,
     maxTurns: env.AI_REVIEW_MAX_TURNS,
     timeoutMinutes: env.AI_REVIEW_TIMEOUT_MINUTES ?? env.AI_REVIEW_TIMEOUT_MINUTES_BUDGET,
