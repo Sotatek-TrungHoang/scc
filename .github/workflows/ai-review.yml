@@ -451,15 +451,29 @@ jobs:
             exit 0
           fi
 
-          CLAUDE_PATH="/root/.local/bin/claude"
+          CANDIDATES=()
 
-          if [ ! -x "$CLAUDE_PATH" ]; then
-            echo "::error::Missing self-hosted Claude executable at $CLAUDE_PATH"
-            exit 1
+          if command -v claude >/dev/null 2>&1; then
+            CANDIDATES+=("$(command -v claude)")
           fi
 
-          "$CLAUDE_PATH" --version
-          echo "claude_path=$CLAUDE_PATH" >> "$GITHUB_OUTPUT"
+          CANDIDATES+=(
+            "/home/github-runner/.local/bin/claude"
+            "/root/.local/bin/claude"
+          )
+
+          for CLAUDE_PATH in "${CANDIDATES[@]}"; do
+            [ -n "$CLAUDE_PATH" ] || continue
+
+            if [ -x "$CLAUDE_PATH" ]; then
+              "$CLAUDE_PATH" --version
+              echo "claude_path=$CLAUDE_PATH" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "::error::Missing self-hosted Claude executable. Checked: ${CANDIDATES[*]}"
+          exit 1
 
       - name: Run Claude Code Review
         id: claude-review

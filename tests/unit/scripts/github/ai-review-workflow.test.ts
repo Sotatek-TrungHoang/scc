@@ -22,8 +22,10 @@ describe('ai-review workflow', () => {
     const toolchainStep = steps.find((step) => step.id === 'toolchain');
     expect(toolchainStep).toBeDefined();
     expect(toolchainStep?.name).toBe('Resolve self-hosted Claude executable');
-    expect(toolchainStep?.run).toContain('CLAUDE_PATH="/root/.local/bin/claude"');
-    expect(toolchainStep?.run).toContain('Missing self-hosted Claude executable');
+    expect(toolchainStep?.run).toContain('command -v claude');
+    expect(toolchainStep?.run).toContain('"/home/github-runner/.local/bin/claude"');
+    expect(toolchainStep?.run).toContain('"/root/.local/bin/claude"');
+    expect(toolchainStep?.run).toContain('Missing self-hosted Claude executable. Checked:');
     expect(toolchainStep?.run).toContain('echo "claude_path=$CLAUDE_PATH" >> "$GITHUB_OUTPUT"');
 
     const claudeReviewStep = steps.find((step) => step.id === 'claude-review');
