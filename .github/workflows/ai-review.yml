@@ -442,6 +442,25 @@ jobs:
             fi
           done < "$REVIEW_SCOPE_MANIFEST_FILE"
 
+      - name: Resolve self-hosted Claude executable
+        id: toolchain
+        run: |
+          echo "claude_path=" >> "$GITHUB_OUTPUT"
+
+          if [ "${{ needs.prepare.outputs.contributor_source }}" != "internal" ]; then
+            exit 0
+          fi
+
+          CLAUDE_PATH="/root/.local/bin/claude"
+
+          if [ ! -x "$CLAUDE_PATH" ]; then
+            echo "::error::Missing self-hosted Claude executable at $CLAUDE_PATH"
+            exit 1
+          fi
+
+          "$CLAUDE_PATH" --version
+          echo "claude_path=$CLAUDE_PATH" >> "$GITHUB_OUTPUT"
+
       - name: Run Claude Code Review
         id: claude-review
         timeout-minutes: ${{ fromJSON(needs.prepare.outputs.claude_timeout_minutes) }}
@@ -453,6 +472,7 @@ jobs:
           display_report: false # Keep all public review output on the normalized comment path
           show_full_output: false # Keep scratch output out of public logs
           track_progress: false # Disabled - no progress comments, just final review
+          path_to_claude_code_executable: ${{ steps.toolchain.outputs.claude_path }}
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ needs.prepare.outputs.pr_number }}
