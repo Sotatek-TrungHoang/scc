@@ -119,7 +119,8 @@ function escapeXml(text: string): string {
 }
 
 function buildToolResultBlock(toolName: string, toolCallId: string, resultText: string): string {
-  const cleanResult = truncateToolResultText(escapeXml(sanitizeToolResultText(resultText)));
+  // Truncate raw tool output before XML escaping so the cap reflects original content.
+  const cleanResult = escapeXml(truncateToolResultText(sanitizeToolResultText(resultText)));
 
   return [
     '<tool_result>',

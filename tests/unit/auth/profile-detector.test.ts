@@ -197,21 +197,14 @@ describe('ProfileDetector', () => {
     });
 
     it('should detect cursor as a first-class runtime profile when enabled', () => {
-      const mockUnifiedConfig = {
-        version: 2,
-        cursor: {
-          enabled: true,
-          port: 20129,
-          auto_start: true,
-          ghost_mode: true,
-          model: 'gpt-5.3-codex',
-        },
-      };
-
       const isUnifiedModeSpy = spyOn(unifiedConfigLoader, 'isUnifiedMode').mockReturnValue(true);
-      const loadUnifiedConfigSpy = spyOn(unifiedConfigLoader, 'loadUnifiedConfig').mockReturnValue(
-        mockUnifiedConfig as any
-      );
+      const getCursorConfigSpy = spyOn(unifiedConfigLoader, 'getCursorConfig').mockReturnValue({
+        enabled: true,
+        port: 20129,
+        auto_start: true,
+        ghost_mode: true,
+        model: 'gpt-5.3-codex',
+      });
 
       try {
         const result = detector.detectProfileType('cursor');
@@ -220,32 +213,55 @@ describe('ProfileDetector', () => {
         expect(result.cursorConfig?.auto_start).toBe(true);
       } finally {
         isUnifiedModeSpy.mockRestore();
-        loadUnifiedConfigSpy.mockRestore();
+        getCursorConfigSpy.mockRestore();
       }
     });
 
-    it('should throw a helpful error when cursor profile is disabled', () => {
-      const mockUnifiedConfig = {
-        version: 2,
-        cursor: {
-          enabled: false,
+    it('should merge default cursor fields when enabled via partial unified config', () => {
+      const originalCcsHome = process.env.CCS_HOME;
+      process.env.CCS_HOME = tempDir;
+      const ccsDir = path.join(tempDir, '.ccs');
+      fs.mkdirSync(ccsDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(ccsDir, 'config.yaml'),
+        ['version: 12', 'cursor:', '  enabled: true'].join('\n')
+      );
+
+      try {
+        const localDetector = new ProfileDetector();
+        const result = localDetector.detectProfileType('cursor');
+        expect(result.type).toBe('cursor');
+        expect(result.cursorConfig).toEqual({
+          enabled: true,
           port: 20129,
           auto_start: false,
           ghost_mode: true,
           model: 'gpt-5.3-codex',
-        },
-      };
+        });
+      } finally {
+        if (originalCcsHome !== undefined) {
+          process.env.CCS_HOME = originalCcsHome;
+        } else {
+          delete process.env.CCS_HOME;
+        }
+      }
+    });
 
+    it('should throw a helpful error when cursor profile is disabled', () => {
       const isUnifiedModeSpy = spyOn(unifiedConfigLoader, 'isUnifiedMode').mockReturnValue(true);
-      const loadUnifiedConfigSpy = spyOn(unifiedConfigLoader, 'loadUnifiedConfig').mockReturnValue(
-        mockUnifiedConfig as any
-      );
+      const getCursorConfigSpy = spyOn(unifiedConfigLoader, 'getCursorConfig').mockReturnValue({
+        enabled: false,
+        port: 20129,
+        auto_start: false,
+        ghost_mode: true,
+        model: 'gpt-5.3-codex',
+      });
 
       try {
         expect(() => detector.detectProfileType('cursor')).toThrow(/Cursor profile is not enabled/);
       } finally {
         isUnifiedModeSpy.mockRestore();
-        loadUnifiedConfigSpy.mockRestore();
+        getCursorConfigSpy.mockRestore();
       }
     });
   });

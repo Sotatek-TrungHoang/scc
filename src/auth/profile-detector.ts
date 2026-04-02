@@ -21,7 +21,7 @@ import {
   CompositeVariantConfig,
   CompositeTierConfig,
 } from '../config/unified-config-types';
-import { loadUnifiedConfig, isUnifiedMode } from '../config/unified-config-loader';
+import { loadUnifiedConfig, isUnifiedMode, getCursorConfig } from '../config/unified-config-loader';
 import { getCcsDir } from '../utils/config-manager';
 import { getProfileLookupCandidates, isLegacyProfileAlias } from '../utils/profile-compat';
 import type { CLIProxyProvider } from '../cliproxy/types';
@@ -308,8 +308,7 @@ class ProfileDetector {
 
     // Priority 0.75: Check Cursor profile - local Cursor daemon runtime
     if (profileName === 'cursor') {
-      const unifiedConfig = this.readUnifiedConfig();
-      const cursorConfig = unifiedConfig?.cursor;
+      const cursorConfig = getCursorConfig();
 
       if (!cursorConfig?.enabled) {
         const error = new Error(

@@ -6,6 +6,7 @@ import * as path from 'path';
 import {
   executeCursorProfile,
   generateCursorEnv,
+  resolveCursorImageAnalysisEnv,
 } from '../../../src/cursor/cursor-profile-executor';
 import { saveCredentials } from '../../../src/cursor/cursor-auth';
 import type { CursorConfig } from '../../../src/config/unified-config-types';
@@ -55,6 +56,14 @@ describe('cursor-profile-executor', () => {
     expect(env.ANTHROPIC_DEFAULT_SONNET_MODEL).toBe('cursor-sonnet');
     expect(env.ANTHROPIC_DEFAULT_HAIKU_MODEL).toBe('cursor-haiku');
     expect(env.CLAUDE_CONFIG_DIR).toBe('/tmp/claude-config');
+  });
+
+  it('skips image-analysis provider routing for cursor unless explicitly mapped', async () => {
+    const { env, warning } = await resolveCursorImageAnalysisEnv();
+
+    expect(env.CCS_CURRENT_PROVIDER).toBe('');
+    expect(env.CCS_IMAGE_ANALYSIS_SKIP).toBe('1');
+    expect(warning).toBeNull();
   });
 
   it('fails fast when Cursor integration is disabled', async () => {

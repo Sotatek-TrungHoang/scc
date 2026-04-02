@@ -22,6 +22,25 @@ import { CursorExecutor } from '../../../src/cursor/cursor-executor';
 import { WIRE_TYPE, FIELD } from '../../../src/cursor/cursor-protobuf-schema';
 import { StreamingFrameParser, decompressPayload } from '../../../src/cursor/cursor-stream-parser';
 
+const MAX_TOOL_RESULT_CHARS = 12_000;
+
+function computeExpectedToolResultOmittedChars(textLength: number): number {
+  if (textLength <= MAX_TOOL_RESULT_CHARS) {
+    return 0;
+  }
+
+  let omittedChars = textLength - MAX_TOOL_RESULT_CHARS;
+  while (true) {
+    const suffix = `\n[truncated ${omittedChars} chars]`;
+    const keepLength = Math.max(MAX_TOOL_RESULT_CHARS - suffix.length, 0);
+    const nextOmittedChars = textLength - keepLength;
+    if (nextOmittedChars === omittedChars) {
+      return omittedChars;
+    }
+    omittedChars = nextOmittedChars;
+  }
+}
+
 describe('Protobuf Encoding/Decoding', () => {
   describe('encodeVarint / decodeVarint round-trip', () => {
     it('should encode and decode 0', () => {
@@ -555,6 +574,8 @@ describe('Message Translation', () => {
 
     it('should truncate oversized tool result payloads', () => {
       const oversizedResult = '&'.repeat(12_050);
+      const omittedChars = computeExpectedToolResultOmittedChars(oversizedResult.length);
+      const preservedChars = oversizedResult.length - omittedChars;
       const result = buildCursorRequest(
         'gpt-4',
         {
@@ -583,11 +604,11 @@ describe('Message Translation', () => {
 
       expect(result.messages).toHaveLength(2);
       expect(result.messages[1].content).toContain('[truncated ');
-      expect(result.messages[1].content.length).toBeLessThan(12_250);
+      expect(result.messages[1].content).toContain(`[truncated ${omittedChars} chars]`);
 
       const resultMatch = result.messages[1].content.match(/<result>([\s\S]*)<\/result>/);
       expect(resultMatch).not.toBeNull();
-      expect(resultMatch?.[1].length).toBeLessThanOrEqual(12_000);
+      expect((resultMatch?.[1].match(/&amp;/g) ?? []).length).toBe(preservedChars);
     });
 
     it('should mark unserializable structured tool results explicitly', () => {
