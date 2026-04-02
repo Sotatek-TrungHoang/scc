@@ -4,8 +4,12 @@ import { fileURLToPath } from 'node:url';
 
 const MODE_LIMITS = {
   fast: { maxFiles: 16, maxChangedLines: 900, maxPatchLines: 90, maxPatchChars: 7000 },
-  triage: { maxFiles: 10, maxChangedLines: 700, maxPatchLines: 80, maxPatchChars: 6000 },
+  triage: { maxFiles: 6, maxChangedLines: 520, maxPatchLines: 60, maxPatchChars: 4500 },
   deep: { maxFiles: 20, maxChangedLines: 1600, maxPatchLines: 120, maxPatchChars: 9000 },
+};
+
+const TRIAGE_SIZE_CLASS_LIMITS = {
+  xlarge: { maxFiles: 4, maxChangedLines: 360, maxPatchLines: 45, maxPatchChars: 3200 },
 };
 
 const MODE_LABELS = {
@@ -33,6 +37,13 @@ const HIGH_RISK_PATTERNS = [
 
 function cleanText(value) {
   return typeof value === 'string' ? value.trim().replace(/\s+/g, ' ') : '';
+}
+
+function normalizeSizeClass(value) {
+  const sizeClass = cleanText(value).toLowerCase();
+  return sizeClass === 'small' || sizeClass === 'medium' || sizeClass === 'large' || sizeClass === 'xlarge'
+    ? sizeClass
+    : null;
 }
 
 function escapeMarkdown(value) {
@@ -127,8 +138,17 @@ export function normalizePullFiles(files) {
   }).map((file) => ({ ...file, score: scoreFile(file) }));
 }
 
-export function buildReviewScope(files, mode) {
-  const limits = MODE_LIMITS[mode] || MODE_LIMITS.fast;
+function resolveModeLimits(mode, sizeClass) {
+  if (mode !== 'triage') {
+    return MODE_LIMITS[mode] || MODE_LIMITS.fast;
+  }
+
+  return TRIAGE_SIZE_CLASS_LIMITS[sizeClass] || MODE_LIMITS.triage;
+}
+
+export function buildReviewScope(files, mode, options = {}) {
+  const sizeClass = normalizeSizeClass(options.sizeClass);
+  const limits = resolveModeLimits(mode, sizeClass);
   const reviewable = files.filter((file) => file.reviewable);
   const lowSignal = files.filter((file) => !file.reviewable);
   const usingChangedFallback = reviewable.length === 0;
@@ -260,6 +280,7 @@ export async function writeScopeFromEnv(env = process.env, request) {
   const prNumber = Number.parseInt(cleanText(env.AI_REVIEW_PR_NUMBER), 10);
   const baseRef = cleanText(env.AI_REVIEW_BASE_REF || 'dev');
   const mode = cleanText(env.AI_REVIEW_MODE || 'fast').toLowerCase();
+  const sizeClass = normalizeSizeClass(env.AI_REVIEW_PR_SIZE_CLASS);
   const turnBudget = Number.parseInt(cleanText(env.AI_REVIEW_MAX_TURNS || '0'), 10) || 0;
   const timeoutMinutes = Number.parseInt(cleanText(env.AI_REVIEW_TIMEOUT_MINUTES || '0'), 10) || 0;
   const outputFile = env.AI_REVIEW_SCOPE_FILE || '.ccs-ai-review-scope.md';
@@ -287,7 +308,7 @@ export async function writeScopeFromEnv(env = process.env, request) {
   const files = normalizePullFiles(
     await collectPullRequestFiles(`${apiUrl}/repos/${repository}/pulls/${prNumber}/files?per_page=100`, fetchPage)
   );
-  const scope = buildReviewScope(files, mode);
+  const scope = buildReviewScope(files, mode, { sizeClass });
   const markdown = renderReviewScope({ prNumber, baseRef, turnBudget, timeoutMinutes, scope });
 
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });

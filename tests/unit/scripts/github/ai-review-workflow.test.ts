@@ -35,10 +35,16 @@ describe('ai-review workflow', () => {
     expect(claudeReviewStep?.with?.path_to_claude_code_executable).toBe(
       '${{ steps.toolchain.outputs.claude_path }}'
     );
+    expect(claudeReviewStep?.with?.claude_args).toContain('--tools "Read"');
+    expect(claudeReviewStep?.with?.claude_args).toContain('--disallowedTools "Bash,Edit"');
 
     const promptStep = steps.find((step) => step.id === 'review-prompt');
     expect(promptStep).toBeDefined();
     expect(promptStep?.run).toContain("printf '%s\\n' \\");
     expect(promptStep?.run).not.toContain("| sed 's/^            //'");
+
+    const reviewScopeStep = steps.find((step) => step.id === 'review-scope');
+    expect(reviewScopeStep).toBeDefined();
+    expect(reviewScopeStep?.env?.AI_REVIEW_PR_SIZE_CLASS).toBe('${{ needs.prepare.outputs.pr_size_class }}');
   });
 });

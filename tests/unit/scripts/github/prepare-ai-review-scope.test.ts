@@ -113,6 +113,70 @@ describe('prepare-ai-review-scope', () => {
     expect(scope.scopeLabel).toBe('changed files');
   });
 
+  test('shrinks triage scope for xlarge PRs to keep hotspot reviews fast', () => {
+    const scope = reviewScope.buildReviewScope(
+      reviewScope.normalizePullFiles([
+        {
+          filename: '.github/workflows/ai-review.yml',
+          status: 'modified',
+          additions: 130,
+          deletions: 30,
+          changes: 160,
+          patch: '@@ -1 +1 @@\n-old\n+new',
+        },
+        {
+          filename: 'scripts/github/prepare-ai-review-scope.mjs',
+          status: 'modified',
+          additions: 120,
+          deletions: 20,
+          changes: 140,
+          patch: '@@ -1 +1 @@\n-old\n+new',
+        },
+        {
+          filename: 'src/commands/help-command.ts',
+          status: 'modified',
+          additions: 70,
+          deletions: 10,
+          changes: 80,
+          patch: '@@ -1 +1 @@\n-old\n+new',
+        },
+        {
+          filename: 'src/ccs.ts',
+          status: 'modified',
+          additions: 50,
+          deletions: 15,
+          changes: 65,
+          patch: '@@ -1 +1 @@\n-old\n+new',
+        },
+        {
+          filename: 'tests/unit/commands/help-command.test.ts',
+          status: 'modified',
+          additions: 40,
+          deletions: 5,
+          changes: 45,
+          patch: '@@ -1 +1 @@\n-old\n+new',
+        },
+      ]),
+      'triage',
+      { sizeClass: 'xlarge' }
+    );
+
+    expect(scope.selected.length).toBeLessThanOrEqual(4);
+    expect(scope.selected.map((file: { filename: string }) => file.filename)).toEqual(
+      expect.arrayContaining([
+        '.github/workflows/ai-review.yml',
+        'scripts/github/prepare-ai-review-scope.mjs',
+      ])
+    );
+    expect(scope.selectedChanges).toBeLessThanOrEqual(360);
+    expect(scope.limits).toEqual({
+      maxFiles: 4,
+      maxChangedLines: 360,
+      maxPatchLines: 45,
+      maxPatchChars: 3200,
+    });
+  });
+
   test('renders deterministic scope metadata and fences patch content safely', () => {
     const oversizedPatch = ['+line 1', '```', ...Array.from({ length: 118 }, (_, index) => `+line ${index + 2}`)].join('\n');
     const scope = reviewScope.buildReviewScope(

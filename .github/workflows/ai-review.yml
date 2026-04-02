@@ -402,6 +402,7 @@ jobs:
           AI_REVIEW_PR_NUMBER: ${{ needs.prepare.outputs.pr_number }}
           AI_REVIEW_BASE_REF: ${{ needs.prepare.outputs.base_ref }}
           AI_REVIEW_MODE: ${{ needs.prepare.outputs.review_mode }}
+          AI_REVIEW_PR_SIZE_CLASS: ${{ needs.prepare.outputs.pr_size_class }}
           AI_REVIEW_MAX_TURNS: ${{ needs.prepare.outputs.max_turns }}
           AI_REVIEW_TIMEOUT_MINUTES: ${{ needs.prepare.outputs.claude_timeout_minutes }}
           AI_REVIEW_SCOPE_FILE: ${{ env.REVIEW_SCOPE_FILE }}
@@ -518,6 +519,7 @@ jobs:
             - Respect the selected review mode budget and scope. Do not try to exhaustively map the repository on auto runs.
             - If the mode is `triage`, prioritize hotspots and be explicit that the review was bounded rather than exhaustive.
             - Do not reconstruct the full PR diff for `fast` or `triage` reviews, and do not look for omitted files outside the bounded workspace.
+            - Do not narrate your process or summarize interim reads. Spend turns on bounded file reads and the final JSON output only.
             - Return only structured output that matches the provided JSON schema.
             - Do NOT write files.
             - Do NOT post GitHub comments yourself.
@@ -528,7 +530,8 @@ jobs:
             --model ${{ env.REVIEW_MODEL }}
             --permission-mode bypassPermissions
             --max-turns ${{ needs.prepare.outputs.max_turns }}
-            --allowedTools "Read"
+            --tools "Read"
+            --disallowedTools "Bash,Edit"
             --json-schema '${{ env.REVIEW_OUTPUT_SCHEMA }}'
 
       - name: Render review comment
@@ -554,6 +557,7 @@ jobs:
           AI_REVIEW_TIMEOUT_MINUTES: ${{ needs.prepare.outputs.claude_timeout_minutes }}
           AI_REVIEW_STATUS: ${{ steps.claude-review.outcome }}
           AI_REVIEW_STRUCTURED_OUTPUT: ${{ steps.claude-review.outputs.structured_output }}
+          AI_REVIEW_SCOPE_MANIFEST_FILE: ${{ env.REVIEW_SCOPE_MANIFEST_FILE }}
 
       - name: Publish review comment
         if: always() && steps.app-token.outcome == 'success'

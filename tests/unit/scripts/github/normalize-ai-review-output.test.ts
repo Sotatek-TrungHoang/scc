@@ -146,6 +146,7 @@ describe('normalize-ai-review-output', () => {
   test('writes a safe incomplete comment with mode and runtime context instead of leaking raw assistant text', () => {
     withTempDir('ai-review-', (tempDir) => {
       const executionFile = path.join(tempDir, 'claude-execution-output.json');
+      const manifestFile = path.join(tempDir, 'selected-files.txt');
       const outputFile = path.join(tempDir, 'pr_review.md');
 
       fs.writeFileSync(
@@ -160,6 +161,10 @@ describe('normalize-ai-review-output', () => {
           },
         ])
       );
+      fs.writeFileSync(
+        manifestFile,
+        ['.github/workflows/ai-review.yml', 'scripts/github/prepare-ai-review-scope.mjs', 'src/ccs.ts'].join('\n')
+      );
 
       const result = reviewOutput.writeReviewFromEnv({
         AI_REVIEW_EXECUTION_FILE: executionFile,
@@ -173,6 +178,7 @@ describe('normalize-ai-review-output', () => {
         AI_REVIEW_TIMEOUT_MINUTES: '5',
         AI_REVIEW_OUTPUT_FILE: outputFile,
         AI_REVIEW_RUN_URL: 'https://github.com/kaitranntt/ccs/actions/runs/23758377592',
+        AI_REVIEW_SCOPE_MANIFEST_FILE: manifestFile,
         AI_REVIEW_STRUCTURED_OUTPUT: '',
       });
 
@@ -186,6 +192,11 @@ describe('normalize-ai-review-output', () => {
       expect(markdown).toContain('- Review mode: `triage` (hotspot-based bounded review (non-exhaustive))');
       expect(markdown).toContain('- Review scope: 10/46 reviewable files; 700/2310 reviewable changed lines');
       expect(markdown).toContain('- Runtime budget: 25 turns / 5 minutes');
+      expect(markdown).toContain(
+        '- Hotspot files in this pass: `.github/workflows/ai-review.yml`, `scripts/github/prepare-ai-review-scope.mjs`, `src/ccs.ts`'
+      );
+      expect(markdown).toContain('- Remaining reviewable scope not fully covered: 36 files; 1610 changed lines');
+      expect(markdown).toContain('- Manual follow-up: Focus manual review on the hotspot files above');
       expect(markdown).toContain('Runtime tools: `Bash`, `Edit`, `Read`');
       expect(markdown).toContain('Turns used: 25');
       expect(markdown).not.toContain('Now let me verify the findings');
@@ -195,6 +206,7 @@ describe('normalize-ai-review-output', () => {
   test('uses a timeout-safe fallback message when the bounded review hits the workflow cap', () => {
     withTempDir('ai-review-', (tempDir) => {
       const executionFile = path.join(tempDir, 'claude-execution-output.json');
+      const manifestFile = path.join(tempDir, 'selected-files.txt');
       const outputFile = path.join(tempDir, 'pr_review.md');
 
       fs.writeFileSync(
@@ -209,6 +221,7 @@ describe('normalize-ai-review-output', () => {
           },
         ])
       );
+      fs.writeFileSync(manifestFile, ['src/commands/help-command.ts', 'src/ccs.ts'].join('\n'));
 
       const result = reviewOutput.writeReviewFromEnv({
         AI_REVIEW_EXECUTION_FILE: executionFile,
@@ -223,6 +236,7 @@ describe('normalize-ai-review-output', () => {
         AI_REVIEW_STATUS: 'cancelled',
         AI_REVIEW_OUTPUT_FILE: outputFile,
         AI_REVIEW_RUN_URL: 'https://github.com/kaitranntt/ccs/actions/runs/23758377592',
+        AI_REVIEW_SCOPE_MANIFEST_FILE: manifestFile,
         AI_REVIEW_STRUCTURED_OUTPUT: '',
       });
 
@@ -235,6 +249,10 @@ describe('normalize-ai-review-output', () => {
       expect(markdown).toContain('- Review mode: `fast` (diff-focused bounded review)');
       expect(markdown).toContain('- Review scope: 6/52 reviewable files; 640/2480 reviewable changed lines');
       expect(markdown).toContain('- Runtime budget: 5 turns / 5 minutes');
+      expect(markdown).toContain(
+        '- Hotspot files in this pass: `src/commands/help-command.ts`, `src/ccs.ts`'
+      );
+      expect(markdown).toContain('- Remaining reviewable scope not fully covered: 46 files; 1840 changed lines');
       expect(markdown).not.toContain('Partial draft that should never reach the published markdown.');
     });
   });

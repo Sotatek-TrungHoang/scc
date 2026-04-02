@@ -20,6 +20,7 @@ Use only the review contract in this file plus the checked-out PR diff and nearb
 - Do not pad the review with praise or generic best-practice advice.
 - Read `.ccs-ai-review-scope.md` first when it is present. It defines the bounded review scope for this run.
 - If the mode is `triage`, be explicit in the summary that the review was hotspot-based rather than exhaustive.
+- Do not spend turns narrating your process. Read the bounded inputs, confirm issues, and emit the schema.
 
 ## Core Questions
 

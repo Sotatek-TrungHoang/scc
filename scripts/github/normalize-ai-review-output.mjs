@@ -290,6 +290,66 @@ function readExecutionMetadata(executionFile) {
   }
 }
 
+function readSelectedFiles(manifestFile) {
+  if (!manifestFile || !fs.existsSync(manifestFile)) {
+    return [];
+  }
+
+  try {
+    return fs
+      .readFileSync(manifestFile, 'utf8')
+      .split('\n')
+      .map((line) => cleanText(line))
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function formatHotspotFiles(files) {
+  if (!files.length) {
+    return null;
+  }
+
+  const visible = files.slice(0, 4).map(renderCode).join(', ');
+  return files.length > 4 ? `${visible}, and ${files.length - 4} more` : visible;
+}
+
+function formatRemainingCoverage(rendering) {
+  if (
+    typeof rendering.selectedFiles !== 'number' ||
+    typeof rendering.reviewableFiles !== 'number'
+  ) {
+    return null;
+  }
+
+  const remainingFiles = Math.max(rendering.reviewableFiles - rendering.selectedFiles, 0);
+  const hasChangeCounts =
+    typeof rendering.selectedChanges === 'number' &&
+    typeof rendering.reviewableChanges === 'number';
+  const remainingChanges = hasChangeCounts
+    ? Math.max(rendering.reviewableChanges - rendering.selectedChanges, 0)
+    : null;
+
+  if (remainingFiles === 0 && (!hasChangeCounts || remainingChanges === 0)) {
+    return null;
+  }
+
+  if (typeof remainingChanges === 'number') {
+    return `${remainingFiles} file${remainingFiles === 1 ? '' : 's'}; ${remainingChanges} changed lines`;
+  }
+
+  return `${remainingFiles} file${remainingFiles === 1 ? '' : 's'}`;
+}
+
+function formatFallbackFollowUp(rendering) {
+  if (rendering.mode === 'triage') {
+    return 'Focus manual review on the hotspot files above, and use `/review` for a deeper pass when release, auth, config, or workflow paths changed.';
+  }
+
+  return 'Use `/review` when you need a deeper maintainer rerun with more surrounding context.';
+}
+
 export function normalizeStructuredOutput(raw) {
   if (!raw) {
     return { ok: false, reason: 'missing structured output' };
@@ -461,6 +521,7 @@ export function renderIncompleteReview({
   runUrl,
   runtimeTools,
   turnsUsed,
+  selectedFiles,
   rendering: renderOptions,
   status,
 }) {
@@ -468,7 +529,7 @@ export function renderIncompleteReview({
   const lines = [
     '### ⚠️ AI Review Incomplete',
     '',
-    'Claude did not return validated structured review output, so this workflow did not publish raw scratch text.',
+    'Claude did not return validated structured review output, so this workflow published deterministic hotspot context instead of raw scratch text.',
     '',
     `- Outcome: ${describeIncompleteOutcome({ reason, rendering, turnsUsed, status })}`,
   ];
@@ -484,6 +545,15 @@ export function renderIncompleteReview({
   if (runtimeBudget) {
     lines.push(`- Runtime budget: ${escapeMarkdownText(runtimeBudget)}`);
   }
+  const hotspotFiles = formatHotspotFiles(selectedFiles || []);
+  if (hotspotFiles) {
+    lines.push(`- Hotspot files in this pass: ${hotspotFiles}`);
+  }
+  const remainingCoverage = formatRemainingCoverage(rendering);
+  if (remainingCoverage) {
+    lines.push(`- Remaining reviewable scope not fully covered: ${escapeMarkdownText(remainingCoverage)}`);
+  }
+  lines.push(`- Manual follow-up: ${escapeMarkdownText(formatFallbackFollowUp(rendering))}`);
   if (runtimeTools?.length) {
     lines.push(`- Runtime tools: ${runtimeTools.map(renderCode).join(', ')}`);
   }
@@ -501,6 +571,7 @@ export function writeReviewFromEnv(env = process.env) {
   const runUrl = env.AI_REVIEW_RUN_URL || '#';
   const validation = normalizeStructuredOutput(env.AI_REVIEW_STRUCTURED_OUTPUT);
   const metadata = readExecutionMetadata(env.AI_REVIEW_EXECUTION_FILE);
+  const selectedFiles = readSelectedFiles(env.AI_REVIEW_SCOPE_MANIFEST_FILE);
   const status = cleanText(env.AI_REVIEW_STATUS).toLowerCase() || null;
   const rendering = normalizeRenderingMetadata({
     mode: env.AI_REVIEW_MODE,
@@ -521,6 +592,7 @@ export function writeReviewFromEnv(env = process.env) {
         runUrl,
         runtimeTools: metadata.runtimeTools,
         turnsUsed: metadata.turnsUsed,
+        selectedFiles,
         rendering,
         status,
       });
