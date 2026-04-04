@@ -99,7 +99,12 @@ router.use((req: Request, res: Response, next) => {
 
 function pruneExpiredManualAuthState(now = Date.now()): void {
   for (const [state, pending] of pendingManualAuthState.entries()) {
-    if (now - pending.createdAt > MANUAL_AUTH_STATE_TTL_MS) {
+    const authExpired = now - pending.createdAt > MANUAL_AUTH_STATE_TTL_MS;
+    const withinLocalTokenGrace =
+      pending.upstreamCompletedAt !== undefined &&
+      now - pending.upstreamCompletedAt < POLLED_AUTH_LOCAL_TOKEN_GRACE_MS;
+
+    if (authExpired && !withinLocalTokenGrace) {
       pendingManualAuthState.delete(state);
     }
   }
@@ -199,7 +204,7 @@ function listProviderTokenSnapshots(provider: CLIProxyProvider): ProviderTokenSn
 
 function findNewTokenSnapshotForPendingAuth(
   provider: CLIProxyProvider,
-  pending: { knownTokenFiles: ProviderTokenSnapshot[] }
+  pending: { expectedAccountId?: string; knownTokenFiles: ProviderTokenSnapshot[] }
 ): ProviderTokenSnapshot | null {
   const knownTokenMtimes = new Map(
     pending.knownTokenFiles.map((snapshot) => [snapshot.file, snapshot.mtimeMs])
@@ -208,8 +213,29 @@ function findNewTokenSnapshotForPendingAuth(
   return (
     listProviderTokenSnapshots(provider).find((snapshot) => {
       const knownMtime = knownTokenMtimes.get(snapshot.file);
-      return knownMtime === undefined || snapshot.mtimeMs > knownMtime + 1;
+      if (knownMtime === undefined) {
+        return true;
+      }
+
+      if (!pending.expectedAccountId) {
+        return false;
+      }
+
+      return snapshot.mtimeMs > knownMtime + 1;
     }) || null
+  );
+}
+
+function shouldKeepWaitingForLocalToken(
+  state: string,
+  pending: { upstreamCompletedAt?: number },
+  now = Date.now()
+): boolean {
+  const upstreamCompletedAt =
+    pending.upstreamCompletedAt ?? markManualAuthUpstreamCompleted(state, now);
+
+  return (
+    upstreamCompletedAt !== null && now - upstreamCompletedAt < POLLED_AUTH_LOCAL_TOKEN_GRACE_MS
   );
 }
 
@@ -936,18 +962,15 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
         return;
       }
 
+      const now = Date.now();
       const tokenSnapshot = findNewTokenSnapshotForPendingAuth(localProvider, pendingAuth);
       if (!tokenSnapshot) {
-        const upstreamCompletedAt =
-          pendingAuth.upstreamCompletedAt ?? markManualAuthUpstreamCompleted(state, Date.now());
-        if (
-          upstreamCompletedAt !== null &&
-          Date.now() - upstreamCompletedAt < POLLED_AUTH_LOCAL_TOKEN_GRACE_MS
-        ) {
+        if (shouldKeepWaitingForLocalToken(state, pendingAuth, now)) {
           res.json({ status: 'wait' });
           return;
         }
 
+        pendingManualAuthState.delete(state);
         res.status(409).json({
           status: 'error',
           error:
@@ -965,6 +988,7 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
       );
 
       if (!account) {
+        pendingManualAuthState.delete(state);
         res.status(409).json({
           status: 'error',
           error: getManualCallbackRegistrationError(localProvider),
@@ -1078,20 +1102,72 @@ router.post('/:provider/submit-callback', async (req: Request, res: Response): P
       return;
     }
 
-    const account = registerAccountFromToken(
-      provider as CLIProxyProvider,
-      getProviderTokenDir(provider as CLIProxyProvider),
-      pendingAuth?.nickname,
-      false,
-      pendingAuth?.expectedAccountId
-    );
-    if (parsed.state) {
-      pendingManualAuthState.delete(parsed.state);
+    const localProvider = provider as CLIProxyProvider;
+    const now = Date.now();
+
+    if (pendingAuth) {
+      const tokenSnapshot = findNewTokenSnapshotForPendingAuth(localProvider, pendingAuth);
+      if (!tokenSnapshot) {
+        if (parsed.state && shouldKeepWaitingForLocalToken(parsed.state, pendingAuth, now)) {
+          res.json({ status: 'wait' });
+          return;
+        }
+
+        if (parsed.state) {
+          pendingManualAuthState.delete(parsed.state);
+        }
+        res.status(409).json({
+          error: getManualCallbackRegistrationError(localProvider),
+        });
+        return;
+      }
+
+      const account = registerAccountFromToken(
+        localProvider,
+        getProviderTokenDir(localProvider),
+        pendingAuth.nickname,
+        false,
+        tokenSnapshot.file
+      );
+
+      if (!account) {
+        if (parsed.state) {
+          pendingManualAuthState.delete(parsed.state);
+        }
+        res.status(409).json({
+          error: getManualCallbackRegistrationError(localProvider),
+        });
+        return;
+      }
+
+      if (parsed.state) {
+        pendingManualAuthState.delete(parsed.state);
+      }
+
+      res.json({
+        success: true,
+        account: {
+          id: account.id,
+          email: account.email,
+          nickname: account.nickname,
+          provider: account.provider,
+          isDefault: account.isDefault,
+        },
+      });
+      return;
     }
+
+    const account = registerAccountFromToken(
+      localProvider,
+      getProviderTokenDir(localProvider),
+      undefined,
+      false,
+      undefined
+    );
 
     if (!account) {
       res.status(409).json({
-        error: getManualCallbackRegistrationError(provider as CLIProxyProvider),
+        error: getManualCallbackRegistrationError(localProvider),
       });
       return;
     }
