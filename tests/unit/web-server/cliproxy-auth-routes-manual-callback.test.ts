@@ -206,7 +206,7 @@ describe('cliproxy-auth-routes manual callback nickname persistence', () => {
     });
   });
 
-  it('returns 409 when status polling completes upstream but no new local token was written', async () => {
+  it('keeps polling briefly after upstream completion before surfacing the missing-token error', async () => {
     const tokenDir = path.join(tempHome, '.ccs', 'cliproxy', 'auth');
     fs.mkdirSync(tokenDir, { recursive: true });
     fs.writeFileSync(
@@ -232,15 +232,81 @@ describe('cliproxy-auth-routes manual callback nickname persistence', () => {
     const startResponse = await postJson('/api/cliproxy/auth/codex/start-url', {});
     expect(startResponse.status).toBe(200);
 
-    const statusResponse = await getJson(
-      '/api/cliproxy/auth/codex/status?state=state-status-missing'
+    const realDateNow = Date.now;
+    let now = realDateNow();
+    Date.now = () => now;
+    try {
+      const firstStatusResponse = await getJson(
+        '/api/cliproxy/auth/codex/status?state=state-status-missing'
+      );
+
+      expect(firstStatusResponse.status).toBe(200);
+      expect(firstStatusResponse.body).toEqual({ status: 'wait' });
+
+      now += 16_000;
+
+      const secondStatusResponse = await getJson(
+        '/api/cliproxy/auth/codex/status?state=state-status-missing'
+      );
+
+      expect(secondStatusResponse.status).toBe(409);
+      expect(secondStatusResponse.body).toEqual({
+        status: 'error',
+        error:
+          'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+      });
+    } finally {
+      Date.now = realDateNow;
+    }
+  });
+
+  it('continues polling until the local token appears after upstream completion', async () => {
+    mockFetch([
+      {
+        url: /\/v0\/management\/codex-auth-url\?is_webui=true$/,
+        response: {
+          auth_url: 'https://auth.example.com/authorize?state=state-status-delayed',
+          state: 'state-status-delayed',
+        },
+      },
+      {
+        url: /\/v0\/management\/get-auth-status\?state=state-status-delayed$/,
+        response: { status: 'ok' },
+      },
+    ]);
+
+    const startResponse = await postJson('/api/cliproxy/auth/codex/start-url', {});
+    expect(startResponse.status).toBe(200);
+
+    const firstStatusResponse = await getJson(
+      '/api/cliproxy/auth/codex/status?state=state-status-delayed'
     );
 
-    expect(statusResponse.status).toBe(409);
-    expect(statusResponse.body).toEqual({
-      status: 'error',
-      error:
-        'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+    expect(firstStatusResponse.status).toBe(200);
+    expect(firstStatusResponse.body).toEqual({ status: 'wait' });
+
+    const tokenDir = path.join(tempHome, '.ccs', 'cliproxy', 'auth');
+    fs.mkdirSync(tokenDir, { recursive: true });
+    fs.writeFileSync(
+      path.join(tokenDir, 'codex-delayed@example.com.json'),
+      JSON.stringify({ type: 'codex', email: 'delayed@example.com' }),
+      'utf8'
+    );
+
+    const secondStatusResponse = await getJson(
+      '/api/cliproxy/auth/codex/status?state=state-status-delayed'
+    );
+
+    expect(secondStatusResponse.status).toBe(200);
+    expect(secondStatusResponse.body).toEqual({
+      status: 'ok',
+      account: {
+        id: 'delayed@example.com',
+        email: 'delayed@example.com',
+        nickname: 'delayed',
+        provider: 'codex',
+        isDefault: true,
+      },
     });
   });
 

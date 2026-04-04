@@ -62,6 +62,7 @@ import { requireLocalAccessWhenAuthDisabled } from '../middleware/auth-middlewar
 
 const router = Router();
 const MANUAL_AUTH_STATE_TTL_MS = 10 * 60 * 1000;
+const POLLED_AUTH_LOCAL_TOKEN_GRACE_MS = 15 * 1000;
 type ProviderTokenSnapshot = {
   file: string;
   mtimeMs: number;
@@ -74,6 +75,7 @@ const pendingManualAuthState = new Map<
     nickname?: string;
     expectedAccountId?: string;
     createdAt: number;
+    upstreamCompletedAt?: number;
     knownTokenFiles: ProviderTokenSnapshot[];
   }
 >();
@@ -122,6 +124,7 @@ function getManualAuthState(state: string | undefined): {
   nickname?: string;
   expectedAccountId?: string;
   createdAt: number;
+  upstreamCompletedAt?: number;
   knownTokenFiles: ProviderTokenSnapshot[];
 } | null {
   if (!state) {
@@ -138,8 +141,25 @@ function getManualAuthState(state: string | undefined): {
     nickname: pending.nickname,
     expectedAccountId: pending.expectedAccountId,
     createdAt: pending.createdAt,
+    upstreamCompletedAt: pending.upstreamCompletedAt,
     knownTokenFiles: pending.knownTokenFiles,
   };
+}
+
+function markManualAuthUpstreamCompleted(state: string, now = Date.now()): number | null {
+  pruneExpiredManualAuthState(now);
+  const pending = pendingManualAuthState.get(state);
+  if (!pending) {
+    return null;
+  }
+
+  if (pending.upstreamCompletedAt !== undefined) {
+    return pending.upstreamCompletedAt;
+  }
+
+  pending.upstreamCompletedAt = now;
+  pendingManualAuthState.set(state, pending);
+  return now;
 }
 
 function listProviderTokenSnapshots(provider: CLIProxyProvider): ProviderTokenSnapshot[] {
@@ -918,6 +938,16 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
 
       const tokenSnapshot = findNewTokenSnapshotForPendingAuth(localProvider, pendingAuth);
       if (!tokenSnapshot) {
+        const upstreamCompletedAt =
+          pendingAuth.upstreamCompletedAt ?? markManualAuthUpstreamCompleted(state, Date.now());
+        if (
+          upstreamCompletedAt !== null &&
+          Date.now() - upstreamCompletedAt < POLLED_AUTH_LOCAL_TOKEN_GRACE_MS
+        ) {
+          res.json({ status: 'wait' });
+          return;
+        }
+
         res.status(409).json({
           status: 'error',
           error:
