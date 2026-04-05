@@ -151,6 +151,76 @@ describe('useCliproxyAuthFlow', () => {
     expect(toast.error).toHaveBeenCalledWith('poll failed');
   });
 
+  it('keeps polling through wait responses until a later ok response includes the account', async () => {
+    let pollCount = 0;
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+
+        if (url.includes('/start-url')) {
+          return Promise.resolve(
+            createJsonResponse({
+              success: true,
+              authUrl: 'https://auth.example/wait-ok',
+              state: 'state-wait-ok',
+            })
+          );
+        }
+
+        if (url.includes('/status?state=state-wait-ok')) {
+          pollCount += 1;
+          if (pollCount === 1) {
+            return Promise.resolve(createJsonResponse({ status: 'wait' }));
+          }
+
+          return Promise.resolve(
+            createJsonResponse({
+              status: 'ok',
+              account: {
+                id: 'delayed@example.com',
+                email: 'delayed@example.com',
+                nickname: 'delayed',
+                provider: 'codex',
+                isDefault: true,
+              },
+            })
+          );
+        }
+
+        return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+      })
+    );
+
+    const { result } = renderHook(() => useCliproxyAuthFlow(), { wrapper });
+
+    await act(async () => {
+      await result.current.startAuth('codex', { startEndpoint: 'start-url' });
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(result.current.isAuthenticating).toBe(true);
+    expect(result.current.oauthState).toBe('state-wait-ok');
+    expect(result.current.error).toBeNull();
+    expect(toast.success).not.toHaveBeenCalled();
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(result.current.isAuthenticating).toBe(false);
+    expect(result.current.oauthState).toBeNull();
+    expect(toast.success).toHaveBeenCalledWith('codex authentication successful');
+  });
+
   it('treats callback responses without an account as failures', async () => {
     vi.stubGlobal(
       'fetch',
@@ -195,6 +265,71 @@ describe('useCliproxyAuthFlow', () => {
     expect(result.current.isSubmittingCallback).toBe(false);
     expect(toast.error).toHaveBeenCalledWith('Authenticated account could not be registered');
     expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('keeps auth active when callback submission returns wait and only errors on the terminal poll', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((input: RequestInfo | URL) => {
+        const url = String(input);
+
+        if (url.includes('/start-url')) {
+          return Promise.resolve(
+            createJsonResponse({
+              success: true,
+              authUrl: 'https://auth.example/callback-wait',
+              state: 'state-callback-wait',
+            })
+          );
+        }
+
+        if (url.includes('/submit-callback')) {
+          return Promise.resolve(createJsonResponse({ status: 'wait' }));
+        }
+
+        if (url.includes('/status?state=state-callback-wait')) {
+          return Promise.resolve(
+            createJsonResponse({
+              status: 'error',
+              error:
+                'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+            })
+          );
+        }
+
+        return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+      })
+    );
+
+    const { result } = renderHook(() => useCliproxyAuthFlow(), { wrapper });
+
+    await act(async () => {
+      await result.current.startAuth('codex', { startEndpoint: 'start-url' });
+    });
+
+    await act(async () => {
+      await result.current.submitCallback(
+        'http://localhost/callback?code=abc123&state=state-callback-wait'
+      );
+    });
+
+    expect(result.current.isSubmittingCallback).toBe(false);
+    expect(result.current.isAuthenticating).toBe(true);
+    expect(result.current.error).toBeNull();
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(result.current.isAuthenticating).toBe(false);
+    expect(result.current.error).toBe(
+      'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.'
+    );
+    expect(toast.error).toHaveBeenCalledWith(
+      'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.'
+    );
   });
 
   it('treats status ok responses without an account as failures', async () => {

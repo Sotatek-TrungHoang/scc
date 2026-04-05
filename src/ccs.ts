@@ -31,11 +31,19 @@ import {
   appendThirdPartyWebSearchToolArgs,
   createWebSearchTraceContext,
 } from './utils/websearch-manager';
+import {
+  ensureImageAnalysisMcpOrThrow,
+  syncImageAnalysisMcpToConfigDir,
+  appendThirdPartyImageAnalysisToolArgs,
+} from './utils/image-analysis';
 import { getGlobalEnvConfig, getOfficialChannelsConfig } from './config/unified-config-loader';
 import { ensureProfileHooks as ensureImageAnalyzerHooks } from './utils/hooks/image-analyzer-profile-hook-injector';
 import {
+  applyImageAnalysisRuntimeOverrides,
   getImageAnalysisHookEnv,
   installImageAnalyzerHook,
+  prepareImageAnalysisFallbackHook,
+  resolveImageAnalysisRuntimeConnection,
   resolveImageAnalysisRuntimeStatus,
 } from './utils/hooks';
 import { fail, info, warn } from './utils/ui';
@@ -47,6 +55,7 @@ import {
   resolveOfficialChannelsLaunchPlan,
 } from './channels/official-channels-runtime';
 import { getOfficialChannelReadiness } from './channels/official-channels-store';
+import { isCursorSubcommandToken } from './cursor/constants';
 
 // Import centralized error handling
 import { handleError, runCleanup } from './errors';
@@ -55,6 +64,7 @@ import { tryHandleRootCommand } from './commands/root-command-router';
 // Import extracted utility functions
 import { execClaude } from './utils/shell-executor';
 import { isDeprecatedGlmtProfileName, normalizeDeprecatedGlmtEnv } from './utils/glmt-deprecation';
+import { maybeWarnAboutResumeLaneMismatch } from './auth/resume-lane-warning';
 
 // Import target adapter system
 import {
@@ -310,10 +320,11 @@ async function main(): Promise<void> {
   registerTarget(new CodexAdapter());
 
   const args = process.argv.slice(2);
+  const isCompletionCommand = args[0] === '__complete';
 
   // Initialize UI colors early to ensure consistent colored output
   // Must happen before any status messages (ok, info, fail, etc.)
-  if (process.stdout.isTTY && !process.env['CI']) {
+  if (!isCompletionCommand && process.stdout.isTTY && !process.env['CI']) {
     const { initUI } = await import('./utils/ui');
     await initUI();
   }
@@ -353,7 +364,7 @@ async function main(): Promise<void> {
 
     // Security warning: cloud sync paths expose OAuth tokens
     const cloudService = detectCloudSyncPath(configDirValue);
-    if (cloudService) {
+    if (!isCompletionCommand && cloudService) {
       console.error(warn(`CCS directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
       console.error('    Consider: CCS_DIR=/path/outside/cloud ccs ...');
@@ -364,7 +375,7 @@ async function main(): Promise<void> {
   } else if (process.env.CCS_DIR) {
     // Also warn for CCS_DIR env var pointing to cloud sync
     const cloudService = detectCloudSyncPath(process.env.CCS_DIR);
-    if (cloudService) {
+    if (!isCompletionCommand && cloudService) {
       console.error(warn(`CCS directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
       console.error('    Consider: CCS_DIR=/path/outside/cloud ccs ...');
@@ -372,11 +383,16 @@ async function main(): Promise<void> {
   } else if (process.env.CCS_HOME) {
     // Also warn for CCS_HOME env var pointing to cloud sync
     const cloudService = detectCloudSyncPath(process.env.CCS_HOME);
-    if (cloudService) {
+    if (!isCompletionCommand && cloudService) {
       console.error(warn(`CCS directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
       console.error('    Consider: CCS_DIR=/path/outside/cloud ccs ...');
     }
+  }
+
+  if (isCompletionCommand) {
+    await tryHandleRootCommand(args);
+    return;
   }
 
   if (shouldPassthroughNativeCodexFlagCommand(args)) {
@@ -446,6 +462,18 @@ async function main(): Promise<void> {
     if (shouldRouteToCopilotCommand) {
       const { handleCopilotCommand } = await import('./commands/copilot-command');
       const exitCode = await handleCopilotCommand(args.slice(1));
+      process.exit(exitCode);
+    }
+  }
+
+  // Special case: cursor command (Cursor local proxy integration)
+  // Route known admin subcommands to the command handler, keep all other args as profile passthrough.
+  if (firstArg === 'cursor' && args.length > 1) {
+    const { handleCursorCommand } = await import('./commands/cursor-command');
+    const cursorToken = args[1];
+
+    if (isCursorSubcommandToken(cursorToken)) {
+      const exitCode = await handleCursorCommand(args.slice(1));
       process.exit(exitCode);
     }
   }
@@ -685,7 +713,10 @@ async function main(): Promise<void> {
       // CLIPROXY FLOW: OAuth-based profiles (gemini, codex, agy, qwen) or user-defined variants
       if (resolvedTarget === 'claude') {
         ensureWebSearchMcpOrThrow();
+        ensureImageAnalysisMcpOrThrow();
       }
+      const imageAnalysisFallbackHookReady =
+        resolvedTarget === 'claude' ? prepareImageAnalysisFallbackHook() : false;
       const provider = profileInfo.provider || (profileInfo.name as CLIProxyProvider);
       // Inject Image Analyzer hook into profile settings before launch
       ensureImageAnalyzerHooks({
@@ -694,6 +725,7 @@ async function main(): Promise<void> {
         cliproxyProvider: provider,
         isComposite: profileInfo.isComposite,
         settingsPath: profileInfo.settingsPath ? expandPath(profileInfo.settingsPath) : undefined,
+        sharedHookInstalled: imageAnalysisFallbackHookReady,
       });
       const customSettingsPath = profileInfo.settingsPath; // undefined for hardcoded profiles
       const variantPort = profileInfo.port; // variant-specific port for isolation
@@ -848,11 +880,14 @@ async function main(): Promise<void> {
     } else if (profileInfo.type === 'copilot') {
       // COPILOT FLOW: GitHub Copilot subscription via copilot-api proxy
       ensureWebSearchMcpOrThrow();
-      installImageAnalyzerHook();
+      ensureImageAnalysisMcpOrThrow();
+      const imageAnalysisFallbackHookReady =
+        resolvedTarget === 'claude' ? prepareImageAnalysisFallbackHook() : false;
       // Inject Image Analyzer hook into profile settings before launch
       ensureImageAnalyzerHooks({
         profileName: profileInfo.name,
         profileType: profileInfo.type,
+        sharedHookInstalled: imageAnalysisFallbackHookReady,
       });
 
       const { executeCopilotProfile } = await import('./copilot');
@@ -880,11 +915,46 @@ async function main(): Promise<void> {
         claudeCli
       );
       process.exit(exitCode);
+    } else if (profileInfo.type === 'cursor') {
+      // CURSOR FLOW: local Cursor daemon profile
+      ensureWebSearchMcpOrThrow();
+      installImageAnalyzerHook();
+      ensureImageAnalyzerHooks({
+        profileName: profileInfo.name,
+        profileType: profileInfo.type,
+      });
+
+      const { executeCursorProfile } = await import('./cursor');
+      const cursorConfig = profileInfo.cursorConfig;
+      if (!cursorConfig) {
+        console.error(fail('Cursor configuration not found'));
+        process.exit(1);
+      }
+      const continuityInheritance = await resolveProfileContinuityInheritance({
+        profileName: profileInfo.name,
+        profileType: profileInfo.type,
+        target: resolvedTarget,
+      });
+      if (continuityInheritance.sourceAccount && process.env.CCS_DEBUG) {
+        console.error(
+          info(
+            `Continuity inheritance active: profile "${profileInfo.name}" -> account "${continuityInheritance.sourceAccount}"`
+          )
+        );
+      }
+      const exitCode = await executeCursorProfile(
+        cursorConfig,
+        remainingArgs,
+        continuityInheritance.claudeConfigDir,
+        claudeCli
+      );
+      process.exit(exitCode);
     } else if (profileInfo.type === 'settings') {
       // Settings-based profiles (glm, glmt) are third-party providers
+      const imageAnalysisMcpReady =
+        resolvedTarget === 'claude' ? ensureImageAnalysisMcpOrThrow() : true;
       if (resolvedTarget === 'claude') {
         ensureWebSearchMcpOrThrow();
-        installImageAnalyzerHook();
       }
 
       // Display WebSearch status (single line, equilibrium UX)
@@ -907,6 +977,9 @@ async function main(): Promise<void> {
       }
       const inheritedClaudeConfigDir = continuityInheritance.claudeConfigDir;
       syncWebSearchMcpToConfigDir(inheritedClaudeConfigDir);
+      syncImageAnalysisMcpToConfigDir(inheritedClaudeConfigDir);
+      const imageAnalysisFallbackHookReady =
+        resolvedTarget === 'claude' ? prepareImageAnalysisFallbackHook() : false;
       const expandedSettingsPath =
         resolvedSettingsPath ??
         (profileInfo.settingsPath
@@ -920,6 +993,7 @@ async function main(): Promise<void> {
         settingsPath: expandedSettingsPath,
         settings,
         cliproxyBridge,
+        sharedHookInstalled: imageAnalysisFallbackHookReady,
       });
       if (resolvedTarget !== 'claude') {
         const compatibility = evaluateTargetRuntimeCompatibility({
@@ -1022,13 +1096,31 @@ async function main(): Promise<void> {
         profileType: profileInfo.type,
         settings,
         cliproxyBridge,
+        sharedHookInstalled: imageAnalysisFallbackHookReady,
       });
+      const runtimeConnection = resolveImageAnalysisRuntimeConnection();
       let imageAnalysisEnv = getImageAnalysisHookEnv({
         profileName: profileInfo.name,
         profileType: profileInfo.type,
         settings,
         cliproxyBridge,
       });
+      imageAnalysisEnv = applyImageAnalysisRuntimeOverrides(imageAnalysisEnv, {
+        backendId: imageAnalysisStatus.backendId,
+        model: imageAnalysisStatus.model,
+        runtimePath: imageAnalysisStatus.runtimePath,
+        baseUrl: runtimeConnection.baseUrl,
+        apiKey: runtimeConnection.apiKey,
+        allowSelfSigned: runtimeConnection.allowSelfSigned,
+      });
+
+      if (!imageAnalysisMcpReady) {
+        imageAnalysisEnv = {
+          ...imageAnalysisEnv,
+          CCS_CURRENT_PROVIDER: '',
+          CCS_IMAGE_ANALYSIS_SKIP: '1',
+        };
+      }
 
       const imageAnalysisProvider = imageAnalysisEnv['CCS_CURRENT_PROVIDER'];
       if (
@@ -1127,10 +1219,13 @@ async function main(): Promise<void> {
         return;
       }
 
+      const imageAnalysisArgs = imageAnalysisMcpReady
+        ? appendThirdPartyImageAnalysisToolArgs(remainingArgs)
+        : remainingArgs;
       const launchArgs = [
         '--settings',
         expandedSettingsPath,
-        ...appendThirdPartyWebSearchToolArgs(remainingArgs),
+        ...appendThirdPartyWebSearchToolArgs(imageAnalysisArgs),
       ];
       const traceEnv = createWebSearchTraceContext({
         launcher: 'ccs.settings-profile',
@@ -1175,6 +1270,7 @@ async function main(): Promise<void> {
         CCS_WEBSEARCH_SKIP: '1',
         CCS_IMAGE_ANALYSIS_SKIP: '1',
       };
+      await maybeWarnAboutResumeLaneMismatch(profileInfo.name, instancePath, remainingArgs);
       const launchArgs = resolveNativeClaudeLaunchArgs(remainingArgs, 'account', instancePath);
       execClaude(claudeCli, launchArgs, envVars);
     } else {

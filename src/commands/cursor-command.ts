@@ -1,7 +1,7 @@
 /**
  * Cursor CLI Command
  *
- * Handles `ccs cursor <subcommand>` commands.
+ * Handles `ccs cursor [subcommand]` commands.
  */
 
 import {
@@ -19,20 +19,6 @@ import { getCursorConfig, mutateUnifiedConfig } from '../config/unified-config-l
 import { DEFAULT_CURSOR_CONFIG } from '../config/unified-config-types';
 import { renderCursorHelp, renderCursorModels, renderCursorStatus } from './cursor-command-display';
 import { ok, fail, info } from '../utils/ui';
-
-/** Valid cursor subcommands — imported by ccs.ts for routing */
-export const CURSOR_SUBCOMMANDS = [
-  'auth',
-  'status',
-  'models',
-  'start',
-  'stop',
-  'enable',
-  'disable',
-  'help',
-  '--help',
-  '-h',
-] as const;
 
 /**
  * Handle cursor subcommand.
@@ -56,6 +42,7 @@ export async function handleCursorCommand(args: string[]): Promise<number> {
     case 'disable':
       return handleDisable();
     case undefined:
+      return handleHelp();
     case 'help':
     case '--help':
     case '-h':

@@ -401,12 +401,10 @@ const resources = {
           'Configure how "{{name}}" shares history and continuity with other ccs auth accounts.',
         syncMode: 'Sync Mode',
         selectContextMode: 'Select context mode',
-        isolatedOption: 'isolated (no sync)',
-        sharedOption: 'shared (sync enabled)',
-        sharedModeHint:
-          'Shared mode reuses workspace context for accounts in the same history sync group.',
-        isolatedModeHint:
-          'Isolated mode keeps this account fully separate from other ccs auth accounts.',
+        isolatedOption: 'Isolated',
+        sharedOption: 'Shared',
+        sharedModeHint: 'Reuses workspace context across accounts in the same history group.',
+        isolatedModeHint: 'Keeps this account fully separate from other ccs auth accounts.',
         historySyncGroup: 'History Sync Group',
         groupPlaceholder: 'default',
         groupHint:
@@ -414,19 +412,37 @@ const resources = {
         invalidGroup: 'Enter a valid group name that starts with a letter.',
         continuityDepth: 'Continuity Depth',
         selectContinuityDepth: 'Select continuity depth',
-        standardOption: 'standard (projects only)',
-        deeperOption: 'deeper continuity (advanced)',
-        deeperHint:
-          'Advanced mode also syncs session-env, file-history, shell-snapshots, and todos.',
+        standardOption: 'Standard',
+        deeperOption: 'Deeper',
+        deeperHint: 'Syncs comprehensive session-env, file-history, shell-snapshots, and todos.',
         standardHint: 'Standard mode syncs project workspace context only.',
         credentialsIsolated: 'Credentials and .anthropic remain isolated per account in all modes.',
+        implicationTitle: 'What this means after save',
+        isolatedImplication:
+          'This account stays separate. Other accounts will not be able to resume its continuity state.',
+        sameGroupRule:
+          'Accounts must use the same group "{{group}}" before they can share continuity with each other.',
+        noSameGroupPeer: 'No other account currently shares this group.',
+        sameGroupPeerCount_one: '{{count}} other account already shares this group.',
+        sameGroupPeerCount_other: '{{count}} other accounts already share this group.',
+        deeperReady_one:
+          '{{count}} same-group account already uses deeper continuity. This is the strongest available handoff setup.',
+        deeperReady_other:
+          '{{count}} same-group accounts already use deeper continuity. This is the strongest available handoff setup.',
+        deeperNeedsPeers:
+          'Deeper continuity is enabled here, but another account in this group still needs deeper continuity for stronger cross-account resume expectations.',
+        standardWarning:
+          'Standard shared mode is good for project context only. Cross-account resume expectations are stronger when both accounts use deeper continuity.',
+        resumeOriginalWarning:
+          'If the old conversation matters, resume it from the original account before you change the setup.',
         cancel: 'Cancel',
         save: 'Save',
         saving: 'Saving...',
       },
       historySyncLearningMap: {
         title: 'How History Sync Works',
-        description: 'Isolated -> Shared -> Deeper. Use Sync per row for all changes.',
+        description:
+          'Isolated -> Shared -> Deeper. Cross-account resume needs the same group on both accounts.',
         learningMap: 'Learning Map',
         isolated: 'Isolated',
         shared: 'Shared',
@@ -438,12 +454,106 @@ const resources = {
         showDetails: 'Show details: groups, switching, and legacy policy',
         modeSwitch: 'Mode Switch',
         modeSwitchDesc:
-          'Sync dialog lets users move between isolated/shared and choose deeper continuity.',
+          'Use Sync on each account to move between isolated/shared and choose deeper continuity.',
         historySyncGroup: 'History Sync Group',
         historySyncGroupDesc:
-          'Same group means shared project context lane. Default fallback is default.',
+          'Same group is required before accounts can share continuity. Default fallback is default.',
+        sameGroupRule:
+          'Right now, accounts only share continuity when both are shared in the same group.',
+        deeperRecommendation:
+          'Group "{{group}}" is shared, but deeper continuity is still the safer choice if users expect cross-account resume.',
+        partialGroup:
+          'Group "{{group}}" is in good shape, but other accounts or groups still need the same-group or deeper setup.',
+        readyGroup:
+          'Group "{{group}}" already has deeper continuity on multiple accounts. This is the strongest available handoff setup.',
         legacyConfirmation_one: '{{count}} legacy account still needs explicit confirmation.',
         legacyConfirmation_other: '{{count}} legacy accounts still need explicit confirmation.',
+      },
+      continuityReadiness: {
+        title: 'Cross-Account Resume Check',
+        description: 'Use this card to see what is missing before users switch accounts.',
+        state: {
+          single: 'single account',
+          isolated: 'resume off',
+          'shared-alone': 'shared but incomplete',
+          'shared-standard': 'projects only',
+          partial: 'partially ready',
+          ready: 'stronger handoff ready',
+        },
+        metrics: {
+          isolated: 'Isolated',
+          sharedPeers: 'Shared With Peer',
+          deeperReady: 'Deeper Ready',
+        },
+        messages: {
+          single: {
+            title: 'Only one auth account is configured.',
+            description:
+              'Cross-account handoff does not apply yet. Add another auth account before configuring shared continuity.',
+          },
+          isolated: {
+            title: 'Cross-account resume is off right now.',
+            description:
+              'All visible accounts are isolated, so a session created in one account will stay with that account.',
+          },
+          'shared-alone': {
+            title: 'Shared mode exists, but no group has a peer yet.',
+            description_one:
+              '{{count}} shared account is still waiting for another account in the same group.',
+            description_other:
+              '{{count}} shared accounts are still waiting for another account in the same group.',
+          },
+          'shared-standard': {
+            title:
+              'Group "{{group}}" shares project context, but deeper continuity is not paired yet.',
+            description:
+              'Users may still expect more than project sharing. Enable deeper continuity on both accounts in this group for stronger handoff expectations.',
+          },
+          partial: {
+            title: 'One group is ready, but the overall setup is still mixed.',
+            description:
+              'At least one group already uses deeper continuity, but other accounts are still isolated, alone in a shared group, or missing deeper continuity.',
+          },
+          ready: {
+            title: 'Group "{{group}}" has the strongest available continuity setup.',
+            description:
+              'Multiple accounts in this group already use deeper continuity. Resume behavior still depends on what Claude stores upstream.',
+          },
+        },
+        stepsTitle: 'What users should do next',
+        steps: {
+          syncBoth: 'Open Sync on both accounts, not just the one you are switching into.',
+          sameGroup:
+            'Use the same History Sync Group on both accounts. "{{group}}" is the current recommended group.',
+          enableDeeper:
+            'If users expect cross-account resume instead of project-only sharing, turn on deeper continuity on both accounts.',
+          resumeOriginal:
+            'If the original conversation is important, resume it from the original account before changing continuity settings.',
+        },
+        singleSteps: {
+          addAccount: 'Create a second ccs auth account before planning any cross-account handoff.',
+          sameGroupLater:
+            'When that second account exists, put both accounts in the same History Sync Group.',
+          enableDeeperLater:
+            'If users will expect cross-account resume instead of project-only sharing, enable deeper continuity on both accounts.',
+          resumeOriginal:
+            'If the original conversation is important, keep resuming it from the original account until the second account is ready.',
+        },
+      },
+      continuityOverview: {
+        plainLaneTitle: 'Plain ccs is using a different resume lane',
+        plainLaneDescription:
+          'Plain ccs currently resumes from {{lane}}, not this account lane. Recover the original lane first before changing sync settings.',
+        setDefaultHint:
+          'Use the Set Default action on the account you want plain ccs to follow in future sessions.',
+        recommendBadge: 'Recommend {{group}}',
+        partialBadge: 'Partial sync {{group}}',
+        lane: {
+          native: 'native Claude (~/.claude)',
+          accountDefault: 'account {{name}}',
+          accountInherited: 'account {{name}} via continuity inheritance',
+          profileDefault: 'default profile {{name}} via native Claude lane',
+        },
       },
       accountsTable: {
         name: 'Name',
@@ -468,11 +578,22 @@ const resources = {
           'Are you sure you want to delete the account "{{name}}"? This will remove the profile and all its session data. This action cannot be undone.',
         cancel: 'Cancel',
         delete: 'Delete',
-        sharedGroupStandard: 'shared ({{group}}, standard)',
-        sharedGroupDeeper: 'shared ({{group}}, deeper)',
-        sharedGroupLegacy: 'shared ({{group}}, standard legacy)',
+        sharedGroupStandard: 'shared ({{group}}, projects only)',
+        sharedGroupDeeper: 'shared ({{group}}, deeper continuity)',
+        sharedGroupLegacy: 'shared ({{group}}, projects only, legacy)',
         isolatedLegacy: 'isolated (legacy default)',
         isolated: 'isolated',
+        noSameGroupPeer: 'No same-group peer yet',
+        sameGroupPeerCount_one: '{{count}} same-group peer',
+        sameGroupPeerCount_other: '{{count}} same-group peers',
+        legacyReview: 'Review and confirm this inferred default.',
+        noHandoff: 'Cross-account resume stays in the original account.',
+        badges: {
+          shared: 'Shared',
+          deeper: 'Deeper',
+          legacy: 'Legacy',
+          isolated: 'Isolated',
+        },
       },
       addAccountDialog: {
         title: 'Add {{displayName}} Account',
@@ -908,15 +1029,18 @@ const resources = {
         continuityGuide: 'Continuity Guide',
         expandWhenNeeded: 'Expand only when needed.',
         sharedStandard: 'Shared Standard',
-        sharedStandardDesc: 'Project workspace sync only. Best default for most teams.',
+        sharedStandardDesc:
+          'Shared workspace only. Put both accounts in the same group before expecting any handoff.',
         sharedDeeper: 'Shared Deeper',
         sharedDeeperPrefix: 'Adds',
+        sharedDeeperDesc:
+          'Adds session-env, file-history, shell-snapshots, and todos. Recommended when users expect cross-account resume.',
         isolated: 'Isolated',
-        isolatedDesc: 'No link. Best for strict separation.',
+        isolatedDesc: 'No link. Conversations stay with the original account.',
         quickCommands: 'Quick Commands',
         quickCommandsDesc: 'Copy and run in terminal.',
         workspaceBadge: 'ccs auth Workspace',
-        historySyncBadge: 'History Sync Controls',
+        historySyncBadge: 'History & Resume Controls',
         authAccounts: 'Auth Accounts',
         tableScopePrefix: 'This table is intentionally scoped to',
         tableScopeMiddle: 'accounts. Use',
@@ -1614,6 +1738,19 @@ const resources = {
         deeperHint: '高级模式还会同步 session-env、file-history、shell-snapshots 和 todos。',
         standardHint: '标准模式仅同步项目工作区上下文。',
         credentialsIsolated: '凭据与 .anthropic 在所有模式下均按账号隔离。',
+        implicationTitle: '保存后会发生什么',
+        isolatedImplication: '该账号会继续保持隔离，其他账号无法续接它的连续性状态。',
+        sameGroupRule: '只有账号都使用同一个分组“{{group}}”时，才会彼此共享连续性。',
+        noSameGroupPeer: '当前没有其他账号使用这个分组。',
+        sameGroupPeerCount_one: '已有 {{count}} 个其他账号使用这个分组。',
+        sameGroupPeerCount_other: '已有 {{count}} 个其他账号使用这个分组。',
+        deeperReady_one: '已有 {{count}} 个同组账号启用更深连续性。这是当前最强的交接设置。',
+        deeperReady_other: '已有 {{count}} 个同组账号启用更深连续性。这是当前最强的交接设置。',
+        deeperNeedsPeers:
+          '此账号已启用更深连续性，但同组中的其他账号也需要启用更深连续性，才能更好满足跨账号续接的预期。',
+        standardWarning:
+          '标准共享更适合项目上下文。如果用户期望跨账号续接，两个账号都应启用更深连续性。',
+        resumeOriginalWarning: '如果旧会话很重要，请先在原账号中恢复它，再调整设置。',
         cancel: '取消',
         save: '保存',
         saving: '保存中...',
@@ -1633,8 +1770,90 @@ const resources = {
         modeSwitchDesc: '同步对话框可让用户在隔离/共享间切换并选择更深连续性。',
         historySyncGroup: '历史同步分组',
         historySyncGroupDesc: '同一分组即共享项目上下文。默认回退为 default。',
+        sameGroupRule: '只有两个账号都设为共享且使用同一分组时，才会共享连续性。',
+        deeperRecommendation:
+          '分组“{{group}}”已开启共享，但如果用户期望跨账号续接，更推荐同时启用更深连续性。',
+        partialGroup:
+          '分组“{{group}}”已经配置得不错，但其他账号或分组仍需要补齐同组或更深连续性设置。',
+        readyGroup: '分组“{{group}}”已有多个账号启用更深连续性。这是当前最强的交接设置。',
         legacyConfirmation_one: '{{count}} 个旧账号仍需要显式确认。',
         legacyConfirmation_other: '{{count}} 个旧账号仍需要显式确认。',
+      },
+      continuityReadiness: {
+        title: '跨账号续接检查',
+        description: '在切换账号前，用这张卡快速确认还缺什么。',
+        state: {
+          single: '单账号',
+          isolated: '续接关闭',
+          'shared-alone': '已共享但未完成',
+          'shared-standard': '仅项目共享',
+          partial: '部分就绪',
+          ready: '强交接已就绪',
+        },
+        metrics: {
+          isolated: '隔离账号',
+          sharedPeers: '有同组伙伴',
+          deeperReady: '更深已就绪',
+        },
+        messages: {
+          single: {
+            title: '目前只配置了一个 auth 账号。',
+            description: '现在还不涉及跨账号交接。请先再添加一个 auth 账号，再配置共享连续性。',
+          },
+          isolated: {
+            title: '当前还没有开启跨账号续接。',
+            description: '当前可见账号都处于隔离模式，因此在一个账号中创建的会话仍会留在原账号。',
+          },
+          'shared-alone': {
+            title: '已经开启共享，但还没有任何分组拥有同组伙伴。',
+            description_one: '{{count}} 个共享账号仍在等待另一个账号加入同一分组。',
+            description_other: '{{count}} 个共享账号仍在等待另一个账号加入同一分组。',
+          },
+          'shared-standard': {
+            title: '分组“{{group}}”已共享项目上下文，但尚未形成更深连续性的配对。',
+            description:
+              '用户可能期望的不只是项目共享。如果希望更稳妥地支持跨账号续接，请让这个分组中的两个账号都启用更深连续性。',
+          },
+          partial: {
+            title: '已有一个分组准备就绪，但整体配置仍是混合状态。',
+            description:
+              '至少有一个分组已经启用更深连续性，但其他账号仍可能处于隔离、单独共享分组，或尚未启用更深连续性。',
+          },
+          ready: {
+            title: '分组“{{group}}”已经具备当前最强的连续性设置。',
+            description:
+              '这个分组中已有多个账号启用更深连续性。是否能够恢复仍取决于 Claude 上游实际保存了什么。',
+          },
+        },
+        stepsTitle: '下一步建议',
+        steps: {
+          syncBoth: '请在两个账号上都打开“同步”，而不是只调整要切换进去的那个账号。',
+          sameGroup: '两个账号都使用同一个历史同步分组。“{{group}}”是当前推荐的分组。',
+          enableDeeper:
+            '如果用户期望的是跨账号续接，而不是仅共享项目上下文，请在两个账号上都启用更深连续性。',
+          resumeOriginal: '如果原来的会话很重要，请先在原账号中恢复它，再修改连续性设置。',
+        },
+        singleSteps: {
+          addAccount: '先再创建一个 ccs auth 账号，然后再考虑跨账号交接。',
+          sameGroupLater: '当第二个账号准备好后，再把两个账号放到同一个历史同步分组。',
+          enableDeeperLater:
+            '如果未来会期望跨账号续接而不是仅共享项目上下文，请在两个账号上都启用更深连续性。',
+          resumeOriginal: '在第二个账号配置完成之前，重要会话仍应从原账号继续恢复。',
+        },
+      },
+      continuityOverview: {
+        plainLaneTitle: '普通 ccs 正在使用不同的续接通道',
+        plainLaneDescription:
+          '普通 ccs 当前会从 {{lane}} 续接，而不是这个账号通道。请先恢复原通道中的会话，再修改同步设置。',
+        setDefaultHint: '如果希望以后普通 ccs 跟随某个账号，请使用该账号行上的“设为默认”。',
+        recommendBadge: '建议 {{group}}',
+        partialBadge: '部分同步 {{group}}',
+        lane: {
+          native: '原生 Claude（~/.claude）',
+          accountDefault: '账号 {{name}}',
+          accountInherited: '通过连续性继承使用账号 {{name}}',
+          profileDefault: '默认配置 {{name}}（仍走原生 Claude 通道）',
+        },
       },
       accountsTable: {
         name: '名称',
@@ -1664,6 +1883,17 @@ const resources = {
         sharedGroupLegacy: '共享（{{group}}，标准旧策略）',
         isolatedLegacy: '隔离（旧默认）',
         isolated: '隔离',
+        noSameGroupPeer: '同组中还没有其他账号',
+        sameGroupPeerCount_one: '{{count}} 个同组账号',
+        sameGroupPeerCount_other: '{{count}} 个同组账号',
+        legacyReview: '请检查并确认这个推断出的默认状态。',
+        noHandoff: '跨账号续接仍会回到原账号。',
+        badges: {
+          shared: '共享',
+          deeper: '更深',
+          legacy: '旧策略',
+          isolated: '隔离',
+        },
       },
       addAccountDialog: {
         title: '添加 {{displayName}} 账号',
@@ -2079,6 +2309,8 @@ const resources = {
         sharedStandard: '共享标准',
         sharedStandardDesc: '仅同步项目工作区。适合大多数团队。',
         sharedDeeper: '共享更深',
+        sharedDeeperDesc:
+          '会额外同步 session-env、file-history、shell-snapshots 和 todos。适合需要跨账号续接的场景。',
         sharedDeeperPrefix: '额外包含',
         isolated: '隔离',
         isolatedDesc: '不建立链接。适合严格隔离场景。',
@@ -2803,6 +3035,24 @@ const resources = {
         standardHint: 'Chế độ tiêu chuẩn chỉ đồng bộ hóa bối cảnh không gian làm việc của dự án.',
         credentialsIsolated:
           'Thông tin xác thực và .anthropic vẫn được tách riêng cho mỗi tài khoản ở tất cả các chế độ.',
+        implicationTitle: 'Sau khi lưu sẽ như thế nào',
+        isolatedImplication:
+          'Tài khoản này sẽ tiếp tục tách biệt. Tài khoản khác sẽ không thể resume trạng thái continuity của nó.',
+        sameGroupRule:
+          'Các tài khoản phải dùng cùng nhóm "{{group}}" thì mới chia sẻ continuity cho nhau.',
+        noSameGroupPeer: 'Hiện chưa có tài khoản nào khác dùng nhóm này.',
+        sameGroupPeerCount_one: '{{count}} tài khoản khác đã dùng nhóm này.',
+        sameGroupPeerCount_other: '{{count}} tài khoản khác đã dùng nhóm này.',
+        deeperReady_one:
+          '{{count}} tài khoản cùng nhóm đã bật deeper continuity. Đây là thiết lập handoff mạnh nhất hiện có.',
+        deeperReady_other:
+          '{{count}} tài khoản cùng nhóm đã bật deeper continuity. Đây là thiết lập handoff mạnh nhất hiện có.',
+        deeperNeedsPeers:
+          'Tài khoản này đã bật deeper continuity, nhưng tài khoản khác trong cùng nhóm vẫn cần bật deeper continuity để hỗ trợ resume xuyên tài khoản tốt hơn.',
+        standardWarning:
+          'Chế độ shared tiêu chuẩn chỉ phù hợp cho ngữ cảnh project. Nếu người dùng mong resume xuyên tài khoản, cả hai tài khoản nên bật deeper continuity.',
+        resumeOriginalWarning:
+          'Nếu cuộc trò chuyện cũ quan trọng, hãy resume nó từ tài khoản gốc trước khi đổi cấu hình.',
         cancel: 'Hủy bỏ',
         save: 'Lưu',
         saving: 'Đang lưu...',
@@ -2826,8 +3076,103 @@ const resources = {
         historySyncGroup: 'Nhóm đồng bộ hóa lịch sử',
         historySyncGroupDesc:
           'Cùng một nhóm nghĩa là chia sẻ cùng bối cảnh project. Nếu để trống sẽ dùng nhóm mặc định.',
+        sameGroupRule:
+          'Hiện tại, các tài khoản chỉ chia sẻ continuity khi cả hai đều ở chế độ shared và dùng cùng một nhóm.',
+        deeperRecommendation:
+          'Nhóm "{{group}}" đã được chia sẻ, nhưng deeper continuity vẫn là lựa chọn an toàn hơn nếu người dùng mong resume xuyên tài khoản.',
+        partialGroup:
+          'Nhóm "{{group}}" đã ổn, nhưng các tài khoản hoặc nhóm khác vẫn cần hoàn thiện cấu hình cùng nhóm hoặc deeper continuity.',
+        readyGroup:
+          'Nhóm "{{group}}" đã có nhiều tài khoản bật deeper continuity. Đây là thiết lập handoff mạnh nhất hiện có.',
         legacyConfirmation_one: '{{count}} tài khoản cũ vẫn cần xác nhận rõ ràng.',
         legacyConfirmation_other: '{{count}} tài khoản cũ vẫn cần xác nhận rõ ràng.',
+      },
+      continuityReadiness: {
+        title: 'Kiểm tra resume xuyên tài khoản',
+        description: 'Dùng thẻ này để biết còn thiếu gì trước khi người dùng chuyển tài khoản.',
+        state: {
+          single: 'một tài khoản',
+          isolated: 'resume tắt',
+          'shared-alone': 'đã shared nhưng chưa đủ',
+          'shared-standard': 'chỉ project',
+          partial: 'mới sẵn sàng một phần',
+          ready: 'handoff mạnh đã sẵn sàng',
+        },
+        metrics: {
+          isolated: 'Tách biệt',
+          sharedPeers: 'Có bạn cùng nhóm',
+          deeperReady: 'Deeper sẵn sàng',
+        },
+        messages: {
+          single: {
+            title: 'Hiện chỉ có một auth account.',
+            description:
+              'Cross-account handoff chưa áp dụng. Hãy thêm một auth account khác trước khi cấu hình shared continuity.',
+          },
+          isolated: {
+            title: 'Hiện tại cross-account resume đang tắt.',
+            description:
+              'Tất cả tài khoản đang hiển thị đều ở chế độ isolated, nên phiên được tạo trong một tài khoản sẽ ở lại tài khoản đó.',
+          },
+          'shared-alone': {
+            title: 'Đã có shared mode, nhưng chưa có nhóm nào có bạn cùng nhóm.',
+            description_one:
+              '{{count}} shared account vẫn đang chờ một tài khoản khác vào cùng nhóm.',
+            description_other:
+              '{{count}} shared accounts vẫn đang chờ một tài khoản khác vào cùng nhóm.',
+          },
+          'shared-standard': {
+            title:
+              'Nhóm "{{group}}" đang chia sẻ ngữ cảnh project nhưng chưa ghép deeper continuity.',
+            description:
+              'Người dùng có thể mong nhiều hơn việc chia sẻ project. Hãy bật deeper continuity trên cả hai tài khoản trong nhóm này để có handoff mạnh hơn.',
+          },
+          partial: {
+            title: 'Một nhóm đã sẵn sàng, nhưng cấu hình tổng thể vẫn còn lẫn lộn.',
+            description:
+              'Ít nhất một nhóm đã dùng deeper continuity, nhưng các tài khoản khác vẫn còn isolated, ở một mình trong nhóm shared, hoặc chưa bật deeper continuity.',
+          },
+          ready: {
+            title: 'Nhóm "{{group}}" đã có thiết lập continuity mạnh nhất hiện có.',
+            description:
+              'Nhiều tài khoản trong nhóm này đã bật deeper continuity. Việc resume thực tế vẫn phụ thuộc vào dữ liệu mà Claude lưu ở upstream.',
+          },
+        },
+        stepsTitle: 'Người dùng nên làm gì tiếp theo',
+        steps: {
+          syncBoth: 'Mở Sync trên cả hai tài khoản, không chỉ tài khoản bạn sắp chuyển sang.',
+          sameGroup:
+            'Dùng cùng một History Sync Group trên cả hai tài khoản. "{{group}}" là nhóm được đề xuất hiện tại.',
+          enableDeeper:
+            'Nếu người dùng mong resume xuyên tài khoản thay vì chỉ chia sẻ project, hãy bật deeper continuity trên cả hai tài khoản.',
+          resumeOriginal:
+            'Nếu cuộc trò chuyện gốc quan trọng, hãy resume nó từ tài khoản gốc trước khi đổi cài đặt continuity.',
+        },
+        singleSteps: {
+          addAccount:
+            'Hãy tạo thêm một ccs auth account thứ hai trước khi lên kế hoạch handoff xuyên tài khoản.',
+          sameGroupLater:
+            'Khi tài khoản thứ hai đã sẵn sàng, đặt cả hai vào cùng một History Sync Group.',
+          enableDeeperLater:
+            'Nếu sau này người dùng sẽ mong resume xuyên tài khoản, hãy bật deeper continuity trên cả hai tài khoản.',
+          resumeOriginal:
+            'Cho đến khi tài khoản thứ hai sẵn sàng, các cuộc trò chuyện quan trọng vẫn nên được resume từ tài khoản gốc.',
+        },
+      },
+      continuityOverview: {
+        plainLaneTitle: 'Plain ccs đang dùng một lane resume khác',
+        plainLaneDescription:
+          'Plain ccs hiện resume từ {{lane}}, không phải lane của tài khoản này. Hãy khôi phục lane gốc trước khi đổi cài đặt sync.',
+        setDefaultHint:
+          'Nếu muốn plain ccs theo một tài khoản trong các phiên sau, hãy dùng hành động Set Default trên dòng tài khoản đó.',
+        recommendBadge: 'Đề xuất {{group}}',
+        partialBadge: 'Đồng bộ một phần {{group}}',
+        lane: {
+          native: 'Claude gốc (~/.claude)',
+          accountDefault: 'tài khoản {{name}}',
+          accountInherited: 'tài khoản {{name}} qua continuity inheritance',
+          profileDefault: 'profile mặc định {{name}} qua lane Claude gốc',
+        },
       },
       accountsTable: {
         name: 'Tên',
@@ -2858,6 +3203,17 @@ const resources = {
         sharedGroupLegacy: 'chia sẻ ({{group}}, kế thừa tiêu chuẩn)',
         isolatedLegacy: 'tách biệt (mặc định cũ)',
         isolated: 'tách biệt',
+        noSameGroupPeer: 'Chưa có tài khoản cùng nhóm',
+        sameGroupPeerCount_one: '{{count}} tài khoản cùng nhóm',
+        sameGroupPeerCount_other: '{{count}} tài khoản cùng nhóm',
+        legacyReview: 'Hãy xem lại và xác nhận trạng thái suy ra này.',
+        noHandoff: 'Resume xuyên tài khoản vẫn sẽ quay về tài khoản gốc.',
+        badges: {
+          shared: 'Chia sẻ',
+          deeper: 'Sâu hơn',
+          legacy: 'Kế thừa',
+          isolated: 'Tách biệt',
+        },
       },
       addAccountDialog: {
         title: 'Thêm tài khoản {{displayName}}',
@@ -3304,6 +3660,8 @@ const resources = {
         sharedStandardDesc:
           'Chỉ đồng bộ hóa không gian làm việc của dự án. Mặc định tốt nhất cho hầu hết các đội.',
         sharedDeeper: 'Chia sẻ sâu hơn',
+        sharedDeeperDesc:
+          'Đồng bộ thêm session-env, file-history, shell-snapshots và todos. Nên dùng khi người dùng mong resume xuyên tài khoản.',
         sharedDeeperPrefix: 'Thêm',
         isolated: 'Tách biệt',
         isolatedDesc: 'Không có liên kết. Tốt nhất cho sự tách biệt nghiêm ngặt.',
@@ -4034,6 +4392,24 @@ const resources = {
         standardHint: '標準モードでは、プロジェクトのワークスペースコンテキストのみ同期します。',
         credentialsIsolated:
           'どのモードでも、認証情報と .anthropic はアカウントごとに分離されます。',
+        implicationTitle: '保存後の挙動',
+        isolatedImplication:
+          'このアカウントは分離されたままです。他のアカウントからこの継続状態を再開できません。',
+        sameGroupRule:
+          'アカウント同士で継続性を共有するには、両方が同じグループ「{{group}}」を使う必要があります。',
+        noSameGroupPeer: '現在このグループを使っている他のアカウントはありません。',
+        sameGroupPeerCount_one: 'このグループを使う他のアカウントが {{count}} 件あります。',
+        sameGroupPeerCount_other: 'このグループを使う他のアカウントが {{count}} 件あります。',
+        deeperReady_one:
+          '同じグループの {{count}} 件のアカウントがすでに拡張継続性を使っています。これは現状で最も強い引き継ぎ設定です。',
+        deeperReady_other:
+          '同じグループの {{count}} 件のアカウントがすでに拡張継続性を使っています。これは現状で最も強い引き継ぎ設定です。',
+        deeperNeedsPeers:
+          'このアカウントでは拡張継続性が有効ですが、同じグループの他アカウントでも拡張継続性を有効にしないと、アカウント間再開の期待には十分ではありません。',
+        standardWarning:
+          '標準共有はプロジェクト文脈向けです。アカウント間再開を期待するなら、両方のアカウントで拡張継続性を有効にしてください。',
+        resumeOriginalWarning:
+          '古い会話が重要なら、設定を変える前に元のアカウントで再開してください。',
         cancel: 'キャンセル',
         save: '保存',
         saving: '保存中...',
@@ -4056,8 +4432,104 @@ const resources = {
         historySyncGroup: '履歴同期グループ',
         historySyncGroupDesc:
           '同じグループのアカウントは、同じプロジェクトのコンテキストレーンを共有します。未設定時は default を使います。',
+        sameGroupRule:
+          '現在、継続性を共有できるのは、両方のアカウントが共有モードかつ同じグループを使っている場合だけです。',
+        deeperRecommendation:
+          'グループ「{{group}}」は共有されていますが、アカウント間再開を期待するなら拡張継続性も有効にする方が安全です。',
+        partialGroup:
+          'グループ「{{group}}」は良い状態ですが、他のアカウントやグループでは同グループ設定や拡張継続性がまだ不足しています。',
+        readyGroup:
+          'グループ「{{group}}」では複数アカウントで拡張継続性が有効です。これは現状で最も強い引き継ぎ設定です。',
         legacyConfirmation_one: '{{count}} 件のレガシーアカウントで明示的な確認がまだ必要です。',
         legacyConfirmation_other: '{{count}} 件のレガシーアカウントで明示的な確認がまだ必要です。',
+      },
+      continuityReadiness: {
+        title: 'アカウント間再開チェック',
+        description: 'アカウントを切り替える前に、何が不足しているかをこのカードで確認できます。',
+        state: {
+          single: '単一アカウント',
+          isolated: '再開オフ',
+          'shared-alone': '共有だが未完成',
+          'shared-standard': 'プロジェクトのみ',
+          partial: '一部のみ準備完了',
+          ready: '強い引き継ぎ準備完了',
+        },
+        metrics: {
+          isolated: '分離',
+          sharedPeers: '同グループあり',
+          deeperReady: '拡張準備完了',
+        },
+        messages: {
+          single: {
+            title: '現在は auth アカウントが 1 つだけです。',
+            description:
+              'アカウント間の引き継ぎはまだ関係ありません。共有継続性を設定する前に、もう 1 つ auth アカウントを追加してください。',
+          },
+          isolated: {
+            title: '現在、アカウント間再開はオフです。',
+            description:
+              '表示中のアカウントはすべて分離モードのため、あるアカウントで作成したセッションはそのアカウントに残ります。',
+          },
+          'shared-alone': {
+            title: '共有モードはありますが、どのグループにも相手がいません。',
+            description_one:
+              '{{count}} 件の共有アカウントが、同じグループに入る別アカウントを待っています。',
+            description_other:
+              '{{count}} 件の共有アカウントが、同じグループに入る別アカウントを待っています。',
+          },
+          'shared-standard': {
+            title:
+              'グループ「{{group}}」はプロジェクト文脈を共有していますが、拡張継続性のペアがまだありません。',
+            description:
+              'ユーザーはプロジェクト共有以上を期待する可能性があります。より強い引き継ぎのため、このグループ内の両アカウントで拡張継続性を有効にしてください。',
+          },
+          partial: {
+            title: '1 つのグループは準備できていますが、全体の設定はまだ混在しています。',
+            description:
+              '少なくとも 1 つのグループでは拡張継続性が使われていますが、他のアカウントはまだ分離状態、共有グループ内で単独、または拡張継続性が未設定です。',
+          },
+          ready: {
+            title: 'グループ「{{group}}」は現状で最も強い継続性設定になっています。',
+            description:
+              'このグループでは複数アカウントがすでに拡張継続性を使っています。実際に再開できるかどうかは、Claude が上流で何を保存しているかにも依存します。',
+          },
+        },
+        stepsTitle: '次にユーザーがやるべきこと',
+        steps: {
+          syncBoth:
+            '切り替え先のアカウントだけでなく、両方のアカウントで「同期」を開いてください。',
+          sameGroup:
+            '両方のアカウントで同じ履歴同期グループを使ってください。現在の推奨グループは「{{group}}」です。',
+          enableDeeper:
+            'プロジェクト共有だけでなくアカウント間再開を期待するなら、両方のアカウントで拡張継続性を有効にしてください。',
+          resumeOriginal:
+            '元の会話が重要なら、継続性設定を変える前に元のアカウントで再開してください。',
+        },
+        singleSteps: {
+          addAccount:
+            'アカウント間引き継ぎを考える前に、まず 2 つ目の ccs auth アカウントを作成してください。',
+          sameGroupLater:
+            '2 つ目のアカウントができたら、両方を同じ履歴同期グループに入れてください。',
+          enableDeeperLater:
+            '将来アカウント間再開を期待するなら、両方のアカウントで拡張継続性を有効にしてください。',
+          resumeOriginal:
+            '2 つ目のアカウントが整うまでは、重要な会話は元のアカウントから再開し続けてください。',
+        },
+      },
+      continuityOverview: {
+        plainLaneTitle: '通常の ccs は別の再開レーンを使っています',
+        plainLaneDescription:
+          '通常の ccs は現在 {{lane}} から再開しており、このアカウントのレーンではありません。同期設定を変える前に元のレーンを先に復旧してください。',
+        setDefaultHint:
+          '今後の通常の ccs を特定のアカウントに合わせたい場合は、その行の「既定に設定」を使ってください。',
+        recommendBadge: '推奨 {{group}}',
+        partialBadge: '部分同期 {{group}}',
+        lane: {
+          native: 'ネイティブ Claude（~/.claude）',
+          accountDefault: 'アカウント {{name}}',
+          accountInherited: '継続性継承によるアカウント {{name}}',
+          profileDefault: '既定プロファイル {{name}}（ネイティブ Claude レーン）',
+        },
       },
       accountsTable: {
         name: '名前',
@@ -4088,6 +4560,17 @@ const resources = {
         sharedGroupLegacy: '共有（{{group}}、標準・レガシー）',
         isolatedLegacy: '分離（旧既定値）',
         isolated: '分離',
+        noSameGroupPeer: '同じグループの相手がまだいません',
+        sameGroupPeerCount_one: '{{count}} 件の同グループアカウント',
+        sameGroupPeerCount_other: '{{count}} 件の同グループアカウント',
+        legacyReview: 'この推定された既定状態を確認して明示的に確定してください。',
+        noHandoff: 'アカウント間再開は元のアカウントに残ります。',
+        badges: {
+          shared: '共有',
+          deeper: '拡張',
+          legacy: 'レガシー',
+          isolated: '分離',
+        },
       },
       addAccountDialog: {
         title: '{{displayName}} アカウントを追加',
@@ -4540,6 +5023,8 @@ const resources = {
         sharedStandardDesc:
           'プロジェクトワークスペースの同期のみ。ほとんどのチームに最適な既定値です。',
         sharedDeeper: '共有拡張',
+        sharedDeeperDesc:
+          'session-env、file-history、shell-snapshots、todos も同期します。アカウント間再開を期待するなら推奨です。',
         sharedDeeperPrefix: '追加で',
         isolated: '分離',
         isolatedDesc: 'リンクなし。厳密な分離に最適です。',

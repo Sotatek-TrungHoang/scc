@@ -27,7 +27,7 @@ beforeEach(() => {
     },
   }));
 
-  mock.module('../../../src/commands/api-command', () => ({
+  mock.module('../../../src/commands/api-command/index', () => ({
     handleApiCommand: async (args: string[]) => {
       calls.push(`api:${args.join(' ')}`);
     },
@@ -74,6 +74,15 @@ describe('root-command-router', () => {
     expect(calls).toEqual([]);
   });
 
+  it('does not capture cursor so bare cursor can fall through to profile routing', async () => {
+    const tryHandleRootCommand = await loadTryHandleRootCommand();
+
+    await expect(tryHandleRootCommand(['cursor'])).resolves.toBe(false);
+    await expect(tryHandleRootCommand(['cursor', 'status'])).resolves.toBe(false);
+
+    expect(calls).toEqual([]);
+  });
+
   it('prints update help without invoking the updater', async () => {
     const tryHandleRootCommand = await loadTryHandleRootCommand();
 
@@ -110,5 +119,11 @@ describe('root-command-router', () => {
     const tryHandleRootCommand = await loadTryHandleRootCommand();
 
     await expect(tryHandleRootCommand(['tokens', 'list'])).rejects.toThrow('process.exit(37)');
+  });
+
+  it('routes hidden completion queries through the completion backend', async () => {
+    const tryHandleRootCommand = await loadTryHandleRootCommand();
+
+    await expect(tryHandleRootCommand(['__complete', '--shell', 'bash', '--current', 'do'])).resolves.toBe(true);
   });
 });

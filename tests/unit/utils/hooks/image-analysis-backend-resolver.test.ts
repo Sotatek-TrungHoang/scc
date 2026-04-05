@@ -44,6 +44,44 @@ describe('image-analysis-backend-resolver', () => {
     expect(status.resolutionSource).toBe('copilot-alias');
   });
 
+  it('does not route cursor image analysis through the fallback backend by default', () => {
+    const status = resolveImageAnalysisStatus(
+      {
+        profileName: 'cursor',
+        profileType: 'cursor',
+      },
+      DEFAULT_IMAGE_ANALYSIS_CONFIG
+    );
+
+    expect(status.supported).toBe(false);
+    expect(status.backendId).toBeNull();
+    expect(status.status).toBe('skipped');
+    expect(status.resolutionSource).toBe('unresolved');
+    expect(status.reason).toContain('profile_backends.cursor');
+  });
+
+  it('allows cursor image analysis only when explicitly mapped to a backend', () => {
+    const config: ImageAnalysisConfig = {
+      ...DEFAULT_IMAGE_ANALYSIS_CONFIG,
+      profile_backends: {
+        cursor: 'ghcp',
+      },
+    };
+
+    const status = resolveImageAnalysisStatus(
+      {
+        profileName: 'cursor',
+        profileType: 'cursor',
+      },
+      config
+    );
+
+    expect(status.supported).toBe(true);
+    expect(status.backendId).toBe('ghcp');
+    expect(status.status).toBe('mapped');
+    expect(status.resolutionSource).toBe('profile-backend');
+  });
+
   it('uses the fallback backend for an unmapped third-party settings profile', () => {
     const status = resolveImageAnalysisStatus(
       {

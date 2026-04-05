@@ -32,6 +32,7 @@ import {
   type MergedAccountEntry,
 } from './account-route-helpers';
 import type { AccountConfig } from '../../config/unified-config-types';
+import { resolveConfiguredPlainCcsResumeLane } from '../../auth/resume-lane-diagnostics';
 
 const router = Router();
 
@@ -59,7 +60,7 @@ function hasAuthAccount(name: string): boolean {
 /**
  * GET /api/accounts - List accounts from both profiles.json and config.yaml
  */
-router.get('/', (_req: Request, res: Response): void => {
+router.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
     const registry = createProfileRegistry();
 
@@ -147,8 +148,19 @@ router.get('/', (_req: Request, res: Response): void => {
 
     // Get default from unified config first, fallback to legacy
     const defaultProfile = registry.getDefaultUnified() ?? registry.getDefaultProfile() ?? null;
+    const plainCcsLane = await resolveConfiguredPlainCcsResumeLane();
 
-    res.json({ accounts, default: defaultProfile });
+    res.json({
+      accounts,
+      default: defaultProfile,
+      plain_ccs_lane: {
+        kind: plainCcsLane.kind,
+        label: plainCcsLane.label,
+        account_name: plainCcsLane.accountName ?? null,
+        profile_name: plainCcsLane.profileName ?? null,
+        project_count: plainCcsLane.projectCount,
+      },
+    });
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

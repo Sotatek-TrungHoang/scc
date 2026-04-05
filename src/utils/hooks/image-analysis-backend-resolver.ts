@@ -396,6 +396,16 @@ function resolveBackend(
     };
   }
 
+  if (profileType === 'cursor' || profileName === 'cursor') {
+    return {
+      backendId: null,
+      backendDisplayName: null,
+      resolutionSource: 'unresolved',
+      reason:
+        'Cursor image analysis does not inherit the global fallback backend. Set image_analysis.profile_backends.cursor to an explicit provider to enable transformer-backed image analysis.',
+    };
+  }
+
   if (profileType === 'copilot' || profileName === 'copilot') {
     const backendId = normalizeImageAnalysisBackendId('ghcp', Object.keys(config.provider_models));
     return {
@@ -566,13 +576,13 @@ export function resolveImageAnalysisStatus(
         ? 'CLIProxy runtime readiness has not been verified yet.'
         : null,
     effectiveRuntimeMode:
-      config.enabled && resolution.backendId && model && status !== 'hook-missing'
-        ? 'cliproxy-image-analysis'
-        : 'native-read',
+      config.enabled && resolution.backendId && model ? 'cliproxy-image-analysis' : 'native-read',
     effectiveRuntimeReason:
-      status === 'hook-missing' || !config.enabled || !resolution.backendId || !model
+      !config.enabled || !resolution.backendId || !model
         ? reason
-        : null,
+        : status === 'attention' || status === 'hook-missing'
+          ? reason
+          : null,
     profileModel: nativeSupport.profileModel,
     nativeReadPreference: nativeSupport.nativeReadPreference,
     nativeImageCapable: nativeSupport.nativeImageCapable,

@@ -611,6 +611,8 @@ export interface GeminiCliBucket {
   remainingFraction: number;
   /** Remaining quota as percentage (0-100) */
   remainingPercent: number;
+  /** Remaining quota count when the upstream API provides it */
+  remainingAmount?: number | null;
   /** ISO timestamp when quota resets, null if unknown */
   resetTime: string | null;
   /** Model IDs in this bucket */
@@ -625,6 +627,12 @@ export interface GeminiCliQuotaResult {
   buckets: GeminiCliBucket[];
   /** GCP project ID for this account */
   projectId: string | null;
+  /** Human-readable Gemini tier label when available */
+  tierLabel?: string | null;
+  /** Stable Gemini tier identifier when available */
+  tierId?: string | null;
+  /** Available Google One AI credits when reported by the API */
+  creditBalance?: number | null;
   /** Timestamp of fetch */
   lastUpdated: number;
   /** Upstream HTTP status when available */
@@ -723,6 +731,14 @@ export interface Account {
   continuity_inferred?: boolean;
   provider?: string;
   displayName?: string;
+}
+
+export interface PlainCcsLane {
+  kind: 'native' | 'account-default' | 'account-inherited' | 'profile-default' | 'ambient';
+  label: string;
+  account_name?: string | null;
+  profile_name?: string | null;
+  project_count: number;
 }
 
 export interface UpdateAccountContext {
@@ -1112,7 +1128,10 @@ export const api = {
     },
   },
   accounts: {
-    list: () => request<{ accounts: Account[]; default: string | null }>('/accounts'),
+    list: () =>
+      request<{ accounts: Account[]; default: string | null; plain_ccs_lane?: PlainCcsLane }>(
+        '/accounts'
+      ),
     setDefault: (name: string) =>
       request('/accounts/default', {
         method: 'POST',

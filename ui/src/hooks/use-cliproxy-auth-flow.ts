@@ -432,9 +432,16 @@ export function useCliproxyAuthFlow() {
           return;
         }
         const success = data.success === true;
+        const waitingForLocalToken = data.status === 'wait';
         const hasAccount = typeof data.account === 'object' && data.account !== null;
 
-        if (response.ok && success && hasAccount) {
+        if (response.ok && waitingForLocalToken) {
+          setState((prev) => ({
+            ...prev,
+            isSubmittingCallback: false,
+            error: null,
+          }));
+        } else if (response.ok && success && hasAccount) {
           stopPolling();
           queryClient.invalidateQueries({ queryKey: ['cliproxy-auth'] });
           queryClient.invalidateQueries({ queryKey: ['cliproxy-accounts'] });

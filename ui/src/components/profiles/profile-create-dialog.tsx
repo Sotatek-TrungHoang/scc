@@ -31,17 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { ProviderLogo } from '@/components/cliproxy/provider-logo';
 import { useCreateProfile } from '@/hooks/use-profiles';
 import { useOpenRouterCatalog } from '@/hooks/use-openrouter-models';
-import {
-  Loader2,
-  Plus,
-  AlertTriangle,
-  Info,
-  Eye,
-  EyeOff,
-  Settings2,
-  Sparkles,
-  ChevronDown,
-} from 'lucide-react';
+import { Loader2, Plus, AlertTriangle, Info, Eye, EyeOff, Settings2, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -113,9 +103,6 @@ const RECOMMENDED_PRESETS = getPresetsByCategory('recommended');
 const QUICK_TEMPLATE_PRESETS = PROVIDER_PRESETS.filter(
   (preset) => preset.category !== 'recommended'
 );
-const QUICK_TEMPLATE_PRESET_IDS = new Set<string>(
-  QUICK_TEMPLATE_PRESETS.map((preset) => preset.id)
-);
 
 export function ProfileCreateDialog({
   open,
@@ -129,7 +116,6 @@ export function ProfileCreateDialog({
   const [urlWarning, setUrlWarning] = useState<string | null>(null);
   const [showApiKey, setShowApiKey] = useState(false);
   const [selectedPreset, setSelectedPreset] = useState<PresetSelection>(DEFAULT_PRESET_ID);
-  const [showMorePresets, setShowMorePresets] = useState(false);
   const [modelSearch, setModelSearch] = useState('');
 
   // OpenRouter models for model picker
@@ -192,7 +178,6 @@ export function ProfileCreateDialog({
       setActiveTab('basic');
       setUrlWarning(null);
       setShowApiKey(false);
-      setShowMorePresets(false);
       setModelSearch('');
 
       // Set initial preset based on initialMode
@@ -221,13 +206,11 @@ export function ProfileCreateDialog({
 
     if (preset) {
       setSelectedPreset(preset.id);
-      setShowMorePresets(QUICK_TEMPLATE_PRESET_IDS.has(preset.id));
       applyPresetToForm(preset);
       return;
     }
 
     setSelectedPreset(CUSTOM_PRESET_ID);
-    setShowMorePresets(false);
     applyPresetToForm(null);
   };
 
@@ -290,10 +273,7 @@ export function ProfileCreateDialog({
     !!errors.model || !!errors.opusModel || !!errors.sonnetModel || !!errors.haikuModel;
   const isCreating = createMutation.isPending;
 
-  const isQuickTemplateSelected =
-    selectedPreset !== CUSTOM_PRESET_ID && QUICK_TEMPLATE_PRESET_IDS.has(selectedPreset);
   const isOpenRouter = currentPreset?.id === DEFAULT_PRESET_ID;
-  const showQuickTemplates = showMorePresets || isQuickTemplateSelected;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -353,38 +333,22 @@ export function ProfileCreateDialog({
               </div>
 
               <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowMorePresets((current) => !current)}
-                  aria-expanded={showQuickTemplates}
-                  className="h-8 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
-                >
-                  <ChevronDown
-                    className={cn(
-                      'mr-1 h-3.5 w-3.5 transition-transform',
-                      showQuickTemplates ? 'rotate-0' : '-rotate-90'
-                    )}
-                  />
+                <Label className="text-xs font-medium uppercase tracking-[0.12em] text-foreground/70">
                   {t('profileEditor.morePresets')}
-                </Button>
-
-                {showQuickTemplates && (
-                  <div className="-mx-1 overflow-x-auto pb-1">
-                    <div className="flex min-w-max items-stretch gap-2 px-1">
-                      {QUICK_TEMPLATE_PRESETS.map((preset) => (
-                        <CompactPresetCard
-                          key={preset.id}
-                          preset={preset}
-                          isSelected={selectedPreset === preset.id}
-                          onClick={() => handlePresetSelect(preset.id)}
-                          density="compact"
-                        />
-                      ))}
-                    </div>
+                </Label>
+                <div className="-mx-1 overflow-x-auto pb-1">
+                  <div className="flex min-w-max items-stretch gap-2 px-1">
+                    {QUICK_TEMPLATE_PRESETS.map((preset) => (
+                      <CompactPresetCard
+                        key={preset.id}
+                        preset={preset}
+                        isSelected={selectedPreset === preset.id}
+                        onClick={() => handlePresetSelect(preset.id)}
+                        density="compact"
+                      />
+                    ))}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
