@@ -765,13 +765,14 @@ export function executeOAuthProcess(options: OAuthProcessOptions): Promise<Accou
         displayUrlFromStderr(output, state, oauthConfig);
       }
       if (options.manualCallback && !state.manualCallbackPrompted) {
-        const urlMatch = output.match(/https?:\/\/[^\s]+/);
-        if (urlMatch) {
+        const authUrl =
+          extractLikelyOAuthAuthorizationUrl(output) ?? output.match(/https?:\/\/[^\s]+/)?.[0];
+        if (authUrl) {
           state.manualCallbackPrompted = true;
           await replayManualCallback(
             options.oauthConfig,
             authProcess,
-            urlMatch[0],
+            authUrl,
             options.verbose,
             state,
             10 * 60 * 1000
