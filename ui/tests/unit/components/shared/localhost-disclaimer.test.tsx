@@ -18,6 +18,7 @@ describe('LocalhostDisclaimer', () => {
   it('shows the local safety copy for loopback sessions', () => {
     useAuthMock.mockReturnValue({
       authEnabled: false,
+      authConfigured: false,
       isLocalAccess: true,
       loading: false,
     });
@@ -32,6 +33,7 @@ describe('LocalhostDisclaimer', () => {
   it('shows the remote read-only copy when auth is disabled for remote access', () => {
     useAuthMock.mockReturnValue({
       authEnabled: false,
+      authConfigured: false,
       isLocalAccess: false,
       loading: false,
     });
@@ -43,5 +45,24 @@ describe('LocalhostDisclaimer', () => {
         'Remote dashboard access is read-only until you run ccs config auth setup on the host.'
       )
     ).toBeVisible();
+    expect(screen.queryByLabelText('Dismiss disclaimer')).toBeNull();
+  });
+
+  it('shows the re-enable message when host credentials already exist', () => {
+    useAuthMock.mockReturnValue({
+      authEnabled: false,
+      authConfigured: true,
+      isLocalAccess: false,
+      loading: false,
+    });
+
+    render(<LocalhostDisclaimer />);
+
+    expect(
+      screen.getByText(
+        'Remote dashboard access is read-only because dashboard auth is currently disabled on the host. Re-enable dashboard auth on the host to unlock remote changes.'
+      )
+    ).toBeVisible();
+    expect(screen.queryByLabelText('Dismiss disclaimer')).toBeNull();
   });
 });
