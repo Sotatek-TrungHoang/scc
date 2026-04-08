@@ -113,6 +113,8 @@ describe('log reader', () => {
           })
         )}\n`
       );
+      const futureTimestamp = new Date(Date.now() + 10_000);
+      fs.utimesSync(currentLogPath, futureTimestamp, futureTimestamp);
 
       expect(readLogEntries({ limit: 1 }).map((entry) => entry.id)).toEqual(['disk-new']);
       expect(readSpy).toHaveBeenCalledTimes(2);
