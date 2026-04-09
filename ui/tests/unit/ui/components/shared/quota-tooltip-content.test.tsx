@@ -104,7 +104,7 @@ describe('QuotaTooltipContent', () => {
       needsReauth: true,
     });
 
-    render(<QuotaTooltipContent quota={quota} resetTime={null} />);
+    const { container } = render(<QuotaTooltipContent quota={quota} resetTime={null} />);
 
     expect(screen.getByText('Reauth')).toBeInTheDocument();
     expect(screen.getByText('Request had invalid authentication credentials.')).toBeInTheDocument();
@@ -113,5 +113,6 @@ describe('QuotaTooltipContent', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('HTTP 401 | UNAUTHENTICATED')).toBeInTheDocument();
     expect(screen.getByText(/"status":"UNAUTHENTICATED"/)).toBeInTheDocument();
+    expect(container.firstChild).not.toHaveClass('min-w-[16rem]');
   });
 });

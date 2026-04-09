@@ -250,7 +250,7 @@ export function AccountQuotaPanel({
                 </div>
               )}
             </TooltipTrigger>
-            <TooltipContent side={mode === 'compact' ? 'top' : 'bottom'} className="max-w-sm">
+            <TooltipContent side={mode === 'compact' ? 'top' : 'bottom'} className="sm:max-w-sm">
               <QuotaTooltipContent quota={quota} resetTime={resetTime} />
             </TooltipContent>
           </Tooltip>
@@ -306,7 +306,7 @@ export function AccountQuotaPanel({
             </div>
           )}
         </TooltipTrigger>
-        <TooltipContent side={mode === 'compact' ? 'top' : 'bottom'} className="max-w-sm">
+        <TooltipContent side={mode === 'compact' ? 'top' : 'bottom'} className="sm:max-w-sm">
           <QuotaTooltipContent quota={quota} resetTime={resetTime} />
         </TooltipContent>
       </Tooltip>

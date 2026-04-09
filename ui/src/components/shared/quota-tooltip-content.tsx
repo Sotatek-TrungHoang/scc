@@ -27,6 +27,8 @@ interface QuotaTooltipContentProps {
   resetTime: string | null;
 }
 
+const lowQuotaTextClass = 'text-red-700 dark:text-red-400';
+
 function formatPlanLabel(planType: string | null | undefined): string | null {
   if (!planType) return null;
   const normalized = planType
@@ -94,7 +96,7 @@ export function QuotaTooltipContent({ quota, resetTime }: QuotaTooltipContentPro
           : 'text-foreground';
 
     return (
-      <div className="min-w-[16rem] space-y-2 text-xs">
+      <div className="max-w-sm space-y-2 text-xs">
         <div className="space-y-1">
           <p className={cn('font-semibold tracking-tight', failureToneClass)}>
             {failureInfo?.label || quota.error || 'Failed to load quota'}
@@ -140,10 +142,10 @@ export function QuotaTooltipContent({ quota, resetTime }: QuotaTooltipContentPro
               {!isFirst && <div className="my-1 border-t border-border/40" />}
               {models.map((m) => (
                 <div key={m.name} className="flex justify-between gap-4">
-                  <span className={cn('truncate', m.exhausted && 'text-red-500')}>
+                  <span className={cn('truncate', m.exhausted && lowQuotaTextClass)}>
                     {m.displayName}
                   </span>
-                  <span className={cn('font-mono', m.exhausted && 'text-red-500')}>
+                  <span className={cn('font-mono', m.exhausted && lowQuotaTextClass)}>
                     {m.percentage}%
                   </span>
                 </div>
@@ -180,7 +182,7 @@ export function QuotaTooltipContent({ quota, resetTime }: QuotaTooltipContentPro
             key={`${w.label}-${w.resetAt ?? 'no-reset'}-${index}`}
             className="flex justify-between gap-4"
           >
-            <span className={cn(w.remainingPercent < 20 && 'text-red-500')}>
+            <span className={cn(w.remainingPercent < 20 && lowQuotaTextClass)}>
               {getCodexWindowDisplayLabel(w, orderedWindows)}
             </span>
             <span className="font-mono">{w.remainingPercent}%</span>
@@ -248,7 +250,7 @@ export function QuotaTooltipContent({ quota, resetTime }: QuotaTooltipContentPro
             key={`${window.rateLimitType}-${window.resetAt ?? 'no-reset'}-${window.status}-${index}`}
             className="flex justify-between gap-4"
           >
-            <span className={cn(window.remainingPercent < 20 && 'text-red-500')}>
+            <span className={cn(window.remainingPercent < 20 && lowQuotaTextClass)}>
               {getClaudeWindowDisplayLabel(window.rateLimitType, window.label)}
             </span>
             <span className="font-mono">{window.remainingPercent}%</span>
@@ -285,7 +287,7 @@ export function QuotaTooltipContent({ quota, resetTime }: QuotaTooltipContentPro
         {quota.buckets.map((b) => (
           <div key={b.id} className="space-y-0.5">
             <div className="flex justify-between gap-4">
-              <span className={cn(b.remainingPercent < 20 && 'text-red-500')}>
+              <span className={cn(b.remainingPercent < 20 && lowQuotaTextClass)}>
                 {b.label}
                 {b.tokenType ? ` (${b.tokenType})` : ''}
               </span>
@@ -327,8 +329,8 @@ export function QuotaTooltipContent({ quota, resetTime }: QuotaTooltipContentPro
           return (
             <div key={label} className="space-y-0.5">
               <div className="flex justify-between gap-4">
-                <span className={cn(isLow && 'text-red-500')}>{label}</span>
-                <span className={cn('font-mono', isLow && 'text-red-500')}>
+                <span className={cn(isLow && lowQuotaTextClass)}>{label}</span>
+                <span className={cn('font-mono', isLow && lowQuotaTextClass)}>
                   {snapshot.unlimited
                     ? 'Unlimited'
                     : `${formatQuotaPercent(snapshot.percentRemaining)}%`}
