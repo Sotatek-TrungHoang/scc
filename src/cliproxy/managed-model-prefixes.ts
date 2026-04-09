@@ -10,6 +10,11 @@ interface ManagementAuthFileRecord {
   type?: string;
 }
 
+interface AuthFileMetadata {
+  prefix: string | null;
+  provider: CLIProxyProvider | null;
+}
+
 export interface ManagedPrefixSyncResult {
   checked: number;
   updated: number;
@@ -49,7 +54,7 @@ async function patchAuthFilePrefix(name: string, prefix: string): Promise<void> 
   }
 }
 
-async function readAuthFilePrefix(name: string): Promise<string | null> {
+async function readAuthFileMetadata(name: string): Promise<AuthFileMetadata> {
   const target = getProxyTarget();
   const url = buildProxyUrl(
     target,
@@ -65,10 +70,19 @@ async function readAuthFilePrefix(name: string): Promise<string | null> {
 
   const content = await response.text();
   try {
-    const parsed = JSON.parse(content) as { prefix?: unknown };
-    return typeof parsed.prefix === 'string' ? parsed.prefix.trim() : null;
+    const parsed = JSON.parse(content) as { prefix?: unknown; provider?: unknown; type?: unknown };
+    const providerName =
+      typeof parsed.provider === 'string'
+        ? parsed.provider
+        : typeof parsed.type === 'string'
+          ? parsed.type
+          : '';
+    return {
+      prefix: typeof parsed.prefix === 'string' ? parsed.prefix.trim() : null,
+      provider: providerName ? mapExternalProviderName(providerName) : null,
+    };
   } catch {
-    return null;
+    return { prefix: null, provider: null };
   }
 }
 
@@ -101,8 +115,16 @@ export async function ensureManagedModelPrefixes(
 
     try {
       checked += 1;
-      const currentPrefix = await readAuthFilePrefix(record.name);
+      const { prefix: currentPrefix, provider: fileProvider } = await readAuthFileMetadata(
+        record.name
+      );
+      if (fileProvider !== provider) {
+        continue;
+      }
       if (currentPrefix === prefix) {
+        continue;
+      }
+      if (currentPrefix && currentPrefix !== prefix) {
         continue;
       }
       await patchAuthFilePrefix(record.name, prefix);

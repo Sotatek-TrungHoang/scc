@@ -20,6 +20,25 @@ import { FlexibleModelSelector } from '../provider-model-selector';
 import type { CustomPresetDialogProps, ModelMappingValues } from './types';
 import { useTranslation } from 'react-i18next';
 
+function normalizePresetValues(
+  values: ModelMappingValues,
+  routing: CustomPresetDialogProps['routing']
+): ModelMappingValues {
+  const toPreferredModelId = (modelId: string): string => {
+    const hint = routing?.models.find(
+      (entry) => entry.modelId.toLowerCase() === modelId.toLowerCase()
+    );
+    return hint?.pinnedAvailable ? hint.recommendedModelId : modelId;
+  };
+
+  return {
+    default: toPreferredModelId(values.default),
+    opus: toPreferredModelId(values.opus),
+    sonnet: toPreferredModelId(values.sonnet),
+    haiku: toPreferredModelId(values.haiku),
+  };
+}
+
 export function CustomPresetDialog({
   open,
   onClose,
@@ -32,13 +51,15 @@ export function CustomPresetDialog({
   routing,
 }: CustomPresetDialogProps) {
   const { t } = useTranslation();
-  const [values, setValues] = useState<ModelMappingValues>(currentValues);
+  const [values, setValues] = useState<ModelMappingValues>(
+    normalizePresetValues(currentValues, routing)
+  );
   const [presetName, setPresetName] = useState('');
 
   // Reset values when dialog opens with current values
   const handleOpenChange = (isOpen: boolean) => {
     if (isOpen) {
-      setValues(currentValues);
+      setValues(normalizePresetValues(currentValues, routing));
       setPresetName('');
     } else {
       onClose();

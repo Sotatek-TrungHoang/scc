@@ -316,12 +316,6 @@ export function getStartAuthNicknameError(
  */
 router.get('/', async (_req: Request, res: Response): Promise<void> => {
   try {
-    try {
-      await ensureManagedModelPrefixes();
-    } catch {
-      // Keep auth status available even when prefix repair cannot run.
-    }
-
     // Check if remote mode is enabled
     const target = getProxyTarget();
     if (target.isRemote) {
@@ -393,12 +387,6 @@ router.get('/', async (_req: Request, res: Response): Promise<void> => {
  */
 router.get('/accounts', async (_req: Request, res: Response): Promise<void> => {
   try {
-    try {
-      await ensureManagedModelPrefixes();
-    } catch {
-      // Non-fatal: account listing should still work without prefix repair.
-    }
-
     // Check if remote mode is enabled
     const target = getProxyTarget();
     if (target.isRemote) {

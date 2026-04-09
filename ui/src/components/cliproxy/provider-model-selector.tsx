@@ -306,6 +306,16 @@ function normalizeModelValue(
   return value.startsWith(prefix) ? value.slice(prefix.length) : value;
 }
 
+function getPreferredOptionValue(
+  modelId: string,
+  routingHint: CliproxyProviderRoutingHints['models'][number] | undefined
+): string {
+  if (!routingHint?.pinnedAvailable) {
+    return modelId;
+  }
+  return routingHint.recommendedModelId;
+}
+
 export function FlexibleModelSelector({
   label,
   description,
@@ -334,16 +344,16 @@ export function FlexibleModelSelector({
   );
 
   const recommendedOptions = resolvedCatalogModels.map((model) => ({
-    value: routingHints.get(model.id.toLowerCase())?.recommendedModelId ?? model.id,
+    value: getPreferredOptionValue(model.id, routingHints.get(model.id.toLowerCase())),
     groupKey: 'recommended',
     searchText: `${model.id} ${model.name} ${routingHints.get(model.id.toLowerCase())?.recommendedModelId ?? ''}`,
     keywords: [model.tier ?? '', catalog?.provider ?? ''],
     triggerContent: (
       <div className="flex min-w-0 items-center gap-2">
         <span className="truncate font-mono text-xs">
-          {routingHints.get(model.id.toLowerCase())?.recommendedModelId ?? model.id}
+          {getPreferredOptionValue(model.id, routingHints.get(model.id.toLowerCase()))}
         </span>
-        {routingHints.get(model.id.toLowerCase()) ? (
+        {routingHints.get(model.id.toLowerCase())?.pinnedAvailable ? (
           <Badge variant="secondary" className="text-[9px] h-4 px-1 uppercase">
             {routingHints.get(model.id.toLowerCase())?.prefix}
           </Badge>
@@ -354,7 +364,7 @@ export function FlexibleModelSelector({
     itemContent: (
       <div className="flex min-w-0 items-center gap-2">
         <span className="truncate font-mono text-xs">
-          {routingHints.get(model.id.toLowerCase())?.recommendedModelId ?? model.id}
+          {getPreferredOptionValue(model.id, routingHints.get(model.id.toLowerCase()))}
         </span>
         {model.tier === 'paid' && <PaidBadge label={t('providerModelSelector.paid')} />}
         {routingHints.get(model.id.toLowerCase())?.unprefixedStatus === 'shadowed' ? (
@@ -375,19 +385,38 @@ export function FlexibleModelSelector({
   const allModelOptions = allModels
     .filter((model) => !catalogModelIds.has(model.id))
     .map((model) => ({
-      value: model.id,
+      value: getPreferredOptionValue(model.id, routingHints.get(model.id.toLowerCase())),
       groupKey: 'all',
-      searchText: model.id,
+      searchText: `${model.id} ${routingHints.get(model.id.toLowerCase())?.recommendedModelId ?? ''}`,
       keywords: [model.owned_by],
       triggerContent: (
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate font-mono text-xs">{model.id}</span>
+          <span className="truncate font-mono text-xs">
+            {getPreferredOptionValue(model.id, routingHints.get(model.id.toLowerCase()))}
+          </span>
+          {routingHints.get(model.id.toLowerCase())?.pinnedAvailable ? (
+            <Badge variant="secondary" className="text-[9px] h-4 px-1 uppercase">
+              {routingHints.get(model.id.toLowerCase())?.prefix}
+            </Badge>
+          ) : null}
           {isCodexProvider && <CodexEffortBadge modelId={model.id} />}
         </div>
       ),
       itemContent: (
         <div className="flex min-w-0 items-center gap-2">
-          <span className="truncate font-mono text-xs">{model.id}</span>
+          <span className="truncate font-mono text-xs">
+            {getPreferredOptionValue(model.id, routingHints.get(model.id.toLowerCase()))}
+          </span>
+          {routingHints.get(model.id.toLowerCase())?.unprefixedStatus === 'shadowed' ? (
+            <Badge variant="outline" className="text-[9px] h-4 px-1">
+              Shadowed
+            </Badge>
+          ) : null}
+          {routingHints.get(model.id.toLowerCase())?.unprefixedStatus === 'prefix-only' ? (
+            <Badge variant="outline" className="text-[9px] h-4 px-1">
+              Prefix only
+            </Badge>
+          ) : null}
           {isCodexProvider && <CodexEffortBadge modelId={model.id} />}
         </div>
       ),
@@ -479,14 +508,21 @@ export function FlexibleModelSelector({
           )}
         >
           <div className="font-medium">
-            Preferred pinned model: <code>{selectedRoutingHint.recommendedModelId}</code>
+            {selectedRoutingHint.pinnedAvailable
+              ? 'Preferred pinned model:'
+              : 'Pinned route status:'}{' '}
+            <code>
+              {selectedRoutingHint.pinnedAvailable
+                ? selectedRoutingHint.recommendedModelId
+                : selectedRoutingHint.pinnedModelId}
+            </code>
           </div>
           <p className="mt-1 leading-5">{selectedRoutingHint.summary}</p>
         </div>
       ) : null}
       {value && !selectedRoutingHint && normalizeModelValue(value, routing) !== value ? (
-        <div className="rounded-md border border-border/70 bg-muted/25 px-2.5 py-2 text-[11px] text-muted-foreground">
-          Using pinned model: <code>{value}</code>
+        <div className="rounded-md border border-amber-300/60 bg-amber-50 px-2.5 py-2 text-[11px] text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/25 dark:text-amber-100">
+          Pinned model is not currently advertised by the proxy: <code>{value}</code>
         </div>
       ) : null}
     </div>

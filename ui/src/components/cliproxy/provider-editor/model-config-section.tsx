@@ -53,13 +53,16 @@ export function ModelConfigSection({
   onDeletePreset,
   isDeletePending,
 }: ModelConfigSectionProps) {
+  const pinningReady = (routing?.models ?? []).some((hint) => hint.pinnedAvailable);
   const routingHintMap = useMemo(
     () =>
       new Map((routing?.models ?? []).map((hint) => [hint.modelId.toLowerCase(), hint] as const)),
     [routing]
   );
   const toPreferredModelId = (modelId: string): string =>
-    routingHintMap.get(modelId.toLowerCase())?.recommendedModelId ?? modelId;
+    routingHintMap.get(modelId.toLowerCase())?.pinnedAvailable
+      ? (routingHintMap.get(modelId.toLowerCase())?.recommendedModelId ?? modelId)
+      : modelId;
 
   const extendedContextModels = useMemo(() => {
     if (!catalog) return [];
@@ -160,10 +163,10 @@ export function ModelConfigSection({
                     className="text-xs h-7 gap-1 pr-6"
                     onClick={() => {
                       onApplyPreset({
-                        ANTHROPIC_MODEL: preset.default,
-                        ANTHROPIC_DEFAULT_OPUS_MODEL: preset.opus,
-                        ANTHROPIC_DEFAULT_SONNET_MODEL: preset.sonnet,
-                        ANTHROPIC_DEFAULT_HAIKU_MODEL: preset.haiku,
+                        ANTHROPIC_MODEL: toPreferredModelId(preset.default),
+                        ANTHROPIC_DEFAULT_OPUS_MODEL: toPreferredModelId(preset.opus),
+                        ANTHROPIC_DEFAULT_SONNET_MODEL: toPreferredModelId(preset.sonnet),
+                        ANTHROPIC_DEFAULT_HAIKU_MODEL: toPreferredModelId(preset.haiku),
                       });
                     }}
                   >
@@ -209,8 +212,17 @@ export function ModelConfigSection({
         </p>
         {routing ? (
           <p className="text-[11px] text-muted-foreground mb-3 rounded-md border bg-muted/30 px-2.5 py-2">
-            Preferred pinned model names use the <code>{routing.prefix}/</code> prefix. Unprefixed
-            names can still resolve to a different backend when providers overlap.
+            {pinningReady ? (
+              <>
+                Preferred pinned model names use the <code>{routing.prefix}/</code> prefix.
+                Unprefixed names can still resolve to a different backend when providers overlap.
+              </>
+            ) : (
+              <>
+                Managed pinning for <code>{routing.prefix}/</code> is not currently advertised by
+                the proxy. Unprefixed names may still be ambiguous until prefix repair completes.
+              </>
+            )}
           </p>
         ) : null}
         {provider === 'codex' && (

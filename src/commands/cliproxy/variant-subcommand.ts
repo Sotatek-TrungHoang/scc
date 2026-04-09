@@ -10,9 +10,10 @@ import * as path from 'path';
 import { getProviderAccounts } from '../../cliproxy/account-manager';
 import { triggerOAuth } from '../../cliproxy/auth/oauth-handler';
 import { CLIProxyProfileName, CLIPROXY_PROFILES } from '../../auth/profile-detector';
+import { getCatalogRoutingSnapshot } from '../../cliproxy/catalog-routing';
 import { supportsModelConfig, getProviderCatalog, ModelEntry } from '../../cliproxy/model-catalog';
 import { ensureManagedModelPrefixes } from '../../cliproxy/managed-model-prefixes';
-import { getManagedModelPrefix } from '../../shared/cliproxy-model-routing';
+import type { CliproxyProviderRoutingHints } from '../../shared/cliproxy-model-routing';
 import { CLIProxyProvider, CLIProxyBackend } from '../../cliproxy/types';
 import type { TargetType } from '../../targets/target-adapter';
 import { getPersistedTargetChoices, isPersistedTargetType } from '../../targets/target-metadata';
@@ -117,9 +118,14 @@ function formatModelOption(model: ModelEntry): string {
   return `${model.name}${tierBadge}`;
 }
 
-function getSelectableModelId(provider: CLIProxyProvider, modelId: string): string {
-  const prefix = getManagedModelPrefix(provider);
-  return prefix ? `${prefix}/${modelId}` : modelId;
+function getSelectableModelId(
+  modelId: string,
+  routing: CliproxyProviderRoutingHints | undefined
+): string {
+  const hint = routing?.models.find(
+    (entry) => entry.modelId.toLowerCase() === modelId.toLowerCase()
+  );
+  return hint?.pinnedAvailable ? hint.recommendedModelId : modelId;
 }
 
 function getBackendLabel(backend: CLIProxyBackend): string {
@@ -186,10 +192,11 @@ async function selectTierConfig(
     } catch {
       // Keep interactive model selection available even when prefix repair fails.
     }
+    const routing = (await getCatalogRoutingSnapshot()).routing[provider as CLIProxyProvider];
     const catalog = getProviderCatalog(provider as CLIProxyProvider);
     if (catalog) {
       const modelOptions = catalog.models.map((m) => ({
-        id: getSelectableModelId(provider as CLIProxyProvider, m.id),
+        id: getSelectableModelId(m.id, routing),
         label: formatModelOption(m),
       }));
       const defaultIdx = catalog.models.findIndex((m) => m.id === catalog.defaultModel);
@@ -446,10 +453,11 @@ export async function handleCreate(
       } catch {
         // Keep variant creation available even when prefix repair fails.
       }
+      const routing = (await getCatalogRoutingSnapshot()).routing[provider as CLIProxyProvider];
       const catalog = getProviderCatalog(provider as CLIProxyProvider);
       if (catalog) {
         const modelOptions = catalog.models.map((m) => ({
-          id: getSelectableModelId(provider as CLIProxyProvider, m.id),
+          id: getSelectableModelId(m.id, routing),
           label: formatModelOption(m),
         }));
         const defaultIdx = catalog.models.findIndex((m) => m.id === catalog.defaultModel);
@@ -695,10 +703,13 @@ export async function handleEdit(
         } catch {
           // Keep edit flow available even when prefix repair fails.
         }
+        const routing = (await getCatalogRoutingSnapshot()).routing[
+          providerForModel as CLIProxyProvider
+        ];
         const catalog = getProviderCatalog(providerForModel as CLIProxyProvider);
         if (catalog) {
           const modelOptions = catalog.models.map((m) => ({
-            id: getSelectableModelId(providerForModel as CLIProxyProvider, m.id),
+            id: getSelectableModelId(m.id, routing),
             label: formatModelOption(m),
           }));
           const defaultIdx = catalog.models.findIndex((m) => m.id === catalog.defaultModel);

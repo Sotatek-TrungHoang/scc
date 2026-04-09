@@ -29,6 +29,7 @@ export interface CliproxyModelRoutingHint {
   prefix: string;
   pinnedModelId: string;
   recommendedModelId: string;
+  pinnedAvailable: boolean;
   unprefixedStatus: ModelRoutingStatus;
   effectiveProvider: string | null;
   effectiveDisplayName: string | null;
@@ -108,9 +109,13 @@ function buildSummary(
   providerDisplayName: string,
   hint: Pick<
     CliproxyModelRoutingHint,
-    'modelId' | 'pinnedModelId' | 'unprefixedStatus' | 'effectiveDisplayName'
+    'modelId' | 'pinnedModelId' | 'pinnedAvailable' | 'unprefixedStatus' | 'effectiveDisplayName'
   >
 ): string {
+  if (!hint.pinnedAvailable) {
+    return `${hint.modelId} does not currently advertise a live pinned route for ${hint.pinnedModelId}. Reconnect or refresh managed prefixes before treating it as pinned.`;
+  }
+
   if (hint.unprefixedStatus === 'safe') {
     return `${hint.modelId} currently resolves to ${providerDisplayName}. Use ${hint.pinnedModelId} to keep it pinned.`;
   }
@@ -151,6 +156,15 @@ export function buildCliproxyRoutingHints(
     let prefixOnlyCount = 0;
 
     const models = catalog.models.map((model) => {
+      const pinnedCandidates = mergedModels
+        .filter((candidate) => normalize(candidate.id).endsWith(`/${normalize(model.id)}`))
+        .filter((candidate) => inferProvider(candidate) === providerKey)
+        .map((candidate) => candidate.id)
+        .sort((left, right) => left.localeCompare(right));
+      const managedPinnedId = `${prefix}/${model.id}`;
+      const recommendedModelId = pinnedCandidates.includes(managedPinnedId)
+        ? managedPinnedId
+        : (pinnedCandidates[0] ?? managedPinnedId);
       const mergedModel = mergedModelMap.get(normalize(model.id));
       const effectiveProvider = mergedModel ? inferProvider(mergedModel) : null;
       const effectiveDisplayName =
@@ -173,8 +187,9 @@ export function buildCliproxyRoutingHints(
         modelId: model.id,
         modelName: model.name?.trim() || model.id,
         prefix,
-        pinnedModelId: `${prefix}/${model.id}`,
-        recommendedModelId: `${prefix}/${model.id}`,
+        pinnedModelId: managedPinnedId,
+        recommendedModelId,
+        pinnedAvailable: pinnedCandidates.length > 0,
         unprefixedStatus,
         effectiveProvider,
         effectiveDisplayName,

@@ -3,7 +3,6 @@ import {
   type CliproxyProviderRoutingHints,
 } from '../shared/cliproxy-model-routing';
 import { fetchCliproxyModels } from './stats-fetcher';
-import { ensureManagedModelPrefixes } from './managed-model-prefixes';
 import {
   getResolvedCatalogSnapshot,
   type CatalogSource,
@@ -20,12 +19,6 @@ export interface CatalogRoutingSnapshot {
 }
 
 export async function getCatalogRoutingSnapshot(): Promise<CatalogRoutingSnapshot> {
-  try {
-    await ensureManagedModelPrefixes();
-  } catch {
-    // Keep catalog rendering non-fatal when prefix sync is unavailable.
-  }
-
   const snapshot: ResolvedCatalogSnapshot = await getResolvedCatalogSnapshot();
   const modelsResponse = await fetchCliproxyModels();
   const routing = buildCliproxyRoutingHints(snapshot.catalogs, modelsResponse?.models ?? []);

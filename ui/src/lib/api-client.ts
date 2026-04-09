@@ -474,6 +474,7 @@ export interface CliproxyModelRoutingHint {
   prefix: string;
   pinnedModelId: string;
   recommendedModelId: string;
+  pinnedAvailable: boolean;
   unprefixedStatus: 'safe' | 'shadowed' | 'prefix-only';
   effectiveProvider: string | null;
   effectiveDisplayName: string | null;

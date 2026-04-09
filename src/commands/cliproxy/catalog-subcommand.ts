@@ -7,6 +7,7 @@ import {
   refreshCatalogFromProxy,
 } from '../../cliproxy/catalog-cache';
 import { getCatalogRoutingSnapshot } from '../../cliproxy/catalog-routing';
+import { ensureManagedModelPrefixes } from '../../cliproxy/managed-model-prefixes';
 import { getProxyTarget } from '../../cliproxy/proxy-target-resolver';
 import type { CLIProxyProvider } from '../../cliproxy/types';
 import type { RemoteModelInfo } from '../../cliproxy/management-api-types';
@@ -46,8 +47,17 @@ export async function handleCatalogStatus(verbose: boolean): Promise<void> {
   console.log(header('Model Catalog'));
   console.log('');
 
-  const routingSnapshot = await getCatalogRoutingSnapshot();
-  const cacheAge = routingSnapshot.cacheAge ?? getCacheAge();
+  let routingSnapshot: Awaited<ReturnType<typeof getCatalogRoutingSnapshot>> | null = null;
+  if (verbose) {
+    try {
+      await ensureManagedModelPrefixes();
+      routingSnapshot = await getCatalogRoutingSnapshot();
+    } catch {
+      routingSnapshot = null;
+    }
+  }
+
+  const cacheAge = routingSnapshot?.cacheAge ?? getCacheAge();
   if (cacheAge) {
     console.log(`  Cache: ${color('synced', 'success')} (${cacheAge})`);
   } else {
@@ -58,10 +68,10 @@ export async function handleCatalogStatus(verbose: boolean): Promise<void> {
   console.log(subheader('Providers:'));
 
   for (const provider of SYNCABLE_PROVIDERS) {
-    const catalog = routingSnapshot.catalogs[provider] ?? getResolvedCatalog(provider);
+    const catalog = routingSnapshot?.catalogs[provider] ?? getResolvedCatalog(provider);
     if (catalog) {
       const count = catalog.models.length;
-      const routing = routingSnapshot.routing[provider];
+      const routing = routingSnapshot?.routing[provider];
       const suffix = renderRoutingSummary(routing);
       console.log(`  ${color(catalog.displayName.padEnd(20), 'command')} ${count} models${suffix}`);
       if (verbose) {
@@ -112,7 +122,9 @@ function renderVerboseRouting(
       continue;
     }
 
-    console.log(dim(`      preferred: ${hint.recommendedModelId}`));
+    console.log(
+      dim(`      ${hint.pinnedAvailable ? 'preferred' : 'suggested'}: ${hint.recommendedModelId}`)
+    );
     if (hint.unprefixedStatus === 'safe') {
       console.log(dim(`      unprefixed: resolves to ${routing.displayName}`));
       continue;

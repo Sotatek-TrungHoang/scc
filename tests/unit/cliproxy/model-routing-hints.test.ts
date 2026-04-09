@@ -30,6 +30,7 @@ describe('cliproxy model routing hints', () => {
 
     expect(routing.gemini?.models[0]).toMatchObject({
       recommendedModelId: 'gcli/gemini-3-flash-preview',
+      pinnedAvailable: false,
       unprefixedStatus: 'shadowed',
       effectiveProvider: 'agy',
       effectiveDisplayName: 'Antigravity',
@@ -37,6 +38,7 @@ describe('cliproxy model routing hints', () => {
 
     expect(routing.agy?.models[0]).toMatchObject({
       recommendedModelId: 'agy/gemini-3-flash',
+      pinnedAvailable: false,
       unprefixedStatus: 'safe',
       effectiveProvider: 'agy',
     });
@@ -57,6 +59,7 @@ describe('cliproxy model routing hints', () => {
     expect(routing.gemini?.prefixOnlyCount).toBe(1);
     expect(routing.gemini?.models[0]).toMatchObject({
       recommendedModelId: 'gcli/gemini-3.1-pro-preview',
+      pinnedAvailable: false,
       unprefixedStatus: 'prefix-only',
       effectiveProvider: null,
     });
