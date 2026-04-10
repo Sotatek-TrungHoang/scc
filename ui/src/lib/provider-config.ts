@@ -169,8 +169,8 @@ export function formatRequestedUpstreamModelRules(
 ): string {
   return (models || [])
     .map((item) => {
-      const requested = item.alias.trim();
-      const upstream = item.name.trim();
+      const requested = item.alias?.trim() || '';
+      const upstream = item.name?.trim() || '';
       return requested ? `${requested}=${upstream}` : upstream;
     })
     .join('\n');
