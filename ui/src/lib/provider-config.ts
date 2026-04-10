@@ -165,7 +165,7 @@ export function getRequestedUpstreamModelRuleErrors(value: string): string[] {
  * Format stored provider config back into the UI-facing requested=upstream form.
  */
 export function formatRequestedUpstreamModelRules(
-  models: AiProviderModelAlias[] | null | undefined
+  models: Array<Partial<AiProviderModelAlias>> | null | undefined
 ): string {
   return (models || [])
     .map((item) => {
