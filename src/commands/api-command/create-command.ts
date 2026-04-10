@@ -269,12 +269,12 @@ async function resolveDefaultTarget(
   providedTarget: TargetType | undefined,
   yes: boolean | undefined
 ): Promise<TargetType> {
-  if (providedTarget) {
-    return providedTarget;
-  }
-  if (preset?.defaultTarget) {
-    console.log(info(`Using preset default target: ${preset.defaultTarget}`));
-    return preset.defaultTarget;
+  const resolvedTarget = resolvePresetDefaultTarget(preset, providedTarget);
+  if (resolvedTarget) {
+    if (preset?.defaultTarget && !providedTarget) {
+      console.log(info(`Using preset default target: ${preset.defaultTarget}`));
+    }
+    return resolvedTarget;
   }
   if (yes) {
     return 'claude';
@@ -285,6 +285,19 @@ async function resolveDefaultTarget(
     { default: false }
   );
   return useDroidByDefault ? 'droid' : 'claude';
+}
+
+export function resolvePresetDefaultTarget(
+  preset: Pick<ProviderPreset, 'defaultTarget'> | null,
+  providedTarget: TargetType | undefined
+): TargetType | null {
+  if (providedTarget) {
+    return providedTarget;
+  }
+  if (preset?.defaultTarget) {
+    return preset.defaultTarget;
+  }
+  return null;
 }
 
 async function resolveClaudeLongContextPreference(

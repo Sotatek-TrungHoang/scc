@@ -6,7 +6,7 @@
  */
 
 export type PresetCategory = 'recommended' | 'alternative';
-export type ProviderPresetTarget = 'claude' | 'droid' | 'codex';
+export type ProviderPresetTarget = 'claude' | 'droid';
 
 export const PROVIDER_PRESET_IDS = [
   'openrouter',
