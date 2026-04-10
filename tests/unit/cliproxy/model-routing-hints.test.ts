@@ -84,4 +84,28 @@ describe('cliproxy model routing hints', () => {
       unprefixedStatus: 'prefix-only',
     });
   });
+
+  it('marks the managed pinned route as available when the live model list advertises it', () => {
+    const routing = buildCliproxyRoutingHints(
+      {
+        gemini: {
+          provider: 'gemini',
+          displayName: 'Gemini',
+          models: [{ id: 'gemini-3-flash-preview', name: 'Gemini Flash' }],
+        },
+      },
+      [{ id: 'gcli/gemini-3-flash-preview', owned_by: 'google', type: 'gemini-cli' }]
+    );
+
+    expect(routing.gemini?.models[0]).toMatchObject({
+      pinnedModelId: 'gcli/gemini-3-flash-preview',
+      recommendedModelId: 'gcli/gemini-3-flash-preview',
+      pinnedAvailable: true,
+      unprefixedStatus: 'prefix-only',
+      effectiveProvider: null,
+    });
+    expect(routing.gemini?.models[0]?.summary).toContain(
+      'Use gcli/gemini-3-flash-preview to target Gemini.'
+    );
+  });
 });
