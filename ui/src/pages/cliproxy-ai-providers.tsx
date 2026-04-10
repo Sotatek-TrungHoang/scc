@@ -17,7 +17,12 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getAiProviderFamilyVisual } from '@/lib/provider-config';
+import {
+  formatRequestedUpstreamModelRules,
+  getAiProviderFamilyVisual,
+  getRequestedModelId,
+  parseRequestedUpstreamModelRules,
+} from '@/lib/provider-config';
 import { cn } from '@/lib/utils';
 import { FamilyRail, ProviderEntryDialog } from '@/components/cliproxy/ai-providers';
 import {
@@ -339,22 +344,7 @@ function parseKeyValueLines(value: string): Array<{ key: string; value: string }
 }
 
 function parseModelAliasLines(value: string) {
-  return value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const separatorIndex = line.indexOf('=');
-      if (separatorIndex === -1) {
-        return { name: line.trim(), alias: '' };
-      }
-
-      return {
-        name: line.slice(0, separatorIndex).trim(),
-        alias: line.slice(separatorIndex + 1).trim(),
-      };
-    })
-    .filter((item) => item.name.length > 0 || item.alias.length > 0);
+  return parseRequestedUpstreamModelRules(value);
 }
 
 function formatHeaders(entry?: AiProviderEntryView | null): string {
@@ -366,9 +356,7 @@ function formatExcludedModels(entry?: AiProviderEntryView | null): string {
 }
 
 function formatModelAliases(entry?: AiProviderEntryView | null): string {
-  return (entry?.models || [])
-    .map((item) => (item.alias.trim() ? `${item.name}=${item.alias}` : item.name))
-    .join('\n');
+  return formatRequestedUpstreamModelRules(entry?.models);
 }
 
 function buildEntryEditorDraft(entry: AiProviderEntryView): EntryEditorDraft {
@@ -579,7 +567,7 @@ function buildSettingsPreview(
     item.name.trim()
   );
   if (primaryModel?.name) {
-    env.ANTHROPIC_MODEL = primaryModel.name;
+    env.ANTHROPIC_MODEL = getRequestedModelId(primaryModel);
   }
 
   return { env };
