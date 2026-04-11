@@ -184,6 +184,7 @@ interface CatalogJsonModel {
   deprecated?: boolean;
   deprecationReason?: string;
   broken?: boolean;
+  issueUrl?: string;
   thinking?: ThinkingSupport;
   extendedContext?: boolean;
   nativeImageInput?: boolean;
@@ -198,6 +199,9 @@ export function handleCatalogJson(): void {
   const catalogs = getAllResolvedCatalogs();
   const result: Record<string, CatalogJsonModel[]> = {};
   for (const [provider, catalog] of Object.entries(catalogs)) {
+    if (!catalog) {
+      continue;
+    }
     result[provider] = catalog.models.map((m) => {
       const entry: CatalogJsonModel = { id: m.id, name: m.name };
       if (m.tier !== undefined) entry.tier = m.tier;
@@ -205,6 +209,7 @@ export function handleCatalogJson(): void {
       if (m.deprecated !== undefined) entry.deprecated = m.deprecated;
       if (m.deprecationReason !== undefined) entry.deprecationReason = m.deprecationReason;
       if (m.broken !== undefined) entry.broken = m.broken;
+      if (m.issueUrl !== undefined) entry.issueUrl = m.issueUrl;
       if (m.thinking !== undefined) entry.thinking = m.thinking;
       if (m.extendedContext !== undefined) entry.extendedContext = m.extendedContext;
       if (m.nativeImageInput !== undefined) entry.nativeImageInput = m.nativeImageInput;
