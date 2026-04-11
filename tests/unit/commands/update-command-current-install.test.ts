@@ -1,31 +1,31 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { handleUpdateCommand, type UpdateCommandDeps } from '../../../src/commands/update-command';
 
 let logLines: string[] = [];
 let spawnCalls: Array<{ command: string; args: string[]; env?: NodeJS.ProcessEnv }> = [];
-let exitCodes: number[] = [];
-let stateReads = 0;
 let originalConsoleLog: typeof console.log;
 let originalProcessExit: typeof process.exit;
-let updateCheckResult:
+
+type InstalledState = {
+  version: string | null;
+  packageJsonMtimeMs: number | null;
+  scriptMtimeMs: number | null;
+};
+
+type Scenario = {
+  beforeState: InstalledState;
+  afterState: InstalledState;
+};
+
+type UpdateCheckResult =
   | { status: 'update_available'; current: string; latest: string }
   | { status: 'no_update' }
   | { status: 'check_failed'; message: string };
-let currentInstallOverride = installDescriptor();
-
-type Scenario = {
-  beforeState: {
-    version: string | null;
-    packageJsonMtimeMs: number | null;
-    scriptMtimeMs: number | null;
-  };
-  afterState: {
-    version: string | null;
-    packageJsonMtimeMs: number | null;
-    scriptMtimeMs: number | null;
-  };
-};
 
 let scenario: Scenario;
+let updateCheckResult: UpdateCheckResult;
+let currentInstallOverride: ReturnType<typeof installDescriptor>;
+let stateReads = 0;
 
 function installDescriptor() {
   return {
@@ -38,67 +38,10 @@ function installDescriptor() {
   };
 }
 
-beforeEach(() => {
-  logLines = [];
-  spawnCalls = [];
-  exitCodes = [];
-  stateReads = 0;
-  scenario = {
-    beforeState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
-    afterState: { version: '7.67.0-dev.9', packageJsonMtimeMs: 200, scriptMtimeMs: 200 },
-  };
-  updateCheckResult = {
-    status: 'update_available',
-    current: '7.67.0-dev.5',
-    latest: '7.67.0-dev.9',
-  };
-  currentInstallOverride = installDescriptor();
-
-  originalConsoleLog = console.log;
-  originalProcessExit = process.exit;
-
-  console.log = (...args: unknown[]) => {
-    logLines.push(args.map(String).join(' '));
-  };
-
-  process.exit = ((code?: number) => {
-    exitCodes.push(code ?? 0);
-    throw new Error(`process.exit(${code ?? 0})`);
-  }) as typeof process.exit;
-
-  mock.module('child_process', () => ({
-    spawn: (command: string, args: string[], options?: { env?: NodeJS.ProcessEnv }) => {
-      spawnCalls.push({ command, args, env: options?.env });
-      return {
-        on: (event: string, callback: (code?: number) => void) => {
-          if (event === 'exit') {
-            callback(0);
-          }
-        },
-      };
-    },
-  }));
-
-  mock.module('../../../src/utils/ui', () => ({
+function createDeps(): UpdateCommandDeps {
+  return {
     initUI: async () => {},
-    header: (value: string) => value,
-    ok: (value: string) => `[OK] ${value}`,
-    fail: (value: string) => `[X] ${value}`,
-    warn: (value: string) => `[!] ${value}`,
-    info: (value: string) => `[i] ${value}`,
-    color: (value: string) => value,
-  }));
-
-  mock.module('../../../src/utils/version', () => ({
     getVersion: () => '7.67.0-dev.5',
-  }));
-
-  mock.module('../../../src/utils/update-checker', () => ({
-    compareVersionsWithPrerelease: (left: string, right: string) => left.localeCompare(right),
-    checkForUpdates: async () => updateCheckResult,
-  }));
-
-  mock.module('../../../src/utils/package-manager-detector', () => ({
     detectCurrentInstall: () => currentInstallOverride,
     buildPackageManagerEnv: () => {
       if (currentInstallOverride.manager === 'npm') {
@@ -138,27 +81,59 @@ beforeEach(() => {
       stateReads += 1;
       return stateReads === 1 ? scenario.beforeState : scenario.afterState;
     },
-  }));
+    compareVersionsWithPrerelease: (left: string, right: string) => left.localeCompare(right),
+    checkForUpdates: async () => updateCheckResult,
+    spawn: ((command: string, args: string[], options?: { env?: NodeJS.ProcessEnv }) => {
+      spawnCalls.push({ command, args, env: options?.env });
+      return {
+        stderr: undefined,
+        on: (event: string, callback: (code?: number) => void) => {
+          if (event === 'exit') {
+            callback(0);
+          }
+        },
+      };
+    }) as typeof UpdateCommandDeps.prototype.spawn,
+  };
+}
+
+beforeEach(() => {
+  logLines = [];
+  spawnCalls = [];
+  stateReads = 0;
+  scenario = {
+    beforeState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
+    afterState: { version: '7.67.0-dev.9', packageJsonMtimeMs: 200, scriptMtimeMs: 200 },
+  };
+  updateCheckResult = {
+    status: 'update_available',
+    current: '7.67.0-dev.5',
+    latest: '7.67.0-dev.9',
+  };
+  currentInstallOverride = installDescriptor();
+
+  originalConsoleLog = console.log;
+  originalProcessExit = process.exit;
+
+  console.log = (...args: unknown[]) => {
+    logLines.push(args.map(String).join(' '));
+  };
+
+  process.exit = ((code?: number) => {
+    throw new Error(`process.exit(${code ?? 0})`);
+  }) as typeof process.exit;
 });
 
 afterEach(() => {
   console.log = originalConsoleLog;
   process.exit = originalProcessExit;
-  mock.restore();
 });
-
-async function loadHandleUpdateCommand() {
-  const mod = await import(
-    `../../../src/commands/update-command?test=${Date.now()}-${Math.random()}`
-  );
-  return mod.handleUpdateCommand;
-}
 
 describe('update-command current install handling', () => {
   it('updates through the current install manager and prefix', async () => {
-    const handleUpdateCommand = await loadHandleUpdateCommand();
-
-    await expect(handleUpdateCommand({ beta: true })).rejects.toThrow('process.exit(0)');
+    await expect(handleUpdateCommand({ beta: true }, createDeps())).rejects.toThrow(
+      'process.exit(0)'
+    );
 
     const installCall = spawnCalls.find((call) => call.args.includes('install'));
 
@@ -172,9 +147,10 @@ describe('update-command current install handling', () => {
       beforeState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
       afterState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
     };
-    const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await expect(handleUpdateCommand({ beta: true })).rejects.toThrow('process.exit(1)');
+    await expect(handleUpdateCommand({ beta: true }, createDeps())).rejects.toThrow(
+      'process.exit(1)'
+    );
 
     expect(logLines.join('\n')).toContain('outside the current installation');
     expect(logLines.join('\n')).toContain(
@@ -187,9 +163,8 @@ describe('update-command current install handling', () => {
       beforeState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
       afterState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
     };
-    const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await expect(handleUpdateCommand({ force: true, beta: true })).rejects.toThrow(
+    await expect(handleUpdateCommand({ force: true, beta: true }, createDeps())).rejects.toThrow(
       'process.exit(1)'
     );
 
@@ -202,9 +177,8 @@ describe('update-command current install handling', () => {
       afterState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
     };
     updateCheckResult = { status: 'no_update' };
-    const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await expect(handleUpdateCommand({ force: true, beta: true })).rejects.toThrow(
+    await expect(handleUpdateCommand({ force: true, beta: true }, createDeps())).rejects.toThrow(
       'process.exit(1)'
     );
 
@@ -217,9 +191,8 @@ describe('update-command current install handling', () => {
       afterState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
     };
     updateCheckResult = { status: 'check_failed', message: 'network' };
-    const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await expect(handleUpdateCommand({ force: true, beta: true })).rejects.toThrow(
+    await expect(handleUpdateCommand({ force: true, beta: true }, createDeps())).rejects.toThrow(
       'process.exit(1)'
     );
 
@@ -231,9 +204,10 @@ describe('update-command current install handling', () => {
       beforeState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 100, scriptMtimeMs: 100 },
       afterState: { version: '7.67.1-dev.0', packageJsonMtimeMs: 200, scriptMtimeMs: 200 },
     };
-    const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await expect(handleUpdateCommand({ beta: true })).rejects.toThrow('process.exit(0)');
+    await expect(handleUpdateCommand({ beta: true }, createDeps())).rejects.toThrow(
+      'process.exit(0)'
+    );
 
     expect(logLines.join('\n')).not.toContain('outside the current installation');
   });
@@ -244,9 +218,8 @@ describe('update-command current install handling', () => {
       afterState: { version: '7.67.0-dev.5', packageJsonMtimeMs: 200, scriptMtimeMs: 200 },
     };
     updateCheckResult = { status: 'no_update' };
-    const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await expect(handleUpdateCommand({ force: true, beta: true })).rejects.toThrow(
+    await expect(handleUpdateCommand({ force: true, beta: true }, createDeps())).rejects.toThrow(
       'process.exit(0)'
     );
 
@@ -268,14 +241,15 @@ describe('update-command current install handling', () => {
         prefix: envValue,
       };
 
-      const handleUpdateCommand = await loadHandleUpdateCommand();
-
-      await expect(handleUpdateCommand({ beta: true })).rejects.toThrow('process.exit(0)');
+      await expect(handleUpdateCommand({ beta: true }, createDeps())).rejects.toThrow(
+        'process.exit(0)'
+      );
 
       const updateCall = spawnCalls.find(
         (call) =>
           call.command === manager && call.args.some((arg) => arg.includes('@kaitranntt/ccs@dev'))
       );
+
       expect(updateCall?.args).toContain(expectedArg);
       expect(updateCall?.env?.[envKey]).toBe(envValue);
     }
