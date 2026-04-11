@@ -11,6 +11,11 @@ import {
   migrateDeniedAntigravityModelAliases,
   normalizeModelIdForProvider,
 } from './model-id-normalizer';
+import {
+  AGY_GEMINI_PRO_COMPATIBILITY_IDS,
+  AGY_GEMINI_PRO_HIGH_ID,
+  AGY_GEMINI_PRO_LOW_ID,
+} from '../shared/agy-gemini-pro-compatibility';
 import { stripModelConfigurationSuffixes } from '../shared/extended-context-utils';
 import { GEMINI_MINOR_VERSION_COMPATIBILITY_IDS } from '../shared/gemini-minor-version-compatibility';
 
@@ -114,11 +119,19 @@ export const MODEL_CATALOG: Partial<Record<CLIProxyProvider, ProviderCatalog>> =
         },
       },
       {
-        id: 'gemini-3.1-pro-preview',
-        name: 'Gemini 3.1 Pro',
-        description: 'Google latest Gemini Pro model via Antigravity',
+        id: AGY_GEMINI_PRO_HIGH_ID,
+        name: 'Gemini 3.1 Pro High',
+        description: 'Current Antigravity Gemini Pro route with higher reasoning budget',
         nativeImageInput: true,
-        thinking: { type: 'levels', levels: ['low', 'high'], dynamicAllowed: true },
+        thinking: { type: 'none' },
+        extendedContext: true,
+      },
+      {
+        id: AGY_GEMINI_PRO_LOW_ID,
+        name: 'Gemini 3.1 Pro Low',
+        description: 'Current Antigravity Gemini Pro route with the lighter quota tier',
+        nativeImageInput: true,
+        thinking: { type: 'none' },
         extendedContext: true,
       },
       {
@@ -464,6 +477,16 @@ export function findModel(provider: CLIProxyProvider, modelId: string): ModelEnt
       ];
     if (compatibilityId) {
       lookupCandidates.add(compatibilityId);
+    }
+
+    if (isAntigravityProvider(provider)) {
+      const agyCompatibilityId =
+        AGY_GEMINI_PRO_COMPATIBILITY_IDS[
+          candidate as keyof typeof AGY_GEMINI_PRO_COMPATIBILITY_IDS
+        ];
+      if (agyCompatibilityId) {
+        lookupCandidates.add(agyCompatibilityId);
+      }
     }
   }
 

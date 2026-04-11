@@ -16,7 +16,10 @@ import type { ModelConfigSectionProps } from './types';
 
 type CatalogPresetModel = NonNullable<ModelConfigSectionProps['catalog']>['models'][number];
 
-function getPresetUpdates(model: CatalogPresetModel): Record<string, string> {
+function getPresetUpdates(
+  model: CatalogPresetModel,
+  toPreferredModelId: (modelId: string) => string
+): Record<string, string> {
   const mapping = model.presetMapping || {
     default: model.id,
     opus: model.id,
@@ -25,10 +28,10 @@ function getPresetUpdates(model: CatalogPresetModel): Record<string, string> {
   };
 
   return {
-    ANTHROPIC_MODEL: mapping.default,
-    ANTHROPIC_DEFAULT_OPUS_MODEL: mapping.opus,
-    ANTHROPIC_DEFAULT_SONNET_MODEL: mapping.sonnet,
-    ANTHROPIC_DEFAULT_HAIKU_MODEL: mapping.haiku,
+    ANTHROPIC_MODEL: toPreferredModelId(mapping.default),
+    ANTHROPIC_DEFAULT_OPUS_MODEL: toPreferredModelId(mapping.opus),
+    ANTHROPIC_DEFAULT_SONNET_MODEL: toPreferredModelId(mapping.sonnet),
+    ANTHROPIC_DEFAULT_HAIKU_MODEL: toPreferredModelId(mapping.haiku),
   };
 }
 
@@ -40,6 +43,7 @@ export function ModelConfigSection({
   sonnetModel,
   haikuModel,
   providerModels,
+  routing,
   provider,
   extendedContextEnabled,
   onExtendedContextToggle,
@@ -49,6 +53,15 @@ export function ModelConfigSection({
   onDeletePreset,
   isDeletePending,
 }: ModelConfigSectionProps) {
+  const pinningReady = (routing?.models ?? []).some((hint) => hint.pinnedAvailable);
+  const routingHintMap = useMemo(
+    () =>
+      new Map((routing?.models ?? []).map((hint) => [hint.modelId.toLowerCase(), hint] as const)),
+    [routing]
+  );
+  const toPreferredModelId = (modelId: string): string =>
+    routingHintMap.get(modelId.toLowerCase())?.recommendedModelId ?? modelId;
+
   const extendedContextModels = useMemo(() => {
     if (!catalog) return [];
 
@@ -126,7 +139,7 @@ export function ModelConfigSection({
                       variant="outline"
                       size="sm"
                       className="text-xs h-7 gap-1"
-                      onClick={() => onApplyPreset(getPresetUpdates(model))}
+                      onClick={() => onApplyPreset(getPresetUpdates(model, toPreferredModelId))}
                     >
                       <Zap
                         className={`w-3 h-3 ${'iconClassName' in group ? group.iconClassName : ''}`}
@@ -148,10 +161,10 @@ export function ModelConfigSection({
                     className="text-xs h-7 gap-1 pr-6"
                     onClick={() => {
                       onApplyPreset({
-                        ANTHROPIC_MODEL: preset.default,
-                        ANTHROPIC_DEFAULT_OPUS_MODEL: preset.opus,
-                        ANTHROPIC_DEFAULT_SONNET_MODEL: preset.sonnet,
-                        ANTHROPIC_DEFAULT_HAIKU_MODEL: preset.haiku,
+                        ANTHROPIC_MODEL: toPreferredModelId(preset.default),
+                        ANTHROPIC_DEFAULT_OPUS_MODEL: toPreferredModelId(preset.opus),
+                        ANTHROPIC_DEFAULT_SONNET_MODEL: toPreferredModelId(preset.sonnet),
+                        ANTHROPIC_DEFAULT_HAIKU_MODEL: toPreferredModelId(preset.haiku),
                       });
                     }}
                   >
@@ -195,6 +208,21 @@ export function ModelConfigSection({
         <p className="text-xs text-muted-foreground mb-4">
           Configure which models to use for each tier
         </p>
+        {routing ? (
+          <p className="text-[11px] text-muted-foreground mb-3 rounded-md border bg-muted/30 px-2.5 py-2">
+            {pinningReady ? (
+              <>
+                Preferred pinned model names use the <code>{routing.prefix}/</code> prefix.
+                Unprefixed names can still resolve to a different backend when providers overlap.
+              </>
+            ) : (
+              <>
+                Managed pinning for <code>{routing.prefix}/</code> is not currently advertised by
+                the proxy. Unprefixed names may still be ambiguous until prefix repair completes.
+              </>
+            )}
+          </p>
+        ) : null}
         {provider === 'codex' && (
           <p className="text-[11px] text-muted-foreground mb-3 rounded-md border bg-muted/30 px-2.5 py-2">
             Codex tip: suffixes <code>-medium</code>, <code>-high</code>, and <code>-xhigh</code>{' '}
@@ -209,6 +237,7 @@ export function ModelConfigSection({
             onChange={(model) => onUpdateEnvValue('ANTHROPIC_MODEL', model)}
             catalog={catalog}
             allModels={providerModels}
+            routing={routing}
           />
           {/* Extended Context Toggle - shows when any saved mapping supports it */}
           {extendedContextModels.length > 0 && onExtendedContextToggle && (
@@ -226,6 +255,7 @@ export function ModelConfigSection({
             onChange={(model) => onUpdateEnvValue('ANTHROPIC_DEFAULT_OPUS_MODEL', model)}
             catalog={catalog}
             allModels={providerModels}
+            routing={routing}
           />
           <FlexibleModelSelector
             label="Sonnet (Balanced)"
@@ -234,6 +264,7 @@ export function ModelConfigSection({
             onChange={(model) => onUpdateEnvValue('ANTHROPIC_DEFAULT_SONNET_MODEL', model)}
             catalog={catalog}
             allModels={providerModels}
+            routing={routing}
           />
           <FlexibleModelSelector
             label="Haiku (Fast)"
@@ -242,6 +273,7 @@ export function ModelConfigSection({
             onChange={(model) => onUpdateEnvValue('ANTHROPIC_DEFAULT_HAIKU_MODEL', model)}
             catalog={catalog}
             allModels={providerModels}
+            routing={routing}
           />
         </div>
       </div>

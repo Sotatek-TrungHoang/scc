@@ -9,9 +9,11 @@ import type {
   ListAiProvidersResult,
   UpsertAiProviderEntryInput,
 } from '../../../src/cliproxy/ai-providers';
+import type { ProviderEntitlementEvidence } from '../../../src/cliproxy/provider-entitlement-types';
 
 export const API_BASE_URL = '/api';
 export const API_CONFLICT_ERROR_CODE = 'CONFLICT';
+export type { ProviderEntitlementEvidence };
 
 export class ApiConflictError extends Error {
   readonly code = API_CONFLICT_ERROR_CODE;
@@ -237,6 +239,23 @@ export interface Profile {
   configured: boolean;
   target?: CliTarget;
   cliproxyBridge?: CliproxyBridgeMetadata | null;
+}
+
+export type LocalRuntimeStatus = 'ready' | 'missing-model' | 'offline';
+
+export interface LocalRuntimeReadiness {
+  id: 'ollama' | 'llamacpp';
+  name: string;
+  endpoint: string;
+  status: LocalRuntimeStatus;
+  commandHint: string;
+  recommendedModel: string | null;
+  recommendedModelInstalled: boolean;
+  detectedModelCount: number;
+}
+
+export interface LocalRuntimeReadinessResponse {
+  runtimes: LocalRuntimeReadiness[];
 }
 
 export interface CreateProfile {
@@ -468,6 +487,30 @@ export interface CliproxyCatalogModel {
   presetMapping?: CliproxyCatalogPresetMapping;
 }
 
+export interface CliproxyModelRoutingHint {
+  modelId: string;
+  modelName: string;
+  prefix: string;
+  pinnedModelId: string;
+  recommendedModelId: string;
+  pinnedAvailable: boolean;
+  unprefixedStatus: 'safe' | 'shadowed' | 'prefix-only';
+  effectiveProvider: string | null;
+  effectiveDisplayName: string | null;
+  effectiveOwnedBy: string | null;
+  summary: string;
+}
+
+export interface CliproxyProviderRoutingHints {
+  provider: string;
+  displayName: string;
+  prefix: string;
+  safeCount: number;
+  shadowedCount: number;
+  prefixOnlyCount: number;
+  models: CliproxyModelRoutingHint[];
+}
+
 export interface CliproxyProviderCatalog {
   provider: string;
   displayName: string;
@@ -477,6 +520,7 @@ export interface CliproxyProviderCatalog {
 
 export interface CliproxyCatalogResponse {
   catalogs: Partial<Record<string, CliproxyProviderCatalog>>;
+  routing?: Partial<Record<string, CliproxyProviderRoutingHints>>;
   source: 'live' | 'cache' | 'static';
   cache: {
     synced: boolean;
@@ -520,6 +564,8 @@ export interface QuotaResult {
   retryable?: boolean;
   /** True if token is expired and needs re-authentication */
   needsReauth?: boolean;
+  /** Richer provider entitlement evidence derived from live/runtime signals */
+  entitlement?: ProviderEntitlementEvidence;
 }
 
 /** Codex rate limit window */
@@ -683,6 +729,8 @@ export interface GeminiCliQuotaResult {
   tierId?: string | null;
   /** Available Google One AI credits when reported by the API */
   creditBalance?: number | null;
+  /** Richer provider entitlement evidence derived from live/runtime signals */
+  entitlement?: ProviderEntitlementEvidence;
   /** Timestamp of fetch */
   lastUpdated: number;
   /** Upstream HTTP status when available */
@@ -999,6 +1047,8 @@ export interface CliproxyRestartResult {
 export const api = {
   profiles: {
     list: () => request<{ profiles: Profile[] }>('/profiles'),
+    getLocalRuntimeReadiness: () =>
+      request<LocalRuntimeReadinessResponse>('/profiles/local-runtime-readiness'),
     create: (data: CreateProfile) =>
       request('/profiles', {
         method: 'POST',

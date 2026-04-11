@@ -264,6 +264,7 @@ export function CliproxyPage() {
   const isRemoteMode = authData?.source === 'remote';
   const variants = useMemo(() => variantsData?.variants || [], [variantsData?.variants]);
   const catalogs = useMemo(() => buildUiCatalogs(catalogData?.catalogs), [catalogData?.catalogs]);
+  const routingHints = catalogData?.routing ?? {};
   const fetchedCatalogsReady = Boolean(catalogData);
 
   // Wrapper to persist provider selection to localStorage
@@ -305,6 +306,7 @@ export function CliproxyPage() {
     queryClient.invalidateQueries({ queryKey: ['cliproxy'] });
     queryClient.invalidateQueries({ queryKey: ['cliproxy-auth'] });
     queryClient.invalidateQueries({ queryKey: ['cliproxy-catalog'] });
+    queryClient.invalidateQueries({ queryKey: ['cliproxy-models'] });
   };
 
   const handlePauseToggle = (provider: string, accountId: string, paused: boolean) => {
@@ -459,6 +461,7 @@ export function CliproxyPage() {
               })}
               authStatus={parentAuthForVariant}
               catalog={catalogs[selectedVariantData.provider]}
+              routing={routingHints[selectedVariantData.provider]}
               logoProvider={selectedVariantData.provider}
               baseProvider={selectedVariantData.provider}
               defaultTarget={selectedVariantData.target}
@@ -512,6 +515,7 @@ export function CliproxyPage() {
               displayName={selectedStatus.displayName}
               authStatus={selectedStatus}
               catalog={catalogs[selectedStatus.provider]}
+              routing={routingHints[selectedStatus.provider]}
               isRemoteMode={isRemoteMode}
               topNotice={
                 showAccountSafetyWarning ? (

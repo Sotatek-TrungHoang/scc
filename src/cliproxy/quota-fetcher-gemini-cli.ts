@@ -8,14 +8,21 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { getAuthDir } from './config-generator';
-import { getProviderAccounts, getPausedDir } from './account-manager';
-import { sanitizeEmail, isTokenExpired } from './auth-utils';
+import { getProviderAccounts, getPausedDir, setAccountTier } from './account-manager';
+import { getTokenExpiryTimestamp, sanitizeEmail, isTokenExpired } from './auth-utils';
 import { refreshGeminiToken } from './auth/gemini-token-refresh';
 import {
   buildGeminiCliBucketsFromParsedBuckets,
   type GeminiCliParsedBucket,
 } from './gemini-cli-quota-normalizer';
 import type { GeminiCliQuotaResult, GeminiCliBucket } from './quota-types';
+import {
+  buildProviderEntitlementEvidence,
+  getProviderTierLabel,
+  isModelCapacityExhausted,
+  normalizeProviderTierId,
+} from './provider-entitlement-evidence';
+import type { ProviderEntitlementEvidence } from './provider-entitlement-types';
 
 /** Google Cloud Code API endpoints */
 const GEMINI_CLI_API_BASE = 'https://cloudcode-pa.googleapis.com';
@@ -25,20 +32,13 @@ const GEMINI_CLI_CODE_ASSIST_URL = `${GEMINI_CLI_API_BASE}/${GEMINI_CLI_API_VERS
 const GEMINI_CLI_ERROR_DETAIL_MAX_LENGTH = 320;
 const GEMINI_CLI_ERROR_DETAIL_TRUNCATION_SUFFIX = '...[truncated]';
 const GEMINI_CLI_G1_CREDIT_TYPE = 'GOOGLE_ONE_AI';
-const GEMINI_CLI_TIER_LABELS: Record<string, string> = {
-  'free-tier': 'Free',
-  'legacy-tier': 'Legacy',
-  'standard-tier': 'Standard',
-  'g1-pro-tier': 'Pro',
-  'g1-ultra-tier': 'Ultra',
-};
 
 /** Auth data extracted from Gemini CLI auth file */
 interface GeminiCliAuthData {
   accessToken: string;
   projectId: string | null;
   isExpired: boolean;
-  expiresAt: string | null;
+  expiresAt: string | number | null;
 }
 
 /** Raw bucket from API response */
@@ -90,6 +90,7 @@ interface GeminiCliSupplementaryInfo {
   tierLabel: string | null;
   tierId: string | null;
   creditBalance: number | null;
+  normalizedTier: 'free' | 'pro' | 'ultra' | 'unknown';
 }
 
 /**
@@ -130,15 +131,21 @@ function extractAccessToken(data: Record<string, unknown>): string | null {
  * Extract expiry from Gemini auth file data
  * Handles both flat (expired) and nested (token.expiry) structures
  */
-function extractExpiry(data: Record<string, unknown>): string | null {
+function extractExpiry(data: Record<string, unknown>): string | number | null {
   // Flat structure: { expired: "..." }
   if (typeof data.expired === 'string') {
+    return data.expired;
+  }
+  if (typeof data.expired === 'number') {
     return data.expired;
   }
   // Nested structure: { token: { expiry: "..." } }
   if (data.token && typeof data.token === 'object') {
     const token = data.token as Record<string, unknown>;
     if (typeof token.expiry === 'string') {
+      return token.expiry;
+    }
+    if (typeof token.expiry === 'number') {
       return token.expiry;
     }
   }
@@ -272,8 +279,7 @@ function resolveGeminiCliTierId(payload: GeminiCliCodeAssistResponse | null): st
 
 function resolveGeminiCliTierLabel(payload: GeminiCliCodeAssistResponse | null): string | null {
   const tierId = resolveGeminiCliTierId(payload);
-  if (!tierId) return null;
-  return GEMINI_CLI_TIER_LABELS[tierId] ?? tierId;
+  return getProviderTierLabel(tierId);
 }
 
 function resolveGeminiCliCreditBalance(payload: GeminiCliCodeAssistResponse | null): number | null {
@@ -334,7 +340,7 @@ async function fetchGeminiCliSupplementary(
       if (verbose) {
         console.error(`[i] Gemini CLI supplementary metadata unavailable: HTTP ${response.status}`);
       }
-      return { tierLabel: null, tierId: null, creditBalance: null };
+      return { tierLabel: null, tierId: null, creditBalance: null, normalizedTier: 'unknown' };
     }
 
     const payload = (await response.json()) as GeminiCliCodeAssistResponse;
@@ -342,6 +348,7 @@ async function fetchGeminiCliSupplementary(
       tierLabel: resolveGeminiCliTierLabel(payload),
       tierId: resolveGeminiCliTierId(payload),
       creditBalance: resolveGeminiCliCreditBalance(payload),
+      normalizedTier: normalizeProviderTierId(resolveGeminiCliTierId(payload)),
     };
   } catch (error) {
     clearTimeout(timeoutId);
@@ -349,7 +356,7 @@ async function fetchGeminiCliSupplementary(
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.error(`[i] Gemini CLI supplementary metadata skipped: ${message}`);
     }
-    return { tierLabel: null, tierId: null, creditBalance: null };
+    return { tierLabel: null, tierId: null, creditBalance: null, normalizedTier: 'unknown' };
   }
 }
 
@@ -365,6 +372,7 @@ function buildGeminiCliFailureResult(
     retryable?: boolean;
     needsReauth?: boolean;
     isForbidden?: boolean;
+    entitlement?: ProviderEntitlementEvidence;
   }
 ): GeminiCliQuotaResult {
   return {
@@ -384,6 +392,7 @@ function buildGeminiCliFailureResult(
     retryable: options.retryable,
     needsReauth: options.needsReauth,
     isForbidden: options.isForbidden,
+    entitlement: options.entitlement,
   };
 }
 
@@ -543,10 +552,37 @@ function buildGeminiCliHttpFailureResult(
       actionHint: buildGeminiCliForbiddenActionHint(parsed),
       isForbidden: true,
       retryable: false,
+      entitlement: buildProviderEntitlementEvidence({
+        normalizedTier: 'unknown',
+        source: 'runtime_inference',
+        confidence: 'medium',
+        accessState: 'not_entitled',
+        capacityState: 'unknown',
+      }),
     });
   }
 
   if (status === 429) {
+    if (isModelCapacityExhausted(parsed.message, parsed.errorDetail, parsed.errorCode)) {
+      return buildGeminiCliFailureResult(accountId, projectId, {
+        error: parsed.message || 'Model capacity exhausted for this account right now',
+        httpStatus: 429,
+        errorCode: 'capacity_exhausted',
+        errorDetail: parsed.errorDetail,
+        actionHint:
+          'Retry later or switch to another Gemini model. This indicates temporary model capacity, not an authentication failure.',
+        retryable: true,
+        entitlement: buildProviderEntitlementEvidence({
+          normalizedTier: 'unknown',
+          source: 'runtime_inference',
+          confidence: 'medium',
+          accessState: 'entitled',
+          capacityState: 'capacity_exhausted',
+          notes: 'Upstream returned MODEL_CAPACITY_EXHAUSTED for this model.',
+        }),
+      });
+    }
+
     return buildGeminiCliFailureResult(accountId, projectId, {
       error: parsed.message || 'Rate limited - try again later',
       httpStatus: 429,
@@ -554,6 +590,13 @@ function buildGeminiCliHttpFailureResult(
       errorDetail: parsed.errorDetail,
       actionHint: 'Retry after a short delay.',
       retryable: true,
+      entitlement: buildProviderEntitlementEvidence({
+        normalizedTier: 'unknown',
+        source: 'runtime_inference',
+        confidence: 'low',
+        accessState: 'unknown',
+        capacityState: 'rate_limited',
+      }),
     });
   }
 
@@ -677,6 +720,10 @@ async function fetchWithAuthData(
 
     if (verbose) console.error(`[i] Gemini CLI buckets found: ${buckets.length}`);
 
+    if (supplementary.normalizedTier !== 'unknown') {
+      setAccountTier('gemini', accountId, supplementary.normalizedTier);
+    }
+
     return {
       success: true,
       buckets,
@@ -684,6 +731,15 @@ async function fetchWithAuthData(
       tierLabel: supplementary.tierLabel,
       tierId: supplementary.tierId,
       creditBalance: supplementary.creditBalance,
+      entitlement: buildProviderEntitlementEvidence({
+        normalizedTier: supplementary.normalizedTier,
+        rawTierId: supplementary.tierId,
+        rawTierLabel: supplementary.tierLabel,
+        source: supplementary.tierId ? 'runtime_api' : 'runtime_inference',
+        confidence: supplementary.tierId ? 'high' : 'medium',
+        accessState: 'entitled',
+        capacityState: 'available',
+      }),
       lastUpdated: Date.now(),
       accountId,
     };
@@ -736,10 +792,10 @@ export async function fetchGeminiCliQuota(
 
   // Proactive refresh: refresh if expired OR expiring within 5 minutes
   const REFRESH_LEAD_TIME_MS = 5 * 60 * 1000;
+  const expiresAt = getTokenExpiryTimestamp(authData.expiresAt);
   const shouldRefresh =
-    authData.isExpired ||
-    !authData.expiresAt ||
-    new Date(authData.expiresAt).getTime() - Date.now() < REFRESH_LEAD_TIME_MS;
+    authData.isExpired || expiresAt === null || expiresAt - Date.now() < REFRESH_LEAD_TIME_MS;
+  let refreshedBeforeQuotaFetch = false;
 
   if (shouldRefresh) {
     if (verbose)
@@ -748,9 +804,10 @@ export async function fetchGeminiCliQuota(
           ? '[i] Token expired, refreshing...'
           : '[i] Token expiring soon, proactive refresh...'
       );
-    const refreshResult = await refreshGeminiToken();
+    const refreshResult = await refreshGeminiToken(accountId);
 
     if (refreshResult.success) {
+      refreshedBeforeQuotaFetch = true;
       if (verbose) console.error('[i] Token refreshed successfully');
       // Re-read auth data after successful refresh
       const refreshedAuthData = readGeminiCliAuthData(accountId);
@@ -776,10 +833,10 @@ export async function fetchGeminiCliQuota(
   // First attempt with current token
   const result = await fetchWithAuthData(authData, accountId, verbose);
 
-  // If 401 error and we haven't refreshed yet, try refresh and retry
-  if (result.needsReauth && result.error?.includes('expired')) {
+  // Retry once with an account-scoped refresh when the quota endpoint rejects auth.
+  if (result.needsReauth && !refreshedBeforeQuotaFetch) {
     if (verbose) console.error('[i] Got 401, attempting refresh and retry...');
-    const refreshResult = await refreshGeminiToken();
+    const refreshResult = await refreshGeminiToken(accountId);
     if (refreshResult.success) {
       const refreshedAuthData = readGeminiCliAuthData(accountId);
       if (refreshedAuthData) {

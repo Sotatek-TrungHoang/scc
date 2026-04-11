@@ -1,6 +1,11 @@
 import { useMemo, useState } from 'react';
 import { ProviderLogo } from '@/components/cliproxy/provider-logo';
-import { getAiProviderFamilyVisual } from '@/lib/provider-config';
+import {
+  formatRequestedUpstreamModelRules,
+  getAiProviderFamilyVisual,
+  getRequestedUpstreamModelRuleErrors,
+  parseRequestedUpstreamModelRules,
+} from '@/lib/provider-config';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -192,22 +197,7 @@ function parseKeyValueLines(value: string): Array<{ key: string; value: string }
 }
 
 function parseModelAliasLines(value: string) {
-  return value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const separatorIndex = line.indexOf('=');
-      if (separatorIndex === -1) {
-        return { name: line.trim(), alias: '' };
-      }
-
-      return {
-        name: line.slice(0, separatorIndex).trim(),
-        alias: line.slice(separatorIndex + 1).trim(),
-      };
-    })
-    .filter((item) => item.name.length > 0 || item.alias.length > 0);
+  return parseRequestedUpstreamModelRules(value);
 }
 
 function TextArea({
@@ -241,9 +231,7 @@ function formatExcludedModels(entry?: AiProviderEntryView | null): string {
 }
 
 function formatModelAliases(entry?: AiProviderEntryView | null): string {
-  return (entry?.models || [])
-    .map((item) => (item.alias.trim() ? `${item.name}=${item.alias}` : item.name))
-    .join('\n');
+  return formatRequestedUpstreamModelRules(entry?.models);
 }
 
 function ChecklistCard({
@@ -297,6 +285,10 @@ export function ProviderEntryDialog({
   const [headers, setHeaders] = useState(() => formatHeaders(entry));
   const [excludedModels, setExcludedModels] = useState(() => formatExcludedModels(entry));
   const [modelAliases, setModelAliases] = useState(() => formatModelAliases(entry));
+  const modelRuleErrors = useMemo(
+    () => getRequestedUpstreamModelRuleErrors(modelAliases),
+    [modelAliases]
+  );
   const [advancedOpen, setAdvancedOpen] = useState(() =>
     Boolean(
       entry?.headers.length || entry?.excludedModels.length || entry?.proxyUrl || entry?.prefix
@@ -311,6 +303,10 @@ export function ProviderEntryDialog({
   }, [entry?.secretConfigured, isEditing, supportsOpenAiCompat]);
 
   const handleSubmit = async () => {
+    if (modelRuleErrors.length > 0) {
+      return;
+    }
+
     const nextApiKey = apiKey.trim();
     const nextApiKeys = parseDelimitedLines(apiKeys);
     const preserveSecrets =
@@ -472,6 +468,9 @@ export function ProviderEntryDialog({
                   placeholder={guide.aliasesPlaceholder}
                 />
                 <p className="text-xs text-muted-foreground">{guide.aliasesHelper}</p>
+                {modelRuleErrors.length > 0 ? (
+                  <p className="text-xs text-destructive">{modelRuleErrors[0]}</p>
+                ) : null}
               </div>
             </section>
 
@@ -573,7 +572,11 @@ export function ProviderEntryDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="button" onClick={() => void handleSubmit()} disabled={isSaving}>
+            <Button
+              type="button"
+              onClick={() => void handleSubmit()}
+              disabled={isSaving || modelRuleErrors.length > 0}
+            >
               {isSaving
                 ? 'Saving...'
                 : supportsOpenAiCompat

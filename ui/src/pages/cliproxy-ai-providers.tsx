@@ -17,7 +17,13 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { getAiProviderFamilyVisual } from '@/lib/provider-config';
+import {
+  formatRequestedUpstreamModelRules,
+  getAiProviderFamilyVisual,
+  getRequestedUpstreamModelRuleErrors,
+  getRequestedModelId,
+  parseRequestedUpstreamModelRules,
+} from '@/lib/provider-config';
 import { cn } from '@/lib/utils';
 import { FamilyRail, ProviderEntryDialog } from '@/components/cliproxy/ai-providers';
 import {
@@ -339,22 +345,7 @@ function parseKeyValueLines(value: string): Array<{ key: string; value: string }
 }
 
 function parseModelAliasLines(value: string) {
-  return value
-    .split('\n')
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const separatorIndex = line.indexOf('=');
-      if (separatorIndex === -1) {
-        return { name: line.trim(), alias: '' };
-      }
-
-      return {
-        name: line.slice(0, separatorIndex).trim(),
-        alias: line.slice(separatorIndex + 1).trim(),
-      };
-    })
-    .filter((item) => item.name.length > 0 || item.alias.length > 0);
+  return parseRequestedUpstreamModelRules(value);
 }
 
 function formatHeaders(entry?: AiProviderEntryView | null): string {
@@ -366,9 +357,7 @@ function formatExcludedModels(entry?: AiProviderEntryView | null): string {
 }
 
 function formatModelAliases(entry?: AiProviderEntryView | null): string {
-  return (entry?.models || [])
-    .map((item) => (item.alias.trim() ? `${item.name}=${item.alias}` : item.name))
-    .join('\n');
+  return formatRequestedUpstreamModelRules(entry?.models);
 }
 
 function buildEntryEditorDraft(entry: AiProviderEntryView): EntryEditorDraft {
@@ -396,6 +385,12 @@ function buildRawConfigModelArray(value: string) {
     item.alias.trim() ? { name: item.name, alias: item.alias } : { name: item.name }
   );
   return parsed.length > 0 ? parsed : undefined;
+}
+
+function formatRawConfigModelArray(value: unknown): string {
+  return Array.isArray(value)
+    ? formatRequestedUpstreamModelRules(value as Array<{ name?: string; alias?: string }>)
+    : '';
 }
 
 function buildExcludedModelsArray(value: string) {
@@ -484,16 +479,7 @@ function parseEntryConfigDraft(
               .join('\n')
           : '',
       excludedModelsText: '',
-      modelAliasesText: Array.isArray(record.models)
-        ? (record.models as Array<{ name?: string; alias?: string }>)
-            .map((item) =>
-              item.alias?.trim()
-                ? `${item.name?.trim() || ''}=${item.alias.trim()}`
-                : item.name?.trim() || ''
-            )
-            .filter(Boolean)
-            .join('\n')
-        : '',
+      modelAliasesText: formatRawConfigModelArray(record.models),
       apiKey: '',
       apiKeysText: apiKeys.join('\n'),
     };
@@ -515,16 +501,7 @@ function parseEntryConfigDraft(
     excludedModelsText: Array.isArray(record['excluded-models'])
       ? (record['excluded-models'] as string[]).join('\n')
       : '',
-    modelAliasesText: Array.isArray(record.models)
-      ? (record.models as Array<{ name?: string; alias?: string }>)
-          .map((item) =>
-            item.alias?.trim()
-              ? `${item.name?.trim() || ''}=${item.alias.trim()}`
-              : item.name?.trim() || ''
-          )
-          .filter(Boolean)
-          .join('\n')
-      : '',
+    modelAliasesText: formatRawConfigModelArray(record.models),
     apiKey:
       typeof record['api-key'] === 'string' && record['api-key'] !== STORED_SECRET_PLACEHOLDER
         ? record['api-key']
@@ -579,7 +556,7 @@ function buildSettingsPreview(
     item.name.trim()
   );
   if (primaryModel?.name) {
-    env.ANTHROPIC_MODEL = primaryModel.name;
+    env.ANTHROPIC_MODEL = getRequestedModelId(primaryModel);
   }
 
   return { env };
@@ -702,6 +679,10 @@ function EntryInspector({
     () => parseModelAliasLines(draft.modelAliasesText),
     [draft.modelAliasesText]
   );
+  const modelRuleErrors = useMemo(
+    () => getRequestedUpstreamModelRuleErrors(draft.modelAliasesText),
+    [draft.modelAliasesText]
+  );
   const headerRules = useMemo(() => parseKeyValueLines(draft.headersText), [draft.headersText]);
   const excludedModelRules = useMemo(
     () => parseDelimitedLines(draft.excludedModelsText),
@@ -753,7 +734,11 @@ function EntryInspector({
     entry.secretConfigured,
     family.id,
   ]);
-  const canSave = isRawJsonValid && missingRequiredFields.length === 0 && hasChanges;
+  const canSave =
+    isRawJsonValid &&
+    missingRequiredFields.length === 0 &&
+    modelRuleErrors.length === 0 &&
+    hasChanges;
 
   const updateDraft = (updater: (current: EntryEditorDraft) => EntryEditorDraft) => {
     setDraft((current) => updater(current));
@@ -1091,6 +1076,11 @@ function EntryInspector({
                       rows={6}
                     />
                   </EntryEditorField>
+                  {modelRuleErrors.length > 0 ? (
+                    <div className="mt-3 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                      {modelRuleErrors[0]}
+                    </div>
+                  ) : null}
                 </div>
 
                 <div className="rounded-xl border bg-background p-4">

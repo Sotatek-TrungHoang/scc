@@ -32,6 +32,7 @@ import {
   buildManagementHeaders,
 } from '../../cliproxy/proxy-target-resolver';
 import { fetchRemoteAuthStatus } from '../../cliproxy/remote-auth-fetcher';
+import { ensureManagedModelPrefixes } from '../../cliproxy/managed-model-prefixes';
 import { loadOrCreateUnifiedConfig } from '../../config/unified-config-loader';
 import { tryKiroImport } from '../../cliproxy/auth/kiro-import';
 import {
@@ -677,6 +678,12 @@ router.post('/:provider/start', async (req: Request, res: Response): Promise<voi
     });
 
     if (account) {
+      try {
+        await ensureManagedModelPrefixes([account.provider]);
+      } catch {
+        // Keep OAuth success path non-fatal when prefix repair cannot run.
+      }
+
       res.json({
         success: true,
         account: {
@@ -1010,7 +1017,11 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
         return;
       }
 
-      pendingManualAuthState.delete(state);
+      try {
+        await ensureManagedModelPrefixes([account.provider]);
+      } catch {
+        // Keep manual callback success path non-fatal when prefix repair cannot run.
+      }
       res.json({
         status: 'ok',
         account: {
@@ -1021,6 +1032,7 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
           isDefault: account.isDefault,
         },
       });
+      pendingManualAuthState.delete(state);
       return;
     }
 
@@ -1155,7 +1167,11 @@ router.post('/:provider/submit-callback', async (req: Request, res: Response): P
       }
 
       if (parsed.state) {
-        pendingManualAuthState.delete(parsed.state);
+        try {
+          await ensureManagedModelPrefixes([account.provider]);
+        } catch {
+          // Keep manual callback success path non-fatal when prefix repair cannot run.
+        }
       }
 
       res.json({
@@ -1168,6 +1184,9 @@ router.post('/:provider/submit-callback', async (req: Request, res: Response): P
           isDefault: account.isDefault,
         },
       });
+      if (parsed.state) {
+        pendingManualAuthState.delete(parsed.state);
+      }
       return;
     }
 

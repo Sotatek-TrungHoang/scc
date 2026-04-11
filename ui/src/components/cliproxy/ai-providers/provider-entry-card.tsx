@@ -1,5 +1,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { getRequestedModelId } from '@/lib/provider-config';
 import { cn } from '@/lib/utils';
 import type {
   AiProviderEntryView,
@@ -241,9 +242,13 @@ export function ProviderEntryCard({
                     key={`${model.name}:${model.alias}`}
                     className="rounded-md border bg-muted/20 px-3 py-2"
                   >
-                    <span className="font-medium">{model.name}</span>
-                    <span className="mx-2 text-muted-foreground">→</span>
-                    <span className="text-muted-foreground">{model.alias}</span>
+                    <span className="font-medium">{getRequestedModelId(model)}</span>
+                    {model.alias.trim() ? (
+                      <>
+                        <span className="mx-2 text-muted-foreground">→</span>
+                        <span className="text-muted-foreground">{model.name}</span>
+                      </>
+                    ) : null}
                   </div>
                 ))}
               </div>

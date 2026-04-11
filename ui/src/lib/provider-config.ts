@@ -9,7 +9,7 @@ import {
   PROVIDER_CAPABILITIES,
   getProvidersByOAuthFlow,
 } from '../../../src/cliproxy/provider-capabilities';
-import type { AiProviderFamilyId } from '../../../src/cliproxy/ai-providers';
+import type { AiProviderFamilyId, AiProviderModelAlias } from '../../../src/cliproxy/ai-providers';
 
 // Monorepo contract: UI consumes provider capability constants directly from backend
 // to enforce one source of truth and prevent provider drift across surfaces.
@@ -113,6 +113,75 @@ export function getAiProviderFamilyVisual(familyId: AiProviderFamilyId): Provide
     case 'openai-compatibility':
       return 'openai';
   }
+}
+
+/**
+ * Parse UI model rules that use the requested=upstream convention into the
+ * provider config shape where `name` is upstream and `alias` is client-visible.
+ */
+export function parseRequestedUpstreamModelRules(value: string): AiProviderModelAlias[] {
+  return value
+    .split('\n')
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0)
+    .map((line) => {
+      const separatorIndex = line.indexOf('=');
+      if (separatorIndex === -1) {
+        return { name: line.trim(), alias: '' };
+      }
+
+      const requested = line.slice(0, separatorIndex).trim();
+      const upstream = line.slice(separatorIndex + 1).trim();
+      if (!upstream) {
+        return { name: requested, alias: '' };
+      }
+
+      return {
+        name: upstream,
+        alias: requested,
+      };
+    })
+    .filter((item) => item.name.length > 0 || item.alias.length > 0);
+}
+
+export function getRequestedUpstreamModelRuleErrors(value: string): string[] {
+  return value
+    .split('\n')
+    .map((line, index) => ({ line: line.trim(), lineNumber: index + 1 }))
+    .filter(({ line }) => line.length > 0 && line.includes('='))
+    .flatMap(({ line, lineNumber }) => {
+      const separatorIndex = line.indexOf('=');
+      const requested = line.slice(0, separatorIndex).trim();
+      const upstream = line.slice(separatorIndex + 1).trim();
+      if (requested && upstream) {
+        return [];
+      }
+
+      return [`Line ${lineNumber}: use requested=upstream or a plain model name.`];
+    });
+}
+
+/**
+ * Format stored provider config back into the UI-facing requested=upstream form.
+ */
+export function formatRequestedUpstreamModelRules(
+  models: Array<Partial<AiProviderModelAlias>> | null | undefined
+): string {
+  return (models || [])
+    .map((item) => {
+      const requested = item.alias?.trim() || '';
+      const upstream = item.name?.trim() || '';
+      return requested ? `${requested}=${upstream}` : upstream;
+    })
+    .join('\n');
+}
+
+/**
+ * Return the client-visible model ID for previews and generated settings.
+ */
+export function getRequestedModelId(model: AiProviderModelAlias): string {
+  const requested = model.alias.trim();
+  return requested || model.name.trim();
 }
 
 export function getProviderLogoAsset(provider: unknown): string | undefined {

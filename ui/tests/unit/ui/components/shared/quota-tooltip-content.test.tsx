@@ -34,6 +34,17 @@ function createGeminiQuotaResult(
     tierLabel: 'Pro',
     tierId: 'g1-pro-tier',
     creditBalance: 12,
+    entitlement: {
+      normalizedTier: 'pro',
+      rawTierId: 'g1-pro-tier',
+      rawTierLabel: 'Pro',
+      source: 'runtime_api',
+      confidence: 'high',
+      accessState: 'entitled',
+      capacityState: 'available',
+      lastVerifiedAt: Date.now(),
+      notes: null,
+    },
     lastUpdated: Date.now(),
     ...overrides,
   };
@@ -54,6 +65,8 @@ describe('QuotaTooltipContent', () => {
 
     expect(screen.getByText('Tier')).toBeInTheDocument();
     expect(screen.getByText('Pro')).toBeInTheDocument();
+    expect(screen.getByText('Tier ID')).toBeInTheDocument();
+    expect(screen.getByText('g1-pro-tier')).toBeInTheDocument();
     expect(screen.getByText('Credits')).toBeInTheDocument();
     expect(screen.getByText('12')).toBeInTheDocument();
     expect(screen.getByText('Gemini Flash Lite Series')).toBeInTheDocument();
@@ -89,5 +102,30 @@ describe('QuotaTooltipContent', () => {
     expect(screen.getByText(/Resets/i)).toBeInTheDocument();
 
     vi.useRealTimers();
+  });
+
+  it('renders failure summaries, action hints, and raw details with readable structure', () => {
+    const quota = createGeminiQuotaResult({
+      success: false,
+      buckets: [],
+      error: 'Request had invalid authentication credentials.',
+      httpStatus: 401,
+      errorCode: 'UNAUTHENTICATED',
+      errorDetail:
+        '{"error":{"code":401,"message":"Request had invalid authentication credentials.","status":"UNAUTHENTICATED"}}',
+      actionHint: 'Run ccs gemini --auth to reconnect this account.',
+      needsReauth: true,
+    });
+
+    const { container } = render(<QuotaTooltipContent quota={quota} resetTime={null} />);
+
+    expect(screen.getByText('Reauth')).toBeInTheDocument();
+    expect(screen.getByText('Request had invalid authentication credentials.')).toBeInTheDocument();
+    expect(
+      screen.getByText('Run ccs gemini --auth to reconnect this account.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('HTTP 401 | UNAUTHENTICATED')).toBeInTheDocument();
+    expect(screen.getByText(/"status":"UNAUTHENTICATED"/)).toBeInTheDocument();
+    expect(container.firstChild).not.toHaveClass('min-w-[16rem]');
   });
 });

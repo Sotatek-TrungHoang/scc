@@ -126,9 +126,10 @@ CCS provides:
 - Keep `round-robin` as the default until the user explicitly changes it
 - Never infer routing strategy from account count, tier mix, or paused/default account state
 - Auto-failover when account exhausted
-- Tier detection: free/paid/unknown
+- Tier detection: free/pro/ultra/unknown
+- Distinguish entitlement failures from temporary capacity exhaustion
 - Pre-flight quota checks before session start
-- Dashboard UI with pause/resume toggles and tier badges
+- Dashboard UI with pause/resume toggles, tier badges, and quota-detail guidance
 
 ### FR-010: Docker Deployment
 - Multi-stage Dockerfile with bun 1.2.21 and node:20-bookworm-slim
@@ -279,7 +280,7 @@ CCS provides:
 ### v7.14 Release (Complete)
 - [x] Hybrid quota management with auto-failover
 - [x] `ccs cliproxy pause/resume/status` commands
-- [x] API tier detection (free/paid/unknown)
+- [x] API tier detection (free/pro/ultra/unknown)
 - [x] Dashboard pause/resume toggles and tier badges
 - [x] Pre-flight quota checks before session start
 
