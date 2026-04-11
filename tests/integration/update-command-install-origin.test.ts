@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, mock } from 'bun:test';
+import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
 import { chmodSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -74,29 +74,6 @@ beforeEach(() => {
   process.exit = ((code?: number) => {
     exitCodes.push(code ?? 0);
   }) as typeof process.exit;
-
-  mock.module('../../src/utils/ui', () => ({
-    initUI: async () => {},
-    header: (value: string) => value,
-    ok: (value: string) => `[OK] ${value}`,
-    fail: (value: string) => `[X] ${value}`,
-    warn: (value: string) => `[!] ${value}`,
-    info: (value: string) => `[i] ${value}`,
-    color: (value: string) => value,
-  }));
-
-  mock.module('../../src/utils/version', () => ({
-    getVersion: () => '7.67.0-dev.5',
-  }));
-
-  mock.module('../../src/utils/update-checker', () => ({
-    compareVersionsWithPrerelease: (left: string, right: string) => left.localeCompare(right),
-    checkForUpdates: async () => ({
-      status: 'update_available',
-      current: '7.67.0-dev.5',
-      latest: '7.67.0-dev.9',
-    }),
-  }));
 });
 
 afterEach(() => {
@@ -104,7 +81,6 @@ afterEach(() => {
   process.exit = originalProcessExit;
   process.argv[1] = originalArgv1;
   process.env.PATH = originalPath;
-  mock.restore();
   if (tempRoot) {
     rmSync(tempRoot, { recursive: true, force: true });
   }
@@ -147,7 +123,19 @@ exit 0
 
     const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await handleUpdateCommand({ beta: true });
+    await handleUpdateCommand(
+      { beta: true },
+      {
+        initUI: async () => {},
+        getVersion: () => '7.67.0-dev.5',
+        compareVersionsWithPrerelease: (left: string, right: string) => left.localeCompare(right),
+        checkForUpdates: async () => ({
+          status: 'update_available',
+          current: '7.67.0-dev.5',
+          latest: '7.67.0-dev.9',
+        }),
+      }
+    );
     await waitForExitCode(0);
 
     expect(readPackageVersion(currentPackageRoot)).toBe('7.67.0-dev.9');
@@ -175,7 +163,19 @@ exit 0
 
     const handleUpdateCommand = await loadHandleUpdateCommand();
 
-    await handleUpdateCommand({ beta: true });
+    await handleUpdateCommand(
+      { beta: true },
+      {
+        initUI: async () => {},
+        getVersion: () => '7.67.0-dev.5',
+        compareVersionsWithPrerelease: (left: string, right: string) => left.localeCompare(right),
+        checkForUpdates: async () => ({
+          status: 'update_available',
+          current: '7.67.0-dev.5',
+          latest: '7.67.0-dev.9',
+        }),
+      }
+    );
     await waitForExitCode(1);
 
     expect(readPackageVersion(currentPackageRoot)).toBe('7.67.0-dev.5');
