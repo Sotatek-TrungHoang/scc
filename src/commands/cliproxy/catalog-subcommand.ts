@@ -177,7 +177,7 @@ export async function handleCatalogRefresh(verbose: boolean): Promise<void> {
 /**
  * Output catalog as JSON for programmatic consumption.
  * Used by OnSteroids and other tools to get available models per provider.
- * Format: { provider: [{ id, name }], ... }
+ * Format: { [providerName: string]: Array<{ id: string, name: string }> }
  */
 export function handleCatalogJson(): void {
   const catalogs = getAllResolvedCatalogs();
