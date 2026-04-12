@@ -81,7 +81,8 @@ That shared launch helper applies to normal third-party settings profiles, CLIPr
 Open `ccs config` → `Settings` → `WebSearch`.
 
 - Enable Exa, Tavily, Brave, SearXNG, or DuckDuckGo in the backend chain
-- Configure SearXNG base URL (for example `https://search.example.com`) when SearXNG is enabled
+- Configure the SearXNG base URL (for example `https://search.example.com`) when SearXNG is enabled
+  Do not include `/search`, embedded credentials, query parameters, or URL fragments. CCS appends `/search?format=json`.
 - Set or rotate Exa, Tavily, and Brave API keys directly inside each provider card
 - Saved keys are persisted in `global_env` and injected at runtime, so readiness updates from the same screen
 - Review whether any legacy fallback CLIs are still enabled in config

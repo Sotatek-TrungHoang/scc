@@ -117,3 +117,45 @@ export interface WebSearchConfig {
     grok?: WebSearchProviderConfig;
   };
 }
+
+/**
+ * Normalize a SearXNG base URL so runtime code can safely append `/search`.
+ *
+ * Accepts optional subpaths (for reverse-proxy deployments), strips a trailing
+ * `/search` endpoint suffix, and rejects query/hash-bearing URLs because the
+ * runtime owns the request path and query params.
+ */
+export function normalizeSearxngBaseUrl(url: string | undefined): string | null {
+  const normalized = String(url || '').trim();
+  if (!normalized) {
+    return '';
+  }
+
+  try {
+    const parsed = new URL(normalized);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      return null;
+    }
+
+    if (parsed.username || parsed.password) {
+      return null;
+    }
+
+    if (parsed.search || parsed.hash) {
+      return null;
+    }
+
+    let pathname = parsed.pathname.replace(/\/+$/, '');
+    if (pathname.toLowerCase().endsWith('/search')) {
+      pathname = pathname.slice(0, -'/search'.length);
+    }
+
+    parsed.pathname = pathname || '/';
+    parsed.search = '';
+    parsed.hash = '';
+
+    return parsed.toString().replace(/\/+$/, '');
+  } catch {
+    return null;
+  }
+}

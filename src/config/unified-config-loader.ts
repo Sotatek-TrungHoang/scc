@@ -47,6 +47,7 @@ import {
   resolveLegacyDiscordSelection,
 } from '../channels/official-channels-runtime';
 import { canonicalizeImageAnalysisConfig } from '../utils/hooks/image-analysis-backend-resolver';
+import { normalizeSearxngBaseUrl } from '../utils/websearch/types';
 
 const CONFIG_YAML = 'config.yaml';
 const CONFIG_JSON = 'config.json';
@@ -413,7 +414,7 @@ function mergeWithDefaults(partial: Partial<UnifiedConfig>): UnifiedConfig {
         },
         searxng: {
           enabled: partial.websearch?.providers?.searxng?.enabled ?? false,
-          url: partial.websearch?.providers?.searxng?.url ?? '',
+          url: normalizeSearxngBaseUrl(partial.websearch?.providers?.searxng?.url) ?? '',
           max_results: partial.websearch?.providers?.searxng?.max_results ?? 5,
         },
         duckduckgo: {
@@ -1140,7 +1141,7 @@ export function getWebSearchConfig(): {
 
   const searxngConfig = {
     enabled: config.websearch?.providers?.searxng?.enabled ?? false,
-    url: config.websearch?.providers?.searxng?.url ?? '',
+    url: normalizeSearxngBaseUrl(config.websearch?.providers?.searxng?.url) ?? '',
     max_results: config.websearch?.providers?.searxng?.max_results ?? 5,
   };
 

@@ -15,7 +15,7 @@ import { getGeminiCliStatus, isGeminiAuthenticated } from './gemini-cli';
 import { getGrokCliStatus } from './grok-cli';
 import { getOpenCodeCliStatus } from './opencode-cli';
 import { getWebSearchApiKeyStates } from './provider-secrets';
-import type { WebSearchCliInfo, WebSearchStatus } from './types';
+import { normalizeSearxngBaseUrl, type WebSearchCliInfo, type WebSearchStatus } from './types';
 
 const PROVIDER_STATE_FILE = 'websearch-provider-state.json';
 
@@ -29,17 +29,7 @@ function hasEnvValue(name: string): boolean {
 }
 
 function hasValidSearxngUrl(url: string | undefined): boolean {
-  const normalized = String(url || '').trim();
-  if (!normalized) {
-    return false;
-  }
-
-  try {
-    const parsed = new URL(normalized);
-    return Boolean(parsed.protocol && parsed.host);
-  } catch {
-    return false;
-  }
+  return normalizeSearxngBaseUrl(url) !== null;
 }
 
 function getProviderStatePath(): string {

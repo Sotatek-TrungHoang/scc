@@ -12,6 +12,7 @@ import {
   WEBSEARCH_API_KEY_PROVIDERS,
   type WebSearchApiKeyProviderId,
 } from '../../utils/websearch/provider-secrets';
+import { normalizeSearxngBaseUrl } from '../../utils/websearch/types';
 import { requireLocalAccessWhenAuthDisabled } from '../middleware/auth-middleware';
 
 const router = Router();
@@ -95,6 +96,19 @@ router.put('/', (req: Request, res: Response): void => {
     return;
   }
 
+  const normalizedSearxngUrl =
+    providers?.searxng?.url !== undefined
+      ? normalizeSearxngBaseUrl(providers.searxng.url)
+      : undefined;
+
+  if (providers?.searxng?.url !== undefined && normalizedSearxngUrl === null) {
+    res.status(400).json({
+      error:
+        'Invalid value for providers.searxng.url. Must be an http(s) base URL without credentials, query, or hash.',
+    });
+    return;
+  }
+
   if (
     providers?.searxng?.max_results !== undefined &&
     (typeof providers.searxng.max_results !== 'number' ||
@@ -130,6 +144,9 @@ router.put('/', (req: Request, res: Response): void => {
 
   try {
     mutateUnifiedConfig((config) => {
+      const existingSearxngUrl =
+        normalizeSearxngBaseUrl(config.websearch?.providers?.searxng?.url) ?? '';
+
       config.websearch = {
         enabled: enabled ?? config.websearch?.enabled ?? true,
         providers: providers
@@ -173,7 +190,7 @@ router.put('/', (req: Request, res: Response): void => {
                   providers.searxng?.enabled ??
                   config.websearch?.providers?.searxng?.enabled ??
                   false,
-                url: providers.searxng?.url ?? config.websearch?.providers?.searxng?.url ?? '',
+                url: normalizedSearxngUrl ?? existingSearxngUrl,
                 max_results: clampWebSearchMaxResults(
                   providers.searxng?.max_results,
                   config.websearch?.providers?.searxng?.max_results ?? DEFAULT_WEBSEARCH_MAX_RESULTS

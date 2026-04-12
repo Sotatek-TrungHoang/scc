@@ -315,6 +315,86 @@ describe('websearch routes', () => {
     });
   });
 
+  it('normalizes searxng endpoint-style urls to the instance base URL', async () => {
+    const response = await putWebsearch({
+      providers: {
+        searxng: {
+          enabled: true,
+          url: 'https://search.example.com/custom/search/',
+          max_results: 5,
+        },
+      },
+    });
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.websearch.providers.searxng).toEqual({
+      enabled: true,
+      url: 'https://search.example.com/custom',
+      max_results: 5,
+    });
+  });
+
+  it('allows clearing a searxng url back to blank', async () => {
+    mutateUnifiedConfig((config) => {
+      config.websearch = {
+        enabled: true,
+        providers: {
+          ...config.websearch?.providers,
+          searxng: {
+            enabled: false,
+            url: 'https://search.example.com/custom',
+            max_results: 5,
+          },
+        },
+      };
+    });
+
+    const response = await putWebsearch({
+      providers: {
+        searxng: {
+          enabled: false,
+          url: '',
+          max_results: 5,
+        },
+      },
+    });
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.websearch.providers.searxng).toEqual({
+      enabled: false,
+      url: '',
+      max_results: 5,
+    });
+  });
+
+  it('sanitizes credential-bearing searxng urls out of the GET response', async () => {
+    mutateUnifiedConfig((config) => {
+      config.websearch = {
+        enabled: true,
+        providers: {
+          ...config.websearch?.providers,
+          searxng: {
+            enabled: true,
+            url: 'https://user:pass@search.example.com/search',
+            max_results: 5,
+          },
+        },
+      };
+    });
+
+    const response = await fetch(`${baseUrl}/api/websearch`);
+
+    expect(response.status).toBe(200);
+    const payload = await response.json();
+    expect(payload.providers.searxng).toEqual({
+      enabled: true,
+      url: '',
+      max_results: 5,
+    });
+  });
+
   it('rejects non-object request bodies', async () => {
     const response = await putWebsearch('[]');
 
@@ -397,6 +477,38 @@ describe('websearch routes', () => {
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({
       error: 'Invalid value for providers.searxng.url. Must be a string.',
+    });
+  });
+
+  it('rejects searxng urls with query parameters', async () => {
+    const response = await putWebsearch({
+      providers: {
+        searxng: {
+          url: 'https://search.example.com/search?format=json',
+        },
+      },
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error:
+        'Invalid value for providers.searxng.url. Must be an http(s) base URL without credentials, query, or hash.',
+    });
+  });
+
+  it('rejects credential-bearing searxng urls', async () => {
+    const response = await putWebsearch({
+      providers: {
+        searxng: {
+          url: 'https://user:pass@search.example.com',
+        },
+      },
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({
+      error:
+        'Invalid value for providers.searxng.url. Must be an http(s) base URL without credentials, query, or hash.',
     });
   });
 

@@ -154,7 +154,8 @@ const BACKEND_PROVIDERS: ProviderDefinition[] = [
         label: 'Base URL',
         type: 'text',
         placeholder: 'https://search.example.com',
-        helpText: 'Must expose /search with format=json enabled.',
+        helpText:
+          'Paste the instance base URL only. CCS appends /search?format=json for you and rejects embedded credentials.',
         defaultValue: '',
       },
       {

@@ -115,6 +115,7 @@ function runHookWithMockedFetch(mode: 'success' | 'empty' | 'non-result' | 'fail
         CCS_WEBSEARCH_GEMINI: '0',
         CCS_WEBSEARCH_GROK: '0',
         CCS_WEBSEARCH_OPENCODE: '0',
+        CCS_WEBSEARCH_SEARXNG: '0',
         CCS_WEBSEARCH_TAVILY: '0',
       },
     });
@@ -166,11 +167,13 @@ describe('websearch-transformer hook helpers', () => {
       CCS_WEBSEARCH_SEARXNG_MAX_RESULTS: process.env.CCS_WEBSEARCH_SEARXNG_MAX_RESULTS,
       CCS_WEBSEARCH_SEARXNG_URL: process.env.CCS_WEBSEARCH_SEARXNG_URL,
     };
+    const requests: string[] = [];
 
-    process.env.CCS_WEBSEARCH_SEARXNG_URL = 'https://search.example.com/';
+    process.env.CCS_WEBSEARCH_SEARXNG_URL = 'https://search.example.com/search/';
     process.env.CCS_WEBSEARCH_SEARXNG_MAX_RESULTS = '3';
-    global.fetch = async () =>
-      ({
+    global.fetch = async (url) => {
+      requests.push(String(url));
+      return {
         ok: true,
         json: async () => ({
           results: [
@@ -181,13 +184,15 @@ describe('websearch-transformer hook helpers', () => {
             },
           ],
         }),
-      }) as Response;
+      } as Response;
+    };
 
     try {
       const result = await hook.trySearxngSearch('btc price', 1);
       expect(result.success).toBe(true);
       expect(result.content).toContain('Provider: SearXNG');
       expect(result.content).toContain('URL: https://example.com/searxng');
+      expect(requests).toEqual(['https://search.example.com/search?q=btc+price&format=json']);
     } finally {
       global.fetch = originalFetch;
       if (originalEnv.CCS_WEBSEARCH_SEARXNG_URL === undefined) {
@@ -201,6 +206,42 @@ describe('websearch-transformer hook helpers', () => {
       } else {
         process.env.CCS_WEBSEARCH_SEARXNG_MAX_RESULTS =
           originalEnv.CCS_WEBSEARCH_SEARXNG_MAX_RESULTS;
+      }
+    }
+  });
+
+  it('rejects SearXNG URLs that include query parameters', async () => {
+    const originalUrl = process.env.CCS_WEBSEARCH_SEARXNG_URL;
+
+    process.env.CCS_WEBSEARCH_SEARXNG_URL = 'https://search.example.com/search?format=json';
+
+    try {
+      const result = await hook.trySearxngSearch('btc price', 1);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('invalid or not configured');
+    } finally {
+      if (originalUrl === undefined) {
+        delete process.env.CCS_WEBSEARCH_SEARXNG_URL;
+      } else {
+        process.env.CCS_WEBSEARCH_SEARXNG_URL = originalUrl;
+      }
+    }
+  });
+
+  it('rejects credential-bearing SearXNG URLs', async () => {
+    const originalUrl = process.env.CCS_WEBSEARCH_SEARXNG_URL;
+
+    process.env.CCS_WEBSEARCH_SEARXNG_URL = 'https://user:pass@search.example.com';
+
+    try {
+      const result = await hook.trySearxngSearch('btc price', 1);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('invalid or not configured');
+    } finally {
+      if (originalUrl === undefined) {
+        delete process.env.CCS_WEBSEARCH_SEARXNG_URL;
+      } else {
+        process.env.CCS_WEBSEARCH_SEARXNG_URL = originalUrl;
       }
     }
   });
