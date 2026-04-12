@@ -55,6 +55,15 @@ let getTokenStoragePath: () => string;
 let getDaemonStartPreconditionError: (
   input: { enabled: boolean; authenticated: boolean; tokenExpired?: boolean }
 ) => { status: number; error: string } | null;
+let getAutoDetectFailureStatus: (
+  reason?:
+    | 'db_not_found'
+    | 'sqlite_unavailable'
+    | 'db_query_failed'
+    | 'access_token_not_found'
+    | 'machine_id_not_found'
+    | 'invalid_token_format'
+) => number;
 
 function seedCursorConfig(overrides: {
   enabled?: boolean;
@@ -107,6 +116,7 @@ beforeAll(async () => {
 
   const cursorRoutesModule = await import('../../../src/web-server/routes/cursor-routes');
   getDaemonStartPreconditionError = cursorRoutesModule.getDaemonStartPreconditionError;
+  getAutoDetectFailureStatus = cursorRoutesModule.getAutoDetectFailureStatus;
 
   const app = express();
   app.use(express.json());
@@ -207,6 +217,10 @@ describe('Cursor Routes Logic', () => {
   });
 
   describe('HTTP contracts', () => {
+    it('maps invalid_token_format auto-detect failures to HTTP 400', () => {
+      expect(getAutoDetectFailureStatus('invalid_token_format')).toBe(400);
+    });
+
     it('GET /api/cursor/status returns current state', async () => {
       const res = await fetch(`${baseUrl}/api/cursor/status`);
       expect(res.status).toBe(200);
@@ -393,6 +407,11 @@ describe('Cursor Routes Logic', () => {
 
     it('POST /api/cursor/auth/auto-detect returns 500 when the database exists but cannot be queried', async () => {
       if (process.platform === 'win32') {
+        return;
+      }
+
+      const sqliteCheck = spawnSync('sqlite3', ['--version'], { stdio: 'ignore' });
+      if (sqliteCheck.status !== 0) {
         return;
       }
 

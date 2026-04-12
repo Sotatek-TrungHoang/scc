@@ -31,6 +31,21 @@ interface DaemonStartPreconditionError {
   error: string;
 }
 
+export function getAutoDetectFailureStatus(
+  reason?: ReturnType<typeof autoDetectTokens>['reason']
+): number {
+  switch (reason) {
+    case 'sqlite_unavailable':
+      return 503;
+    case 'db_query_failed':
+      return 500;
+    case 'invalid_token_format':
+      return 400;
+    default:
+      return 404;
+  }
+}
+
 function getPublicAutoDetectError(result: ReturnType<typeof autoDetectTokens>): string {
   switch (result.reason) {
     case 'db_not_found':
@@ -138,12 +153,7 @@ router.post('/auth/auto-detect', async (_req: Request, res: Response): Promise<v
     const result = autoDetectTokens();
 
     if (!result.found || !result.accessToken || !result.machineId) {
-      const status =
-        result.reason === 'sqlite_unavailable'
-          ? 503
-          : result.reason === 'db_query_failed'
-            ? 500
-            : 404;
+      const status = getAutoDetectFailureStatus(result.reason);
       res.status(status).json({
         error: getPublicAutoDetectError(result),
         reason: result.reason ?? null,
