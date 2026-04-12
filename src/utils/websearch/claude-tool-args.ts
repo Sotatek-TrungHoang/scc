@@ -1,12 +1,23 @@
 /**
  * Claude launch argument helpers for third-party WebSearch.
+ *
+ * Uses the same prompt injection mode as the user to avoid mixing
+ * `--append-system-prompt` and `--append-system-prompt-file` in one request.
  */
+
+import {
+  buildSteeringArg,
+  PROMPT_FLAG_INLINE,
+  PROMPT_FLAG_FILE,
+} from '../prompt-injection-strategy';
 
 const NATIVE_WEBSEARCH_TOOL = 'WebSearch';
 const DISALLOWED_TOOLS_FLAG = '--disallowedTools';
-const APPEND_SYSTEM_PROMPT_FLAG = '--append-system-prompt';
-const THIRD_PARTY_WEBSEARCH_STEERING_PROMPT =
-  'For web lookup or current-information requests, prefer the CCS MCP tool WebSearch instead of Bash/curl/http fetches. If the user explicitly wants shell commands, or WebSearch is unavailable or fails, you may fall back to Bash/network tools.';
+export const THIRD_PARTY_WEBSEARCH_STEERING_PROMPT = {
+  name: 'ccs-prompt-websearch-tool',
+  content:
+    'For web lookup or current-information requests, prefer the CCS MCP tool WebSearch instead of Bash/curl/http fetches. If the user explicitly wants shell commands, or WebSearch is unavailable or fails, you may fall back to Bash/network tools.',
+};
 
 function parseToolValue(rawValue: string): string[] {
   return rawValue
@@ -68,15 +79,28 @@ function hasToolInFlag(args: string[], flag: string, toolName: string): boolean 
   return false;
 }
 
-function hasExactFlagValue(args: string[], flag: string, expectedValue: string): boolean {
+function hasExactFlagValue(params: {
+  args: string[];
+  flag: string;
+  expectedValue: string;
+  allowPartiallyMatch?: boolean;
+}): boolean {
+  const { args, flag, expectedValue, allowPartiallyMatch } = params;
+
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
 
     if (arg === flag) {
       const value = getImmediateFlagValue(args, index);
+
       if (value === expectedValue) {
         return true;
       }
+
+      if (allowPartiallyMatch && value?.includes(expectedValue)) {
+        return true;
+      }
+
       continue;
     }
 
@@ -135,17 +159,33 @@ function ensureWebSearchSteeringPrompt(args: string[]): string[] {
   const { optionArgs, trailingArgs } = splitArgsAtTerminator(args);
 
   if (
-    hasExactFlagValue(optionArgs, APPEND_SYSTEM_PROMPT_FLAG, THIRD_PARTY_WEBSEARCH_STEERING_PROMPT)
+    hasExactFlagValue({
+      args: optionArgs,
+      flag: PROMPT_FLAG_INLINE,
+      expectedValue: THIRD_PARTY_WEBSEARCH_STEERING_PROMPT.content,
+    })
   ) {
     return args;
   }
 
-  return [
-    ...optionArgs,
-    APPEND_SYSTEM_PROMPT_FLAG,
-    THIRD_PARTY_WEBSEARCH_STEERING_PROMPT,
-    ...trailingArgs,
-  ];
+  if (
+    hasExactFlagValue({
+      args: optionArgs,
+      flag: PROMPT_FLAG_FILE,
+      expectedValue: THIRD_PARTY_WEBSEARCH_STEERING_PROMPT.name,
+      allowPartiallyMatch: true,
+    })
+  ) {
+    return args;
+  }
+
+  const steeringArgs = buildSteeringArg({
+    args: optionArgs,
+    promptName: THIRD_PARTY_WEBSEARCH_STEERING_PROMPT.name,
+    promptContent: THIRD_PARTY_WEBSEARCH_STEERING_PROMPT.content,
+  });
+
+  return [...optionArgs, ...steeringArgs, ...trailingArgs];
 }
 
 export function appendThirdPartyWebSearchToolArgs(args: string[]): string[] {

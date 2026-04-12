@@ -1,10 +1,21 @@
 /**
  * Claude launch argument helpers for first-class Image Analysis.
+ *
+ * Uses the same prompt injection mode as the user to avoid mixing
+ * `--append-system-prompt` and `--append-system-prompt-file` in one request.
  */
 
-const APPEND_SYSTEM_PROMPT_FLAG = '--append-system-prompt';
-const IMAGE_ANALYSIS_STEERING_PROMPT =
-  'For local image or PDF files, prefer the CCS MCP tool ImageAnalysis instead of Read. Use Read for text, code, and other plain files. If the user asks a specific question about the visual, pass that question as the focus field when useful. If ImageAnalysis is unavailable or fails, you may fall back to Read.';
+import {
+  buildSteeringArg,
+  PROMPT_FLAG_INLINE,
+  PROMPT_FLAG_FILE,
+} from '../prompt-injection-strategy';
+
+const IMAGE_ANALYSIS_STEERING_PROMPT = {
+  name: 'ccs-prompt-image-analysis-tool',
+  content:
+    'For local image or PDF files, prefer the CCS MCP tool ImageAnalysis instead of Read. Use Read for text, code, and other plain files. If the user asks a specific question about the visual, pass that question as the focus field when useful. If ImageAnalysis is unavailable or fails, you may fall back to Read.',
+};
 
 function splitArgsAtTerminator(args: string[]): { optionArgs: string[]; trailingArgs: string[] } {
   const terminatorIndex = args.indexOf('--');
@@ -26,15 +37,28 @@ function getImmediateFlagValue(args: string[], index: number): string | null {
   return value;
 }
 
-function hasExactFlagValue(args: string[], flag: string, expectedValue: string): boolean {
+function hasExactFlagValue(params: {
+  args: string[];
+  flag: string;
+  expectedValue: string;
+  allowPartiallyMatch?: boolean;
+}): boolean {
+  const { args, flag, expectedValue, allowPartiallyMatch } = params;
+
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
 
     if (arg === flag) {
       const value = getImmediateFlagValue(args, index);
+
       if (value === expectedValue) {
         return true;
       }
+
+      if (allowPartiallyMatch && value?.includes(expectedValue)) {
+        return true;
+      }
+
       continue;
     }
 
@@ -53,16 +77,34 @@ function hasExactFlagValue(args: string[], flag: string, expectedValue: string):
 function ensureImageAnalysisSteeringPrompt(args: string[]): string[] {
   const { optionArgs, trailingArgs } = splitArgsAtTerminator(args);
 
-  if (hasExactFlagValue(optionArgs, APPEND_SYSTEM_PROMPT_FLAG, IMAGE_ANALYSIS_STEERING_PROMPT)) {
+  if (
+    hasExactFlagValue({
+      args: optionArgs,
+      flag: PROMPT_FLAG_INLINE,
+      expectedValue: IMAGE_ANALYSIS_STEERING_PROMPT.content,
+    })
+  ) {
     return args;
   }
 
-  return [
-    ...optionArgs,
-    APPEND_SYSTEM_PROMPT_FLAG,
-    IMAGE_ANALYSIS_STEERING_PROMPT,
-    ...trailingArgs,
-  ];
+  if (
+    hasExactFlagValue({
+      args: optionArgs,
+      flag: PROMPT_FLAG_FILE,
+      expectedValue: IMAGE_ANALYSIS_STEERING_PROMPT.name,
+      allowPartiallyMatch: true,
+    })
+  ) {
+    return args;
+  }
+
+  const steeringArg = buildSteeringArg({
+    args: optionArgs,
+    promptName: IMAGE_ANALYSIS_STEERING_PROMPT.name,
+    promptContent: IMAGE_ANALYSIS_STEERING_PROMPT.content,
+  });
+
+  return [...optionArgs, ...steeringArg, ...trailingArgs];
 }
 
 export function appendThirdPartyImageAnalysisToolArgs(args: string[]): string[] {
@@ -70,5 +112,5 @@ export function appendThirdPartyImageAnalysisToolArgs(args: string[]): string[] 
 }
 
 export function getImageAnalysisSteeringPrompt(): string {
-  return IMAGE_ANALYSIS_STEERING_PROMPT;
+  return IMAGE_ANALYSIS_STEERING_PROMPT.content;
 }

@@ -36,4 +36,34 @@ describe('appendThirdPartyImageAnalysisToolArgs', () => {
       'extra',
     ]);
   });
+
+  // File mode: --append-system-prompt-file when user passes --append-system-prompt-file
+
+  it('uses --append-system-prompt-file when user passes --append-system-prompt-file', () => {
+    const result = appendThirdPartyImageAnalysisToolArgs([
+      '-p',
+      'describe',
+      '--append-system-prompt-file',
+      '/tmp/user-prompt.txt',
+    ]);
+
+    expect(result).toContain('--append-system-prompt-file');
+    expect(result).not.toContain('--append-system-prompt');
+    const fileFlags = result.filter((arg) => arg === '--append-system-prompt-file');
+    expect(fileFlags.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('uses --append-system-prompt-file when user passes equals form', () => {
+    const result = appendThirdPartyImageAnalysisToolArgs([
+      '-p',
+      'describe',
+      '--append-system-prompt-file=/tmp/user-prompt.txt',
+    ]);
+
+    expect(result).not.toContain('--append-system-prompt');
+    const fileFlags = result.filter(
+      (arg) => arg === '--append-system-prompt-file' || arg.startsWith('--append-system-prompt-file=')
+    );
+    expect(fileFlags.length).toBeGreaterThanOrEqual(2);
+  });
 });
