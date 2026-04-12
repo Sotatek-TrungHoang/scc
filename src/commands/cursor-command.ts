@@ -14,10 +14,16 @@ import {
   getDaemonStatus,
   getAvailableModels,
   getDefaultModel,
+  probeCursorRuntime,
 } from '../cursor';
 import { getCursorConfig, mutateUnifiedConfig } from '../config/unified-config-loader';
 import { DEFAULT_CURSOR_CONFIG } from '../config/unified-config-types';
-import { renderCursorHelp, renderCursorModels, renderCursorStatus } from './cursor-command-display';
+import {
+  renderCursorHelp,
+  renderCursorModels,
+  renderCursorProbe,
+  renderCursorStatus,
+} from './cursor-command-display';
 import { ok, fail, info } from '../utils/ui';
 
 /**
@@ -31,6 +37,8 @@ export async function handleCursorCommand(args: string[]): Promise<number> {
       return handleAuth(args.slice(1));
     case 'status':
       return handleStatus();
+    case 'probe':
+      return handleProbe();
     case 'models':
       return handleModels();
     case 'start':
@@ -72,6 +80,34 @@ function parseOptionValue(args: string[], key: string): string | undefined {
   }
 
   return undefined;
+}
+
+function printAutoDetectFailure(result: {
+  error?: string;
+  checkedPaths?: string[];
+  reason?: string;
+}): void {
+  console.error(fail(`Auto-detection failed: ${result.error ?? 'Unknown error'}`));
+
+  if (result.checkedPaths?.length && result.reason === 'db_not_found') {
+    console.log('');
+    console.log('Checked paths:');
+    for (const candidate of result.checkedPaths) {
+      console.log(`  - ${candidate}`);
+    }
+  }
+
+  if (result.reason === 'sqlite_unavailable') {
+    console.log('');
+    console.log('Recommended next steps:');
+    console.log('  1. Install sqlite3 so CCS can read Cursor state automatically');
+    console.log('  2. Or use manual import immediately');
+  } else if (result.reason === 'db_query_failed') {
+    console.log('');
+    console.log('Recommended next steps:');
+    console.log('  1. Close Cursor IDE and retry auto-detect');
+    console.log('  2. If the database remains unreadable, use manual import');
+  }
 }
 
 /**
@@ -139,7 +175,7 @@ async function handleAuth(args: string[]): Promise<number> {
   }
 
   console.log('');
-  console.error(fail(`Auto-detection failed: ${autoResult.error ?? 'Unknown error'}`));
+  printAutoDetectFailure(autoResult);
   console.log('');
   console.log('Manual fallback:');
   console.log('  ccs cursor auth --manual --token <token> --machine-id <machine-id>');
@@ -154,6 +190,13 @@ async function handleStatus(): Promise<number> {
   const daemonStatus = await getDaemonStatus(cursorConfig.port);
   renderCursorStatus(cursorConfig, authStatus, daemonStatus);
   return 0;
+}
+
+async function handleProbe(): Promise<number> {
+  const cursorConfig = getCursorConfig();
+  const result = await probeCursorRuntime(cursorConfig);
+  renderCursorProbe(result);
+  return result.ok ? 0 : 1;
 }
 
 async function handleModels(): Promise<number> {

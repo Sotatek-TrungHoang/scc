@@ -11,6 +11,7 @@ import {
   stopDaemon,
   checkAuthStatus,
   autoDetectTokens,
+  probeCursorRuntime,
   saveCredentials,
   validateToken,
 } from '../../cursor';
@@ -124,7 +125,16 @@ router.post('/auth/auto-detect', async (_req: Request, res: Response): Promise<v
     const result = autoDetectTokens();
 
     if (!result.found || !result.accessToken || !result.machineId) {
-      res.status(404).json({ error: result.error ?? 'Token not found' });
+      const status =
+        result.reason === 'sqlite_unavailable'
+          ? 503
+          : result.reason === 'db_query_failed'
+            ? 500
+            : 404;
+      res.status(status).json({
+        error: result.error ?? 'Token not found',
+        reason: result.reason ?? null,
+      });
       return;
     }
 
@@ -150,6 +160,19 @@ router.get('/models', async (_req: Request, res: Response): Promise<void> => {
     const cursorConfig = getCursorConfig();
     const models = await getAvailableModels(cursorConfig.port);
     res.json({ models, current: cursorConfig.model });
+  } catch (error) {
+    res.status(500).json({ error: (error as Error).message });
+  }
+});
+
+/**
+ * POST /api/cursor/probe - Run a live authenticated runtime probe
+ */
+router.post('/probe', async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const cursorConfig = getCursorConfig();
+    const result = await probeCursorRuntime(cursorConfig);
+    res.status(result.status).json(result);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }

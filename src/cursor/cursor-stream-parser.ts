@@ -4,7 +4,11 @@
  */
 
 import * as zlib from 'zlib';
-import { COMPRESS_FLAG } from './cursor-protobuf-schema.js';
+import {
+  hasUnknownConnectFrameFlags,
+  isCompressedConnectFrame,
+  isEndStreamConnectFrame,
+} from './cursor-protobuf-schema.js';
 import { extractTextFromResponse } from './cursor-protobuf-decoder.js';
 
 /** Frame parsing result types */
@@ -22,12 +26,53 @@ export type FrameResult =
       };
     };
 
+export class CursorConnectFrameError extends Error {
+  constructor(
+    message: string,
+    readonly status = 502,
+    readonly errorType = 'server_error'
+  ) {
+    super(message);
+    this.name = 'CursorConnectFrameError';
+  }
+}
+
+function formatConnectFrameFlags(flags: number): string {
+  return `0x${flags.toString(16).padStart(2, '0')}`;
+}
+
+function toFrameErrorResult(error: unknown): Extract<FrameResult, { type: 'error' }> {
+  if (error instanceof CursorConnectFrameError) {
+    return {
+      type: 'error',
+      message: error.message,
+      status: error.status,
+      errorType: error.errorType,
+    };
+  }
+
+  return {
+    type: 'error',
+    message: error instanceof Error ? error.message : 'Cursor stream parsing failed.',
+    status: 502,
+    errorType: 'server_error',
+  };
+}
+
 /**
  * Decompress payload if gzip-compressed.
  * Skips decompression for JSON error payloads.
  * NOTE: Uses synchronous gzip for single-request CLI tool. Async not warranted for small payloads.
  */
 export function decompressPayload(payload: Buffer, flags: number): Buffer {
+  if (hasUnknownConnectFrameFlags(flags)) {
+    throw new CursorConnectFrameError(
+      `Unsupported ConnectRPC frame flags: ${formatConnectFrameFlags(flags)}`,
+      502,
+      'server_error'
+    );
+  }
+
   if (payload.length > 10 && payload[0] === 0x7b && payload[1] === 0x22) {
     try {
       const text = payload.toString('utf-8');
@@ -37,18 +82,18 @@ export function decompressPayload(payload: Buffer, flags: number): Buffer {
     }
   }
 
-  if (
-    flags === COMPRESS_FLAG.GZIP ||
-    flags === COMPRESS_FLAG.GZIP_ALT ||
-    flags === COMPRESS_FLAG.GZIP_BOTH
-  ) {
+  if (isCompressedConnectFrame(flags)) {
     try {
       return zlib.gunzipSync(payload);
     } catch (err) {
       if (process.env.CCS_DEBUG) {
         console.error('[cursor] gzip decompression failed:', err);
       }
-      return Buffer.alloc(0);
+      throw new CursorConnectFrameError(
+        'Failed to decompress Cursor ConnectRPC frame.',
+        502,
+        'server_error'
+      );
     }
   }
   return payload;
@@ -80,7 +125,46 @@ export class StreamingFrameParser {
       let payload = this.buffer.slice(5, frameSize);
       this.buffer = this.buffer.slice(frameSize);
 
-      payload = decompressPayload(payload, flags);
+      try {
+        payload = decompressPayload(payload, flags);
+      } catch (error) {
+        results.push(toFrameErrorResult(error));
+        return results;
+      }
+
+      if (isEndStreamConnectFrame(flags)) {
+        try {
+          const text = payload.toString('utf-8');
+          const json = JSON.parse(text) as {
+            error?: {
+              code?: string;
+              message?: string;
+              details?: Array<{
+                debug?: { details?: { title?: string; detail?: string }; error?: string };
+              }>;
+            };
+          };
+
+          const msg =
+            json?.error?.details?.[0]?.debug?.details?.title ||
+            json?.error?.details?.[0]?.debug?.details?.detail ||
+            json?.error?.message;
+
+          if (msg) {
+            const isRateLimit = json?.error?.code === 'resource_exhausted';
+            results.push({
+              type: 'error',
+              message: msg,
+              status: isRateLimit ? 429 : 400,
+              errorType: isRateLimit ? 'rate_limit_error' : 'api_error',
+            });
+            return results;
+          }
+        } catch {
+          // Ignore successful end-stream metadata trailers.
+        }
+        continue;
+      }
 
       // Check for JSON error
       try {
@@ -116,7 +200,7 @@ export class StreamingFrameParser {
         results.push({
           type: 'error',
           message: result.error,
-          status: isRateLimit ? 429 : 400,
+          status: isRateLimit ? 429 : 502,
           errorType: isRateLimit ? 'rate_limit_error' : 'server_error',
         });
         return results;

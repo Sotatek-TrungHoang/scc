@@ -484,6 +484,9 @@ describe('renderCursorHelp', () => {
 
       expect(exitCode).toBe(0);
       expect(logs.some((line) => line.includes('Usage: ccs cursor <subcommand>'))).toBe(true);
+      expect(logs.some((line) => line.includes('probe     Run a live authenticated runtime probe'))).toBe(
+        true
+      );
       expect(
         logs.some((line) => line.includes('ccs cursor [claude args]'))
       ).toBe(true);

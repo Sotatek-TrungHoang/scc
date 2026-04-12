@@ -1,13 +1,25 @@
 # Cursor IDE Integration
 
-This guide covers the local Cursor integration in CCS, including CLI setup, daemon lifecycle, and dashboard controls.
+This guide covers the current CCS-owned Cursor runtime, including auth import, local daemon lifecycle, live probe checks, and dashboard controls.
 
 ## What It Provides
 
 - OpenAI-compatible local endpoint powered by Cursor credentials.
 - Anthropic-compatible local endpoint at `/v1/messages` for Claude-native clients.
-- Cursor model list and chat completions via local daemon.
+- Cursor model list and chat completions via the local CCS daemon.
 - Dedicated dashboard page: `ccs config` -> `Cursor IDE`.
+
+## What This Runtime Actually Does
+
+`ccs cursor` does not launch Cursor IDE itself.
+
+The current workflow is:
+1. import Cursor credentials from local SQLite or manual input
+2. run a local CCS daemon on `127.0.0.1:<port>`
+3. launch Claude Code against that daemon
+4. have CCS translate requests to Cursor upstream
+
+Treat this as a CCS-managed Cursor bridge, not a generic CLIProxy-backed provider path.
 
 ## Prerequisites
 
@@ -43,13 +55,21 @@ ccs cursor auth --manual --token <token> --machine-id <machine-id>
 ccs cursor start
 ```
 
-### 4) Run Cursor-backed Claude
+### 4) Run a live probe
+
+```bash
+ccs cursor probe
+```
+
+Use this to verify that the current build can complete one real authenticated request through the local daemon.
+
+### 5) Run Cursor-backed Claude
 
 ```bash
 ccs cursor "explain this repo"
 ```
 
-### 5) Verify status
+### 6) Verify status
 
 ```bash
 ccs cursor status
@@ -62,7 +82,7 @@ The admin namespace remains available for setup and inspection:
 ccs cursor help
 ```
 
-### 6) Stop daemon
+### 7) Stop daemon
 
 ```bash
 ccs cursor stop
@@ -76,6 +96,7 @@ ccs cursor stop
 - Model list resolution: authenticated live fetch when available, with cached/default fallback.
 - Request model validation: if a requested model is not present in the available Cursor model catalog, daemon falls back to the resolved default model.
 - Daemon API surface: `POST /v1/chat/completions`, `POST /v1/messages`, and `GET /v1/models`.
+- Live verification: `ccs cursor probe` or `POST /api/cursor/probe`
 
 These values are managed in unified config and can be updated from CLI or dashboard.
 
@@ -112,10 +133,16 @@ When raw settings include a local `ANTHROPIC_BASE_URL` port override, CCS synchr
 
 - Re-run `ccs cursor auth` (or manual auth command).
 
+### `ccs cursor probe` fails even though status is green
+
+- `status` proves local config/auth/daemon readiness only.
+- `probe` proves the live runtime path.
+- If `probe` fails with upstream protocol errors, inspect the current CCS build first rather than assuming the local daemon is healthy.
+
 ### Auto-detect fails
 
 - Ensure Cursor is logged in.
-- Confirm `sqlite3` is installed (macOS/Linux).
+- Confirm `sqlite3` is installed or use manual import.
 - Use manual auth import if needed.
 
 ### Daemon fails to start

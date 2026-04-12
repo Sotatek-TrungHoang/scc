@@ -62,6 +62,32 @@ interface RawSettingsParseResult {
   error?: string;
 }
 
+function buildProbeSnapshotKey(
+  status?: {
+    enabled?: boolean;
+    authenticated?: boolean;
+    token_expired?: boolean;
+    daemon_running?: boolean;
+    port?: number;
+    ghost_mode?: boolean;
+  },
+  config?: {
+    model?: string;
+    auto_start?: boolean;
+  }
+): string {
+  return JSON.stringify({
+    enabled: status?.enabled ?? null,
+    authenticated: status?.authenticated ?? null,
+    token_expired: status?.token_expired ?? null,
+    daemon_running: status?.daemon_running ?? null,
+    port: status?.port ?? null,
+    ghost_mode: status?.ghost_mode ?? null,
+    auto_start: config?.auto_start ?? null,
+    model: config?.model ?? null,
+  });
+}
+
 function buildConfigDraft(config?: {
   port?: number;
   auto_start?: boolean;
@@ -284,6 +310,10 @@ export function CursorPage() {
     isStartingDaemon,
     stopDaemonAsync,
     isStoppingDaemon,
+    runProbeAsync,
+    isRunningProbe,
+    probeResult,
+    resetProbe,
   } = useCursor();
 
   const [configDraft, setConfigDraft] = useState<CursorConfigDraft>(() => buildConfigDraft());
@@ -293,6 +323,9 @@ export function CursorPage() {
   const [manualAuthOpen, setManualAuthOpen] = useState(false);
   const [manualToken, setManualToken] = useState('');
   const [manualMachineId, setManualMachineId] = useState('');
+  const [probeSnapshotKey, setProbeSnapshotKey] = useState<string | null>(() =>
+    probeResult ? buildProbeSnapshotKey(status, config) : null
+  );
 
   const pristineConfigDraft = buildConfigDraft(config);
 
@@ -318,6 +351,14 @@ export function CursorPage() {
   const isRawJsonValid = rawParseResult.isValid;
   const hasChanges = configDirty || rawConfigDirty;
   const canSave = !rawConfigDirty || (rawSettingsReady && isRawJsonValid);
+  const currentProbeSnapshotKey = buildProbeSnapshotKey(status, config);
+  const visibleProbeResult =
+    probeResult &&
+    !hasChanges &&
+    probeSnapshotKey !== null &&
+    probeSnapshotKey === currentProbeSnapshotKey
+      ? probeResult
+      : null;
   const orderedModels = useMemo(() => {
     const seen = new Set<string>();
     const sorted = [...models].sort((a, b) => a.name.localeCompare(b.name));
@@ -347,6 +388,11 @@ export function CursorPage() {
       return updater(baseDraft);
     });
     setConfigDirty(true);
+  };
+
+  const clearProbeState = () => {
+    resetProbe();
+    setProbeSnapshotKey(null);
   };
 
   const canStart = Boolean(status?.enabled && status?.authenticated && !status?.token_expired);
@@ -395,6 +441,7 @@ export function CursorPage() {
           haiku_model: effectiveHaikuModel || undefined,
         })
       );
+      clearProbeState();
       if (!suppressSuccessToast) {
         toast.success(t('cursorPage.savedConfig'));
       }
@@ -500,6 +547,7 @@ export function CursorPage() {
   const handleToggleEnabled = async (enabled: boolean) => {
     try {
       await updateConfigAsync({ enabled });
+      clearProbeState();
       toast.success(
         enabled ? t('cursorPage.integrationEnabled') : t('cursorPage.integrationDisabled')
       );
@@ -511,6 +559,7 @@ export function CursorPage() {
   const handleAutoDetectAuth = async () => {
     try {
       await autoDetectAuthAsync();
+      clearProbeState();
       toast.success(t('cursorPage.credentialsImported'));
     } catch (error) {
       toast.error((error as Error).message || t('cursorPage.autoDetectFailed'));
@@ -528,6 +577,7 @@ export function CursorPage() {
         accessToken: manualToken.trim(),
         machineId: manualMachineId.trim(),
       });
+      clearProbeState();
       toast.success(t('cursorPage.credentialsImported'));
       setManualAuthOpen(false);
       setManualToken('');
@@ -544,6 +594,7 @@ export function CursorPage() {
         toast.error(result.error || t('cursorPage.failedStartDaemon'));
         return;
       }
+      clearProbeState();
       toast.success(
         result.pid
           ? t('cursorPage.daemonStartedWithPid', { pid: result.pid })
@@ -561,9 +612,31 @@ export function CursorPage() {
         toast.error(result.error || t('cursorPage.failedStopDaemon'));
         return;
       }
+      clearProbeState();
       toast.success(t('cursorPage.daemonStopped'));
     } catch (error) {
       toast.error((error as Error).message || t('cursorPage.failedStopDaemon'));
+    }
+  };
+
+  const handleRunProbe = async () => {
+    if (hasChanges) {
+      toast.error(t('cursorPage.probeSaveFirst'));
+      return;
+    }
+
+    try {
+      const result = await runProbeAsync();
+      const refreshedStatus = await refetchStatus();
+      setProbeSnapshotKey(buildProbeSnapshotKey(refreshedStatus.data ?? status, config));
+      if (result.ok) {
+        toast.success(t('cursorPage.probeSucceeded'));
+        return;
+      }
+
+      toast.error(result.message || t('cursorPage.probeFailed'));
+    } catch (error) {
+      toast.error((error as Error).message || t('cursorPage.probeFailed'));
     }
   };
 
@@ -586,6 +659,7 @@ export function CursorPage() {
         expectedMtime: rawSettings?.mtime,
       });
       setRawConfigDirty(false);
+      clearProbeState();
       if (!suppressSuccessToast) {
         toast.success(t('cursorPage.rawSaved'));
       }
@@ -627,6 +701,7 @@ export function CursorPage() {
 
   const handleHeaderRefresh = () => {
     setRawConfigDirty(false);
+    clearProbeState();
     refetchStatus();
     refetchRawSettings();
   };
@@ -710,6 +785,71 @@ export function CursorPage() {
                 />
               </div>
 
+              <div className="rounded-md border bg-background/80 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Code2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      {t('cursorPage.liveProbe')}
+                    </span>
+                  </div>
+                  <Badge
+                    variant={probeResult ? 'outline' : 'secondary'}
+                    className={cn(
+                      probeResult?.ok && 'border-green-500/40 text-green-600 dark:text-green-300',
+                      probeResult &&
+                        !probeResult.ok &&
+                        'border-red-500/40 text-red-600 dark:text-red-300'
+                    )}
+                  >
+                    {visibleProbeResult
+                      ? visibleProbeResult.ok
+                        ? t('cursorPage.probeSucceeded')
+                        : t('cursorPage.probeFailed')
+                      : t('cursorPage.probeNotRun')}
+                  </Badge>
+                </div>
+
+                {visibleProbeResult ? (
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-muted-foreground">{t('cursorPage.probeStage')}</span>
+                      <span className="font-mono uppercase">{visibleProbeResult.stage}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-muted-foreground">
+                        {t('cursorPage.probeHttpStatus')}
+                      </span>
+                      <span className="font-mono">{visibleProbeResult.status}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="text-muted-foreground">{t('cursorPage.probeDuration')}</span>
+                      <span className="font-mono">{visibleProbeResult.duration_ms} ms</span>
+                    </div>
+                    {visibleProbeResult.model ? (
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-muted-foreground">{t('cursorPage.probeModel')}</span>
+                        <span className="font-mono text-[11px] text-right break-all">
+                          {visibleProbeResult.model}
+                        </span>
+                      </div>
+                    ) : null}
+                    <div className="space-y-1 pt-1">
+                      <span className="text-muted-foreground">{t('cursorPage.probeMessage')}</span>
+                      <p className="text-[11px] leading-relaxed break-words">
+                        {visibleProbeResult.message}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{t('cursorPage.probeNotRun')}</p>
+                )}
+
+                <p className="text-[11px] text-muted-foreground">
+                  {t('cursorPage.probeLocalReadinessHint')}
+                </p>
+              </div>
+
               <div className="space-y-2">
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                   {t('cursorPage.actions')}
@@ -761,6 +901,25 @@ export function CursorPage() {
                 >
                   <Key className="w-3.5 h-3.5 mr-1.5" />
                   {t('cursorPage.manualAuthImport')}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                  onClick={handleRunProbe}
+                  disabled={isRunningProbe}
+                >
+                  {isRunningProbe ? (
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  ) : (
+                    <Code2 className="w-3.5 h-3.5 mr-1.5" />
+                  )}
+                  {isRunningProbe
+                    ? t('cursorPage.probing')
+                    : visibleProbeResult
+                      ? t('cursorPage.rerunLiveProbe')
+                      : t('cursorPage.runLiveProbe')}
                 </Button>
 
                 {status?.daemon_running ? (

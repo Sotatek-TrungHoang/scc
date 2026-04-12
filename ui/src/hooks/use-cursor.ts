@@ -57,6 +57,35 @@ interface CursorAuthResult {
   message: string;
 }
 
+export interface CursorProbeResult {
+  ok: boolean;
+  stage: 'config' | 'auth' | 'daemon' | 'runtime';
+  status: number;
+  duration_ms: number;
+  model?: string;
+  error_type?: string | null;
+  message: string;
+}
+
+function isCursorProbeResult(value: unknown): value is CursorProbeResult {
+  if (!value || typeof value !== 'object') return false;
+
+  const candidate = value as Partial<CursorProbeResult>;
+  return (
+    typeof candidate.message === 'string' &&
+    typeof candidate.stage === 'string' &&
+    typeof candidate.status === 'number' &&
+    typeof candidate.duration_ms === 'number' &&
+    typeof candidate.ok === 'boolean'
+  );
+}
+
+function getProbeErrorMessage(value: unknown): string | null {
+  if (!value || typeof value !== 'object' || !('error' in value)) return null;
+  const candidate = value as { error?: unknown };
+  return typeof candidate.error === 'string' ? candidate.error : null;
+}
+
 async function fetchCursorStatus(): Promise<CursorStatus> {
   const res = await fetch(withApiBase('/cursor/status'));
   if (!res.ok) throw new Error('Failed to fetch cursor status');
@@ -144,6 +173,24 @@ async function stopCursorDaemon(): Promise<{ success: boolean; error?: string }>
   return res.json();
 }
 
+async function probeCursorRuntime(): Promise<CursorProbeResult> {
+  const res = await fetch(withApiBase('/cursor/probe'), { method: 'POST' });
+  const payload = await res.json().catch(() => null);
+
+  if (isCursorProbeResult(payload)) {
+    return payload;
+  }
+
+  return {
+    ok: false,
+    stage: 'runtime',
+    status: res.status,
+    duration_ms: 0,
+    error_type: 'runtime_error',
+    message: getProbeErrorMessage(payload) ?? 'Failed to run live probe',
+  };
+}
+
 export function useCursor() {
   const queryClient = useQueryClient();
 
@@ -205,6 +252,14 @@ export function useCursor() {
     onSuccess: invalidateCursorQueries,
   });
 
+  const probeMutation = useMutation({
+    mutationFn: probeCursorRuntime,
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['cursor-status'] });
+      queryClient.invalidateQueries({ queryKey: ['cursor-models'] });
+    },
+  });
+
   return useMemo(
     () => ({
       status: statusQuery.data,
@@ -248,6 +303,12 @@ export function useCursor() {
       stopDaemon: stopDaemonMutation.mutate,
       stopDaemonAsync: stopDaemonMutation.mutateAsync,
       isStoppingDaemon: stopDaemonMutation.isPending,
+
+      runProbe: probeMutation.mutate,
+      runProbeAsync: probeMutation.mutateAsync,
+      isRunningProbe: probeMutation.isPending,
+      probeResult: probeMutation.data,
+      resetProbe: probeMutation.reset,
     }),
     [
       statusQuery.data,
@@ -281,6 +342,11 @@ export function useCursor() {
       stopDaemonMutation.mutate,
       stopDaemonMutation.mutateAsync,
       stopDaemonMutation.isPending,
+      probeMutation.mutate,
+      probeMutation.mutateAsync,
+      probeMutation.isPending,
+      probeMutation.data,
+      probeMutation.reset,
     ]
   );
 }

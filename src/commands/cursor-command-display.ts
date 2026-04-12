@@ -1,4 +1,5 @@
 import type { CursorAuthStatus, CursorDaemonStatus, CursorModel } from '../cursor/types';
+import type { CursorProbeResult } from '../cursor/cursor-runtime-probe';
 import type { CursorConfig } from '../config/unified-config-types';
 import { getCcsDirDisplay } from '../utils/config-manager';
 import { color } from '../utils/ui';
@@ -18,6 +19,7 @@ export function renderCursorHelp(): number {
     'Subcommands:',
     '  auth      Import Cursor IDE authentication token',
     '  status    Show integration, authentication, and daemon status',
+    '  probe     Run a live authenticated runtime probe',
     '  models    List available models',
     '  start     Start cursor daemon',
     '  stop      Stop cursor daemon',
@@ -36,8 +38,9 @@ export function renderCursorHelp(): number {
     '  1. ccs cursor enable   # Enable integration',
     '  2. ccs cursor auth     # Import Cursor IDE token',
     '  3. ccs cursor start    # Start daemon',
-    '  4. ccs cursor "task"   # Run Claude through Cursor',
-    '  5. ccs cursor status   # Inspect auth/daemon wiring',
+    '  4. ccs cursor probe    # Verify live runtime health',
+    '  5. ccs cursor "task"   # Run Claude through Cursor',
+    '  6. ccs cursor status   # Inspect auth/daemon wiring',
     '',
     'Or use the web UI: ccs config -> Cursor page',
     '',
@@ -98,6 +101,7 @@ export function renderCursorStatus(
   console.log('Client setup:');
   console.log(`  Raw settings:    ${dirDisplay}/cursor.settings.json`);
   console.log('  Runtime entry:   ccs cursor [claude args]');
+  console.log('  Live probe:      ccs cursor probe');
   console.log('  Status command:  ccs cursor status');
   console.log('  Help command:    ccs cursor help');
 
@@ -134,4 +138,22 @@ export function renderCursorModels(models: CursorModel[], defaultModel: string):
   console.log('');
   console.log('Model selection is request-driven by the calling client.');
   console.log('Dashboard: ccs config -> Cursor page');
+}
+
+export function renderCursorProbe(result: CursorProbeResult): void {
+  const statusIcon = result.ok ? color('[OK]', 'success') : color('[X]', 'error');
+  console.log('Cursor Live Probe');
+  console.log('─────────────────');
+  console.log('');
+  console.log(`Result:       ${statusIcon} ${result.ok ? 'Success' : 'Failure'}`);
+  console.log(`Stage:        ${result.stage}`);
+  console.log(`HTTP status:  ${result.status}`);
+  console.log(`Duration:     ${result.duration_ms} ms`);
+  if (result.model) {
+    console.log(`Model:        ${result.model}`);
+  }
+  if (result.error_type) {
+    console.log(`Error type:   ${result.error_type}`);
+  }
+  console.log(`Message:      ${result.message}`);
 }
