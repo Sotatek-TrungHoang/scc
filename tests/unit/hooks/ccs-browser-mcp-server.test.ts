@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'bun:test';
 import { spawn } from 'child_process';
-import { cpSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs';
+import { cpSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import * as http from 'node:http';
 import { WebSocketServer } from 'ws';
 import { tmpdir } from 'node:os';
@@ -522,17 +522,18 @@ describe('ccs-browser MCP server', () => {
     }
   });
 
-  it('works from an installed copy when ws is absent but undici is available via NODE_PATH', async () => {
+  it('works from an installed copy when global WebSocket is unavailable and NODE_PATH supplies package dependencies', async () => {
     const installDir = mkdtempSync(join(tmpdir(), 'ccs-browser-installed-copy-'));
     const installedServerPath = join(installDir, 'ccs-browser-server.cjs');
-    const nodeModulesDir = join(installDir, 'node_modules');
+    const bootstrapServerPath = join(installDir, 'bootstrap.cjs');
 
     try {
       cpSync(bundledServerPath, installedServerPath);
-      mkdirSync(nodeModulesDir, { recursive: true });
-      cpSync(join(process.cwd(), 'node_modules', 'undici'), join(nodeModulesDir, 'undici'), {
-        recursive: true,
-      });
+      writeFileSync(
+        bootstrapServerPath,
+        'delete globalThis.WebSocket;\nrequire("./ccs-browser-server.cjs");\n',
+        'utf8'
+      );
 
       const responses = await runMcpRequests(
         [{ id: 'page-1', title: 'Installed Copy', currentUrl: 'https://example.com/' }],
@@ -545,9 +546,9 @@ describe('ccs-browser MCP server', () => {
           },
         ],
         {
-          serverPath: installedServerPath,
+          serverPath: bootstrapServerPath,
           childEnv: {
-            NODE_PATH: nodeModulesDir,
+            NODE_PATH: join(process.cwd(), 'node_modules'),
           },
         }
       );
