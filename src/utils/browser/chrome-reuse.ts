@@ -19,24 +19,23 @@ export interface BrowserRuntimeEnv {
 const DEVTOOLS_HOST = '127.0.0.1';
 const DEVTOOLS_ACTIVE_PORT_FILE = 'DevToolsActivePort';
 
-export function resolveDefaultChromeUserDataDir(platform = process.platform): string {
+export function resolveDefaultChromeUserDataDir(
+  platform = process.platform,
+  env: NodeJS.ProcessEnv = process.env
+): string {
   switch (platform) {
     case 'darwin':
       return path.join(
-        process.env.HOME || process.env.USERPROFILE || '',
+        env.HOME || env.USERPROFILE || '',
         'Library',
         'Application Support',
         'Google',
         'Chrome'
       );
     case 'linux':
-      return path.join(
-        process.env.HOME || process.env.USERPROFILE || '',
-        '.config',
-        'google-chrome'
-      );
+      return path.join(env.HOME || env.USERPROFILE || '', '.config', 'google-chrome');
     case 'win32': {
-      const localAppData = process.env.LOCALAPPDATA;
+      const localAppData = env.LOCALAPPDATA;
       if (!localAppData) {
         throw new Error(
           'LOCALAPPDATA is required to resolve the default Chrome user-data-dir on Windows'
@@ -45,11 +44,7 @@ export function resolveDefaultChromeUserDataDir(platform = process.platform): st
       return path.join(localAppData, 'Google', 'Chrome', 'User Data');
     }
     default:
-      return path.join(
-        process.env.HOME || process.env.USERPROFILE || '',
-        '.config',
-        'google-chrome'
-      );
+      return path.join(env.HOME || env.USERPROFILE || '', '.config', 'google-chrome');
   }
 }
 

@@ -135,7 +135,9 @@ describe('chrome reuse resolver', () => {
     });
 
     expect(runtimeEnv.CCS_BROWSER_DEVTOOLS_PORT).toBe(String(server.port));
-    expect(runtimeEnv.CCS_BROWSER_DEVTOOLS_WS_URL).toBe('ws://127.0.0.1/devtools/browser/explicit-port');
+    expect(runtimeEnv.CCS_BROWSER_DEVTOOLS_WS_URL).toBe(
+      'ws://127.0.0.1/devtools/browser/explicit-port'
+    );
   });
 
   it('throws a clear error when DevToolsActivePort metadata is missing', async () => {
@@ -196,15 +198,20 @@ describe('chrome reuse resolver', () => {
   });
 
   it('resolves platform default Chrome user-data-dir paths', () => {
-    process.env.LOCALAPPDATA = 'C:/Users/test/AppData/Local';
+    const isolatedHome = createTempDir('ccs-chrome-home-');
+    const env = {
+      HOME: isolatedHome,
+      USERPROFILE: isolatedHome,
+      LOCALAPPDATA: 'C:/Users/test/AppData/Local',
+    };
 
-    expect(resolveDefaultChromeUserDataDir('darwin')).toBe(
-      path.join(os.homedir(), 'Library', 'Application Support', 'Google', 'Chrome')
+    expect(resolveDefaultChromeUserDataDir('darwin', env)).toBe(
+      path.join(isolatedHome, 'Library', 'Application Support', 'Google', 'Chrome')
     );
-    expect(resolveDefaultChromeUserDataDir('linux')).toBe(
-      path.join(os.homedir(), '.config', 'google-chrome')
+    expect(resolveDefaultChromeUserDataDir('linux', env)).toBe(
+      path.join(isolatedHome, '.config', 'google-chrome')
     );
-    expect(resolveDefaultChromeUserDataDir('win32')).toBe(
+    expect(resolveDefaultChromeUserDataDir('win32', env)).toBe(
       path.normalize('C:/Users/test/AppData/Local/Google/Chrome/User Data')
     );
   });
@@ -218,7 +225,10 @@ describe('chrome reuse resolver', () => {
   });
 
   it('throws a clear error when the resolved profile directory does not exist', async () => {
-    const missingProfileDir = path.join(createTempDir('ccs-chrome-missing-dir-'), 'missing-profile');
+    const missingProfileDir = path.join(
+      createTempDir('ccs-chrome-missing-dir-'),
+      'missing-profile'
+    );
 
     await expect(resolveBrowserRuntimeEnv({ profileDir: missingProfileDir })).rejects.toThrow(
       `Chrome profile directory is invalid: ${missingProfileDir}`
