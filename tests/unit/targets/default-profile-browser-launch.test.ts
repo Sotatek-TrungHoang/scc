@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'bun:test';
+import { request as httpRequest } from 'http';
 import { spawn, spawnSync, type ChildProcess } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -10,6 +11,58 @@ interface RunResult {
   status: number | null;
   stdout: string;
   stderr: string;
+}
+
+async function waitForMockDevtoolsPort(portFilePath: string, timeoutMs = 5000): Promise<string> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() <= deadline) {
+    try {
+      const port = fs.readFileSync(portFilePath, 'utf8').trim();
+      if (/^\d+$/.test(port)) {
+        return port;
+      }
+    } catch {
+      // Keep polling until timeout.
+    }
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+
+  throw new Error('Timed out waiting for mock DevTools server port to become ready');
+}
+
+async function waitForDevtoolsVersionEndpoint(port: string, timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+
+  while (Date.now() <= deadline) {
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const req = httpRequest(
+          {
+            hostname: '127.0.0.1',
+            port: Number.parseInt(port, 10),
+            path: '/json/version',
+            method: 'GET',
+          },
+          (res) => {
+            res.resume();
+            if (res.statusCode === 200) {
+              resolve();
+              return;
+            }
+            reject(new Error(`Unexpected status: ${res.statusCode ?? 'unknown'}`));
+          }
+        );
+        req.on('error', reject);
+        req.end();
+      });
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+  }
+
+  throw new Error('Timed out waiting for mock DevTools endpoint to become ready');
 }
 
 function runCcs(args: string[], env: NodeJS.ProcessEnv): RunResult {
@@ -86,7 +139,19 @@ exit 0
     fs.rmSync(tmpHome, { recursive: true, force: true });
   });
 
-  it('passes browser runtime env through default Claude launches when reuse is configured', () => {
+  it('does not consume an empty mock DevTools port file before the port is written', async () => {
+    if (process.platform === 'win32') return;
+
+    const delayedPortFile = path.join(tmpHome, 'delayed-port.txt');
+    fs.writeFileSync(delayedPortFile, '', 'utf8');
+    setTimeout(() => {
+      fs.writeFileSync(delayedPortFile, '43123', 'utf8');
+    }, 50);
+
+    await expect(waitForMockDevtoolsPort(delayedPortFile, 500)).resolves.toBe('43123');
+  });
+
+  it('passes browser runtime env through default Claude launches when reuse is configured', async () => {
     if (process.platform === 'win32') return;
 
     const mockServerScriptPath = path.join(tmpHome, 'mock-devtools-server.js');
@@ -117,13 +182,8 @@ server.listen(0, '127.0.0.1', () => {
       env: baseEnv,
     });
 
-    const startDeadline = Date.now() + 5000;
-    while (!fs.existsSync(mockServerPortPath)) {
-      if (Date.now() > startDeadline) {
-        throw new Error('Timed out waiting for mock DevTools server to start');
-      }
-    }
-    const port = fs.readFileSync(mockServerPortPath, 'utf8').trim();
+    const port = await waitForMockDevtoolsPort(mockServerPortPath);
+    await waitForDevtoolsVersionEndpoint(port);
 
     fs.mkdirSync(browserProfileDir, { recursive: true });
     fs.writeFileSync(
