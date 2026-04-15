@@ -152,8 +152,8 @@ function getVariantDetailLabel(
   return resolveCodexBadge(
     getCodexIdentityBadge({
       audience: variant.audience,
-      detailLabel: variant.detailLabel,
-      compactDetailLabel: variant.compactDetailLabel,
+      detailLabel: variant.detailLabel ?? null,
+      compactDetailLabel: variant.compactDetailLabel ?? null,
     }),
     getCodexQuotaBadge(quota)
   ).label;
@@ -170,8 +170,8 @@ function getVariantBadgeAudience(
   return resolveCodexBadge(
     getCodexIdentityBadge({
       audience: variant.audience,
-      detailLabel: variant.detailLabel,
-      compactDetailLabel: variant.compactDetailLabel,
+      detailLabel: variant.detailLabel ?? null,
+      compactDetailLabel: variant.compactDetailLabel ?? null,
     }),
     getCodexQuotaBadge(quota)
   ).audience;
@@ -224,7 +224,6 @@ function getVariantMarkerLabel(
     detailLabel?: string | null;
     compactDetailLabel?: string | null;
   },
-  audienceCounts: Map<string, number>,
   quota?: unknown
 ) {
   const audience = getVariantAudience(variant, quota);
@@ -250,8 +249,7 @@ function getGroupedVariantSummaryLabel(
     detailLabel?: string | null;
     compactDetailLabel?: string | null;
   }>,
-  quotas: Array<unknown>,
-  audienceCounts: Map<string, number>
+  quotas: Array<unknown>
 ) {
   const audiences = new Set(variants.map((variant) => variant.audience));
   const hasDistinctDetails = variants.some((variant, index) =>
@@ -273,7 +271,7 @@ function getGroupedVariantSummaryLabel(
 
   if (variants.length === 1) {
     const [variant] = variants;
-    return getVariantMarkerLabel(variant, audienceCounts, quotas[0]);
+    return getVariantMarkerLabel(variant, quotas[0]);
   }
 
   return null;
@@ -321,14 +319,9 @@ export function AccountCard({
   const groupedVariantQuotas = groupedHeaderVariants.map(
     (_, index) => variantQuotaQueries[index]?.data
   );
-  const groupedVariantAudienceCounts = groupedHeaderVariants.reduce((counts, variant) => {
-    counts.set(variant.audience, (counts.get(variant.audience) ?? 0) + 1);
-    return counts;
-  }, new Map<string, number>());
   const groupedVariantSummaryLabel = getGroupedVariantSummaryLabel(
     groupedHeaderVariants,
-    groupedVariantQuotas,
-    groupedVariantAudienceCounts
+    groupedVariantQuotas
   );
 
   const compactMetaBadges = hasGroupedVariants ? (
@@ -363,11 +356,7 @@ export function AccountCard({
                       : 'bg-muted text-muted-foreground'
               )}
             >
-              {getVariantMarkerLabel(
-                variant,
-                groupedVariantAudienceCounts,
-                groupedVariantQuotas[index]
-              )}
+              {getVariantMarkerLabel(variant, groupedVariantQuotas[index])}
             </span>
           ))
         )}
