@@ -485,6 +485,12 @@ describe('Gemini CLI Quota Fetcher', () => {
 
       mockFetch([
         {
+          url: MANAGEMENT_AUTH_FILES_URL,
+          response: {
+            files: [],
+          },
+        },
+        {
           url: GEMINI_QUOTA_URL,
           method: 'POST',
           status: 401,
@@ -670,7 +676,7 @@ describe('Gemini CLI Quota Fetcher', () => {
             files: [
               {
                 auth_index: 'target-auth-index',
-                provider: 'gemini',
+                provider: 'gemini-cli',
                 email: 'target@example.com',
                 name: 'target@example.com-gen-lang-client-target-project.json',
               },
@@ -781,7 +787,7 @@ describe('Gemini CLI Quota Fetcher', () => {
               files: [
                 {
                   auth_index: 'retry-auth-index',
-                  provider: 'gemini',
+                  provider: 'gemini-cli',
                   email: 'retry@example.com',
                   name: 'retry@example.com-gen-lang-client-retry-project.json',
                 },
@@ -825,7 +831,7 @@ describe('Gemini CLI Quota Fetcher', () => {
       }
     });
 
-    it('does not retry the management API twice when the preferred managed path already failed', async () => {
+    it('reports a retryable management failure instead of reauth when delegated auth is unavailable', async () => {
       writeGeminiToken(
         {
           type: 'gemini',
@@ -890,7 +896,9 @@ describe('Gemini CLI Quota Fetcher', () => {
         const result = await fetchGeminiCliQuota('managed-failure@example.com');
 
         expect(result.success).toBe(false);
-        expect(result.needsReauth).toBe(true);
+        expect(result.needsReauth).toBeUndefined();
+        expect(result.retryable).toBe(true);
+        expect(result.errorCode).toBe('managed_auth_unavailable');
         expect(directQuotaAttempt).toBe(1);
         expect(managedLookupAttempt).toBe(1);
         expect(managedRequestAttempt).toBe(0);

@@ -14,6 +14,7 @@ import {
   buildGeminiCliBucketsFromParsedBuckets,
   type GeminiCliParsedBucket,
 } from './gemini-cli-quota-normalizer';
+import { mapExternalProviderName } from './provider-capabilities';
 import { buildManagementHeaders, buildProxyUrl, getProxyTarget } from './proxy-target-resolver';
 import type { GeminiCliQuotaResult, GeminiCliBucket } from './quota-types';
 import {
@@ -33,6 +34,7 @@ const GEMINI_CLI_ERROR_DETAIL_MAX_LENGTH = 320;
 const GEMINI_CLI_ERROR_DETAIL_TRUNCATION_SUFFIX = '...[truncated]';
 const GEMINI_CLI_G1_CREDIT_TYPE = 'GOOGLE_ONE_AI';
 const MANAGEMENT_API_TIMEOUT_MS = 5000;
+const SECONDARY_REQUEST_TIMEOUT_MS = 2000;
 
 /** Auth data extracted from Gemini CLI auth file */
 interface GeminiCliAuthData {
@@ -112,6 +114,20 @@ interface ManagedResponse {
   bodyText: string;
   json: unknown;
   viaManagement: boolean;
+}
+
+interface ManagedGeminiAuthContext {
+  authIndexLookupPromise?: Promise<ManagedGeminiAuthLookupResult>;
+}
+
+interface ManagedGeminiAuthLookupResult {
+  authIndex: string | number | null;
+  unavailable: boolean;
+}
+
+interface ManagedGeminiRequestResult {
+  response: ManagedResponse | null;
+  unavailable: boolean;
 }
 
 function getRemainingTimeoutMs(deadlineMs: number): number {
@@ -214,8 +230,8 @@ async function readManagedResponse(
 }
 
 function isGeminiAuthFileForAccount(file: ManagementAuthFile, accountId: string): boolean {
-  const provider = normalizeStringValue(file.provider ?? file.type);
-  if (provider !== 'gemini') {
+  const rawProvider = normalizeStringValue(file.provider ?? file.type);
+  if (!rawProvider || mapExternalProviderName(rawProvider) !== 'gemini') {
     return false;
   }
 
@@ -242,7 +258,7 @@ function isGeminiAuthFileForAccount(file: ManagementAuthFile, accountId: string)
 async function findManagedGeminiAuthIndex(
   accountId: string,
   timeoutMs: number
-): Promise<string | number | null> {
+): Promise<ManagedGeminiAuthLookupResult> {
   const target = getProxyTarget();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -255,15 +271,35 @@ async function findManagedGeminiAuthIndex(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      return null;
+      return { authIndex: null, unavailable: true };
     }
 
     const data = (await response.json()) as { files?: ManagementAuthFile[] };
     const match = data.files?.find((file) => isGeminiAuthFileForAccount(file, accountId));
-    return match?.auth_index ?? null;
+    return { authIndex: match?.auth_index ?? null, unavailable: false };
   } catch {
     clearTimeout(timeoutId);
-    return null;
+    return { authIndex: null, unavailable: true };
+  }
+}
+
+async function getManagedGeminiAuthIndex(
+  accountId: string,
+  timeoutMs: number,
+  context?: ManagedGeminiAuthContext
+): Promise<ManagedGeminiAuthLookupResult> {
+  if (!context) {
+    return await findManagedGeminiAuthIndex(accountId, timeoutMs);
+  }
+
+  context.authIndexLookupPromise ??= findManagedGeminiAuthIndex(accountId, timeoutMs);
+  return await context.authIndexLookupPromise;
+}
+
+class GeminiManagedAuthUnavailableError extends Error {
+  constructor() {
+    super('CLIProxy managed Gemini auth is temporarily unavailable');
+    this.name = 'GeminiManagedAuthUnavailableError';
   }
 }
 
@@ -271,16 +307,27 @@ async function performManagedGeminiRequest(
   accountId: string,
   url: string,
   body: string,
-  timeoutMs: number
-): Promise<ManagedResponse | null> {
-  const authIndex = await findManagedGeminiAuthIndex(accountId, timeoutMs);
+  timeoutMs: number,
+  authContext?: ManagedGeminiAuthContext
+): Promise<ManagedGeminiRequestResult> {
+  const deadlineMs = Date.now() + timeoutMs;
+  const lookupResult = await getManagedGeminiAuthIndex(
+    accountId,
+    getRemainingTimeoutMs(deadlineMs),
+    authContext
+  );
+  if (lookupResult.unavailable) {
+    return { response: null, unavailable: true };
+  }
+
+  const authIndex = lookupResult.authIndex;
   if (authIndex === null || authIndex === undefined) {
-    return null;
+    return { response: null, unavailable: false };
   }
 
   const target = getProxyTarget();
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  const timeoutId = setTimeout(() => controller.abort(), getRemainingTimeoutMs(deadlineMs));
 
   try {
     const response = await fetch(buildProxyUrl(target, '/v0/management/api-call'), {
@@ -303,20 +350,23 @@ async function performManagedGeminiRequest(
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      return null;
+      return { response: null, unavailable: true };
     }
 
     const apiResponse = (await response.json()) as ManagementApiCallResponse;
     const bodyText = typeof apiResponse.body === 'string' ? apiResponse.body : '';
     return {
-      status: typeof apiResponse.status_code === 'number' ? apiResponse.status_code : 500,
-      bodyText,
-      json: safeParseJson(bodyText),
-      viaManagement: true,
+      response: {
+        status: typeof apiResponse.status_code === 'number' ? apiResponse.status_code : 500,
+        bodyText,
+        json: safeParseJson(bodyText),
+        viaManagement: true,
+      },
+      unavailable: false,
     };
   } catch {
     clearTimeout(timeoutId);
-    return null;
+    return { response: null, unavailable: true };
   }
 }
 
@@ -325,10 +375,11 @@ async function performGeminiCliRequest(
   accessToken: string,
   url: string,
   body: string,
-  preferManagement = false
+  preferManagement = false,
+  authContext?: ManagedGeminiAuthContext
 ): Promise<ManagedResponse> {
-  const deadlineMs = Date.now() + MANAGEMENT_API_TIMEOUT_MS;
   let managementAttempted = false;
+  let managementUnavailable = false;
 
   if (preferManagement) {
     managementAttempted = true;
@@ -336,15 +387,20 @@ async function performGeminiCliRequest(
       accountId,
       url,
       body,
-      getRemainingTimeoutMs(deadlineMs)
+      MANAGEMENT_API_TIMEOUT_MS,
+      authContext
     );
-    if (managedResult) {
-      return managedResult;
+    managementUnavailable = managedResult.unavailable;
+    if (managedResult.response) {
+      return managedResult.response;
     }
   }
 
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), getRemainingTimeoutMs(deadlineMs));
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    managementAttempted ? SECONDARY_REQUEST_TIMEOUT_MS : MANAGEMENT_API_TIMEOUT_MS
+  );
 
   try {
     const response = await fetch(url, {
@@ -364,6 +420,9 @@ async function performGeminiCliRequest(
     }
 
     if (managementAttempted) {
+      if (managementUnavailable) {
+        throw new GeminiManagedAuthUnavailableError();
+      }
       return directResult;
     }
 
@@ -371,9 +430,16 @@ async function performGeminiCliRequest(
       accountId,
       url,
       body,
-      getRemainingTimeoutMs(deadlineMs)
+      SECONDARY_REQUEST_TIMEOUT_MS,
+      authContext
     );
-    return managedResult ?? directResult;
+    if (managedResult.response) {
+      return managedResult.response;
+    }
+    if (managedResult.unavailable) {
+      throw new GeminiManagedAuthUnavailableError();
+    }
+    return directResult;
   } catch (error) {
     clearTimeout(timeoutId);
     throw error;
@@ -524,7 +590,8 @@ async function fetchGeminiCliSupplementary(
   accountId: string,
   accessToken: string,
   projectId: string,
-  verbose: boolean
+  verbose: boolean,
+  authContext?: ManagedGeminiAuthContext
 ): Promise<GeminiCliSupplementaryInfo> {
   const requestBody = JSON.stringify({
     cloudaicompanionProject: projectId,
@@ -541,7 +608,9 @@ async function fetchGeminiCliSupplementary(
       accountId,
       accessToken,
       GEMINI_CLI_CODE_ASSIST_URL,
-      requestBody
+      requestBody,
+      false,
+      authContext
     );
 
     if (response.status !== 200) {
@@ -890,11 +959,13 @@ async function fetchWithAuthData(
     });
   }
 
+  const authContext: ManagedGeminiAuthContext = {};
   const supplementaryPromise = fetchGeminiCliSupplementary(
     accountId,
     authData.accessToken,
     authData.projectId,
-    verbose
+    verbose,
+    authContext
   );
   const requestBody = JSON.stringify({ project: authData.projectId });
 
@@ -904,7 +975,8 @@ async function fetchWithAuthData(
       authData.accessToken,
       GEMINI_CLI_QUOTA_URL,
       requestBody,
-      authData.isExpired
+      authData.isExpired,
+      authContext
     );
 
     if (verbose) {
@@ -952,6 +1024,16 @@ async function fetchWithAuthData(
       accountId,
     };
   } catch (err) {
+    if (err instanceof GeminiManagedAuthUnavailableError) {
+      return buildGeminiCliFailureResult(accountId, authData.projectId, {
+        error: 'Gemini delegated auth refresh is temporarily unavailable',
+        errorCode: 'managed_auth_unavailable',
+        errorDetail: err.message,
+        actionHint: 'Retry later. CLIProxy management could not refresh this Gemini account.',
+        retryable: true,
+      });
+    }
+
     const errorMsg =
       err instanceof Error && err.name === 'AbortError'
         ? 'Request timeout'
