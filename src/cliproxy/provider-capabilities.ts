@@ -33,7 +33,7 @@ export const PROVIDER_CAPABILITIES: Record<CLIProxyProvider, ProviderCapabilitie
     callbackPort: 8085,
     callbackProviderName: 'gemini',
     authUrlProviderName: 'gemini-cli',
-    refreshOwnership: 'ccs',
+    refreshOwnership: 'cliproxy',
     authFilePrefixes: ['gemini-', 'google-'],
     tokenTypeValues: ['gemini'],
     aliases: ['gemini-cli'],

@@ -118,6 +118,7 @@ describe('provider-capabilities', () => {
     expect(getOAuthCallbackPort('cursor')).toBeNull();
     expect(getOAuthCallbackPort('gitlab')).toBe(17171);
     expect(getOAuthCallbackPort('gemini')).toBe(8085);
+    expect(PROVIDER_CAPABILITIES.gemini.refreshOwnership).toBe('cliproxy');
     expect(getProviderDisplayName('agy')).toBe('Antigravity');
     expect(getProviderDisplayName('kilo')).toBe('Kilo AI');
   });
