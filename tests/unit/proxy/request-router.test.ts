@@ -131,6 +131,16 @@ describe('resolveProxyRequestRoute', () => {
     expect(route.source).toBe('profile-model-match');
   });
 
+  it('does not fuzzy-match plain model ids', () => {
+    const route = resolveProxyRequestRoute(buildProfile('hf'), {
+      model: 'deepseek-chat-v2',
+      stream: true,
+      messages: [{ role: 'user', content: 'hello' }],
+    });
+    expect(route.profile.profileName).toBe('hf');
+    expect(route.source).toBe('request-model');
+  });
+
   it('routes thinking requests through the configured think scenario', () => {
     const route = resolveProxyRequestRoute(buildProfile('hf'), {
       model: 'hf-default',

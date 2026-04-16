@@ -109,6 +109,11 @@ Supported request-time selectors:
 - plain model ids
   Example: `deepseek-chat`
 
+Plain model ids use exact string equality against the configured profile model
+slots (`model`, `opusModel`, `sonnetModel`, `haikuModel`). CCS does not apply
+fuzzy matching or prefix matching here. If no exact match is found, the request
+stays on the active profile with the requested model id unchanged.
+
 Routing behavior:
 
 1. `profile:model` wins immediately.
@@ -145,6 +150,11 @@ Current scenario detection:
 - `default`: fallback selector when the above do not apply
 
 Routing decisions are logged through CCS structured logs.
+
+`longContextThreshold` uses an intentionally approximate token estimate based on
+message characters, tool payload size, and a `chars / 4` heuristic. Tune the
+threshold conservatively if your routing decision needs a sharper cutoff near
+the boundary.
 
 ## How Profile Detection Works
 
@@ -308,3 +318,15 @@ The shipped coverage includes:
 - integration tests for daemon lifecycle and `/health` / `/v1/models`
 - e2e tests for `ccs proxy` lifecycle
 - e2e tests for `ccs <profile>` auto-routing through a mock upstream
+
+Focused verification command:
+
+```bash
+bun test tests/e2e/proxy-command.e2e.test.ts tests/integration/proxy/request-routing.test.ts --coverage
+```
+
+Pre-merge gate:
+
+```bash
+bun run validate
+```
