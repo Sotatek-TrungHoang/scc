@@ -116,11 +116,9 @@ describe('cliproxy routing strategy service', () => {
       expect(result.applied).toBe('config-only');
       expect(result.strategy).toBe('fill-first');
 
-      const { getConfigPathForPort } = await import('../../../src/cliproxy/config/path-resolver');
-      const configPath = getConfigPathForPort(routingTarget.port);
-      const configContent = fs.readFileSync(configPath, 'utf8');
-      expect(configContent).toContain('routing:');
-      expect(configContent).toContain('strategy: fill-first');
+      const { loadUnifiedConfig } = await import('../../../src/config/unified-config-loader');
+      const persisted = loadUnifiedConfig();
+      expect(persisted?.cliproxy?.routing?.strategy).toBe('fill-first');
     });
   });
 
