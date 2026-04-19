@@ -74,4 +74,37 @@ describe('openai-compat manager', () => {
       'Connector base URL should survive regeneration'
     );
   });
+
+  it('removes the openai-compatibility section cleanly when the last legacy connector is deleted', () => {
+    configGenerator.regenerateConfig();
+    const configPath = configGenerator.getCliproxyConfigPath();
+    const initialHeader = fs.readFileSync(configPath, 'utf8').split('\n')[0];
+
+    openAICompatManager.addOpenAICompatProvider({
+      name: 'mimo',
+      baseUrl: 'https://api.xiaomimimo.com/v1',
+      apiKey: 'sk-test',
+      models: [{ name: 'mimo-v2-flash', alias: 'mimo-v2-flash' }],
+    });
+
+    const removed = openAICompatManager.removeOpenAICompatProvider('mimo');
+    assert.strictEqual(removed, true, 'Expected the legacy connector to be removed');
+
+    const afterRemove = fs.readFileSync(configPath, 'utf8');
+    assert.strictEqual(
+      afterRemove.split('\n')[0],
+      initialHeader,
+      'Should preserve the generated header after removing the last connector'
+    );
+    assert(
+      !afterRemove.includes('openai-compatibility:'),
+      'Should remove the openai-compatibility section when the last connector is deleted'
+    );
+    assert(!afterRemove.includes('name: mimo'), 'Should remove the deleted connector payload');
+    assert.strictEqual(
+      configGenerator.configNeedsRegeneration(),
+      false,
+      'Removing the last legacy connector should not force regeneration'
+    );
+  });
 });
