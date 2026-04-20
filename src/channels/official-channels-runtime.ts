@@ -539,7 +539,7 @@ export function buildOfficialChannelSetupSummary(
       ? `${sourceDetail}${channel.processEnvAvailable ? ` The current CCS process env also provides ${envKey}.` : ''} CCS can auto-add ${channel.displayName} on the next supported native Claude run. Claude-side pairing and access policy still happen in Claude.`
       : `${sourceDetail} CCS can auto-add ${channel.displayName} on the next supported native Claude run. Claude-side pairing and access policy still happen in Claude.`,
     nextStep: channel.savedInClaudeState
-      ? 'Run `ccs` or a native Claude account profile. Claude-side pairing and access policy may still be required.'
+      ? 'Run `scc` or a native Claude account profile. Claude-side pairing and access policy may still be required.'
       : 'Run CCS from this same env, or save the token here if you want persistent Claude state.',
   };
 }
@@ -652,8 +652,8 @@ export function buildOfficialChannelsLaunchPreview(input: {
     return {
       state: 'disabled',
       title: 'Nothing will be auto-added yet',
-      detail: 'Turn on at least one channel below before `ccs` can add official channel flags.',
-      command: 'ccs',
+      detail: 'Turn on at least one channel below before `scc` can add official channel flags.',
+      command: 'scc',
       appendedArgs: [],
       appliedChannels: [],
       permissionBypassIncluded: false,
@@ -685,11 +685,11 @@ export function buildOfficialChannelsLaunchPreview(input: {
   if (!plan.applied) {
     return {
       state: 'blocked',
-      title: 'Running `ccs` now will not auto-add channels',
+      title: 'Running `scc` now will not auto-add channels',
       detail:
         plan.skippedMessages[0] ??
         'Official Channels are selected, but this machine is not ready to auto-add them yet.',
-      command: 'ccs',
+      command: 'scc',
       appendedArgs: [],
       appliedChannels: [],
       permissionBypassIncluded: false,
@@ -707,7 +707,7 @@ export function buildOfficialChannelsLaunchPreview(input: {
       title: `CCS will auto-add ${appliedLabels.join(', ')}`,
       detail:
         'Some selected channels are still skipped. Review the notes below before relying on the rest.',
-      command: 'ccs',
+      command: 'scc',
       appendedArgs,
       appliedChannels: plan.appliedChannels,
       permissionBypassIncluded: plan.wantsPermissionBypass,
@@ -717,11 +717,11 @@ export function buildOfficialChannelsLaunchPreview(input: {
 
   return {
     state: 'ready',
-    title: `CCS will auto-add ${appliedLabels.join(', ')}`,
+    title: `SCC will auto-add ${appliedLabels.join(', ')}`,
     detail: plan.wantsPermissionBypass
-      ? 'Running `ccs` will add the selected official channels and skip permission prompts for that launch.'
-      : 'Running `ccs` will add the selected official channels automatically on this machine.',
-    command: 'ccs',
+      ? 'Running `scc` will add the selected official channels and skip permission prompts for that launch.'
+      : 'Running `scc` will add the selected official channels automatically on this machine.',
+    command: 'scc',
     appendedArgs,
     appliedChannels: plan.appliedChannels,
     permissionBypassIncluded: plan.wantsPermissionBypass,

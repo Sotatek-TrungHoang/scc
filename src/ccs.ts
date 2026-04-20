@@ -1,5 +1,21 @@
 import './utils/fetch-proxy-setup';
 
+// Normalize SCC_* env vars to CCS_* equivalents early so all downstream
+// code (which reads CCS_*) picks up user-set SCC_* values automatically.
+// SCC_* takes priority — if both are set, SCC_* wins.
+const SCC_ENV_MAP: Record<string, string> = {
+  SCC_DEBUG: 'CCS_DEBUG',
+  SCC_SKIP_PREFLIGHT: 'CCS_SKIP_PREFLIGHT',
+  SCC_SKIP_MIGRATION: 'CCS_SKIP_MIGRATION',
+  SCC_THINKING: 'CCS_THINKING',
+  SCC_QUIET: 'CCS_QUIET',
+};
+for (const [sccKey, ccsKey] of Object.entries(SCC_ENV_MAP)) {
+  if (process.env[sccKey] && !process.env[ccsKey]) {
+    process.env[ccsKey] = process.env[sccKey];
+  }
+}
+
 import * as fs from 'fs';
 import { detectClaudeCli } from './utils/claude-detector';
 import {
@@ -420,7 +436,7 @@ async function main(): Promise<void> {
     if (!isCompletionCommand && cloudService) {
       console.error(warn(`CCS directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
-      console.error('    Consider: CCS_DIR=/path/outside/cloud ccs ...');
+      console.error('    Consider: SCC_DIR=/path/outside/cloud scc ...');
     }
 
     // Remove consumed args so they don't leak to Claude CLI
@@ -431,7 +447,7 @@ async function main(): Promise<void> {
     if (!isCompletionCommand && cloudService) {
       console.error(warn(`CCS directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
-      console.error('    Consider: CCS_DIR=/path/outside/cloud ccs ...');
+      console.error('    Consider: SCC_DIR=/path/outside/cloud scc ...');
     }
   } else if (process.env.CCS_HOME) {
     // Also warn for CCS_HOME env var pointing to cloud sync
@@ -439,7 +455,7 @@ async function main(): Promise<void> {
     if (!isCompletionCommand && cloudService) {
       console.error(warn(`CCS directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
-      console.error('    Consider: CCS_DIR=/path/outside/cloud ccs ...');
+      console.error('    Consider: SCC_DIR=/path/outside/cloud scc ...');
     }
   }
 
@@ -1177,7 +1193,7 @@ async function main(): Promise<void> {
               console.error(validation.suggestion);
             }
             console.error('');
-            console.error(info('To skip validation: CCS_SKIP_PREFLIGHT=1 ccs glm "prompt"'));
+            console.error(info('To skip validation: SCC_SKIP_PREFLIGHT=1 scc glm "prompt"'));
             process.exit(1);
           }
         }
@@ -1197,7 +1213,7 @@ async function main(): Promise<void> {
               console.error(validation.suggestion);
             }
             console.error('');
-            console.error(info('To skip validation: CCS_SKIP_PREFLIGHT=1 ccs mm "prompt"'));
+            console.error(info('To skip validation: SCC_SKIP_PREFLIGHT=1 scc mm "prompt"'));
             process.exit(1);
           }
         }
@@ -1218,7 +1234,7 @@ async function main(): Promise<void> {
             }
             console.error('');
             console.error(
-              info(`To skip validation: CCS_SKIP_PREFLIGHT=1 ccs ${profileInfo.name} "prompt"`)
+              info(`To skip validation: SCC_SKIP_PREFLIGHT=1 scc ${profileInfo.name} "prompt"`)
             );
             process.exit(1);
           }
@@ -1318,6 +1334,42 @@ async function main(): Promise<void> {
         CCS_PROFILE_TYPE: 'settings',
       };
 
+      // Start git-context header injection proxy for settings-based profiles.
+      // Wraps ANTHROPIC_BASE_URL so X-Git-Remote header reaches upstream (Bifrost).
+      // Must patch the settings file because Claude CLI reads ANTHROPIC_BASE_URL
+      // from --settings (which takes priority over env vars).
+      let effectiveSettingsPath = expandedSettingsPath;
+      const upstreamBaseUrl = envVars['ANTHROPIC_BASE_URL'];
+      if (upstreamBaseUrl) {
+        try {
+          const { ToolSanitizationProxy } = await import('./cliproxy/tool-sanitization-proxy');
+          const gitProxy = new ToolSanitizationProxy({
+            upstreamBaseUrl,
+            verbose: remainingArgs.includes('--verbose') || remainingArgs.includes('-v'),
+          });
+          const gitProxyPort = await gitProxy.start();
+          const proxyBaseUrl = `http://127.0.0.1:${gitProxyPort}`;
+          envVars['ANTHROPIC_BASE_URL'] = proxyBaseUrl;
+
+          // Write a temp settings file with the proxied ANTHROPIC_BASE_URL
+          // so Claude CLI (which reads --settings over env vars) uses the proxy.
+          const tmpDir = (await import('os')).tmpdir();
+          const tmpSettings = `${tmpDir}/scc-settings-${gitProxyPort}.json`;
+          const settingsContent = JSON.parse(fs.readFileSync(expandedSettingsPath, 'utf8'));
+          if (settingsContent.env) {
+            settingsContent.env.ANTHROPIC_BASE_URL = proxyBaseUrl;
+          }
+          fs.writeFileSync(tmpSettings, JSON.stringify(settingsContent, null, 2));
+          effectiveSettingsPath = tmpSettings;
+
+          console.error(info(`Git context proxy active on port ${gitProxyPort}`));
+        } catch (proxyErr) {
+          // Non-fatal: continue without header injection
+          const msg = proxyErr instanceof Error ? proxyErr.message : String(proxyErr);
+          console.error(warn(`Git context proxy disabled: ${msg}`));
+        }
+      }
+
       // Dispatch through target adapter for non-claude targets
       if (resolvedTarget !== 'claude') {
         const adapter = targetAdapter;
@@ -1392,7 +1444,7 @@ async function main(): Promise<void> {
 
         const launchArgs = [
           '--settings',
-          expandedSettingsPath,
+          effectiveSettingsPath,
           ...appendThirdPartyWebSearchToolArgs(browserArgs),
         ];
         const traceEnv = createWebSearchTraceContext({
@@ -1400,7 +1452,7 @@ async function main(): Promise<void> {
           args: launchArgs,
           profile: profileInfo.name,
           profileType: profileInfo.type,
-          settingsPath: expandedSettingsPath,
+          settingsPath: effectiveSettingsPath,
         });
 
         execClaude(claudeCli, launchArgs, { ...proxyEnv, ...traceEnv });
@@ -1408,7 +1460,7 @@ async function main(): Promise<void> {
       }
       const launchArgs = [
         '--settings',
-        expandedSettingsPath,
+        effectiveSettingsPath,
         ...appendThirdPartyWebSearchToolArgs(browserArgs),
       ];
       const traceEnv = createWebSearchTraceContext({
@@ -1416,7 +1468,7 @@ async function main(): Promise<void> {
         args: launchArgs,
         profile: profileInfo.name,
         profileType: profileInfo.type,
-        settingsPath: expandedSettingsPath,
+        settingsPath: effectiveSettingsPath,
       });
 
       execClaude(claudeCli, launchArgs, { ...envVars, ...traceEnv });

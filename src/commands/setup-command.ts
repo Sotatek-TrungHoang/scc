@@ -130,8 +130,8 @@ export function isFirstTimeInstall(): boolean {
 
     // Config exists but is corrupted/invalid - don't treat as first-time
     if (loaded === null) {
-      console.log(warn('Warning: ~/.ccs/config.yaml exists but appears corrupted'));
-      console.log(info('  Run `ccs setup --force` to reset, or `ccs doctor` to diagnose'));
+      console.log(warn('Warning: config.yaml exists but appears corrupted'));
+      console.log(info('  Run `scc setup --force` to reset, or `scc doctor` to diagnose'));
       return false;
     }
 
@@ -403,11 +403,11 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
     if (proxyMode === 'remote') {
       console.log(info('Remote proxy tip:'));
       console.log('  If connection fails, CCS will offer to start local proxy as fallback.');
-      console.log('  Edit ~/.ccs/config.yaml to adjust remote settings.');
+      console.log('  Edit config.yaml to adjust remote settings.');
       console.log('');
     }
 
-    console.log(info('Configuration saved to: ~/.ccs/config.yaml'));
+    console.log(info('Configuration saved to config.yaml'));
     console.log('');
   } catch (err) {
     // Handle user cancellation gracefully

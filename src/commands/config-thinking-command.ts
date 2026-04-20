@@ -87,9 +87,9 @@ function showHelp(): void {
 
   console.log(subheader('Environment:'));
   console.log(
-    `  ${color('CCS_THINKING', 'command')}  Override per-session via env var (priority: flag > env > config)`
+    `  ${color('SCC_THINKING', 'command')}  Override per-session via env var (priority: flag > env > config)`
   );
-  console.log(`  ${dim('Example: CCS_THINKING=high ccs codex "debug this"')}`);
+  console.log(`  ${dim('Example: SCC_THINKING=high scc codex "debug this"')}`);
   console.log('');
 }
 

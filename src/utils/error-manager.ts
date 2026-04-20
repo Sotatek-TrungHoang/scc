@@ -164,12 +164,12 @@ export class ErrorManager {
     console.error(header('SOLUTIONS'));
     console.error('');
     console.error('  Use an existing profile:');
-    console.error(`    ${color('ccs <profile> "your prompt"', 'command')}`);
+    console.error(`    ${color('scc <profile> "your prompt"', 'command')}`);
     console.error('');
     console.error('  Create a new account profile:');
-    console.error(`    ${color('ccs auth create <name>', 'command')}`);
+    console.error(`    ${color('scc auth create <name>', 'command')}`);
     console.error('');
-    console.error(info(`Tip: Use ${color('ccs config', 'command')} for web-based configuration`));
+    console.error(info(`Tip: Use ${color('scc config', 'command')} for web-based configuration`));
     console.error('');
 
     this.showErrorCode(ERROR_CODES.PROFILE_NOT_FOUND);
@@ -188,10 +188,10 @@ export class ErrorManager {
     console.error(header('SOLUTIONS'));
     console.error('');
     console.error(`  ${dim('# Fix ownership')}`);
-    console.error(`  ${color('sudo chown -R $USER ~/.ccs ~/.claude', 'command')}`);
+    console.error(`  ${color('sudo chown -R $USER ~/.scc ~/.claude', 'command')}`);
     console.error('');
     console.error(`  ${dim('# Fix permissions')}`);
-    console.error(`  ${color('chmod 755 ~/.ccs ~/.claude', 'command')}`);
+    console.error(`  ${color('chmod 755 ~/.scc ~/.claude', 'command')}`);
     console.error('');
     console.error(`  ${dim('# Retry installation')}`);
     console.error(`  ${color('npm install -g @kaitranntt/ccs --force', 'command')}`);
@@ -224,7 +224,7 @@ export class ErrorManager {
     console.error('');
     console.error(dim('This displays manual authentication steps.'));
     console.error('');
-    console.error(info(`Tip: Use ${color('ccs config', 'command')} for web-based configuration`));
+    console.error(info(`Tip: Use ${color('scc config', 'command')} for web-based configuration`));
     console.error('');
   }
 
@@ -256,7 +256,7 @@ export class ErrorManager {
     }
     console.error('');
     console.error('  3. Auto-fix: Run:');
-    console.error(`     ${color('ccs doctor --fix', 'command')}`);
+    console.error(`     ${color('scc doctor --fix', 'command')}`);
     console.error('');
   }
 
@@ -278,8 +278,8 @@ export class ErrorManager {
 
     console.error(header('MANUAL DOWNLOAD'));
     console.error(`  URL: ${color(url, 'path')}`);
-    console.error(`  Save to: ${color('~/.ccs/bin/cliproxyapi', 'path')}`);
-    console.error(`  ${color('chmod +x ~/.ccs/bin/cliproxyapi', 'command')}`);
+    console.error(`  Save to: ${color('~/.scc/bin/cliproxyapi', 'path')}`);
+    console.error(`  ${color('chmod +x ~/.scc/bin/cliproxyapi', 'command')}`);
     console.error('');
   }
 
@@ -301,7 +301,7 @@ export class ErrorManager {
     console.error(dim('This will open a browser for OAuth login.'));
     console.error(dim('After login, you can use the profile normally.'));
     console.error('');
-    console.error(info(`Tip: Use ${color('ccs config', 'command')} for web-based configuration`));
+    console.error(info(`Tip: Use ${color('scc config', 'command')} for web-based configuration`));
     console.error('');
   }
 }

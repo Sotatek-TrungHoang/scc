@@ -26,6 +26,12 @@
   "main": "dist/ccs.js",
   "types": "dist/ccs.d.ts",
   "bin": {
+    "scc": "dist/ccs.js",
+    "scc-droid": "dist/bin/droid-runtime.js",
+    "sccd": "dist/bin/droid-runtime.js",
+    "scc-codex": "dist/bin/codex-runtime.js",
+    "sccx": "dist/bin/codex-runtime.js",
+    "sccxp": "dist/bin/ccsxp-runtime.js",
     "ccs": "dist/ccs.js",
     "ccs-droid": "dist/bin/droid-runtime.js",
     "ccsd": "dist/bin/droid-runtime.js",

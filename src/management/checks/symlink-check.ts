@@ -45,13 +45,13 @@ export class PermissionsChecker implements IHealthChecker {
       });
     } catch (_e) {
       spinner.fail();
-      console.log(`  ${fail('Permissions'.padEnd(22))}  Cannot write to ~/.ccs/`);
+      console.log(`  ${fail('Permissions'.padEnd(22))}  Cannot write to config directory`);
       results.addCheck(
         'Permissions',
         'error',
-        'Cannot write to ~/.ccs/',
-        'Fix: sudo chown -R $USER ~/.ccs ~/.claude && chmod 755 ~/.ccs ~/.claude',
-        { status: 'ERROR', info: 'Cannot write to ~/.ccs/' }
+        'Cannot write to config directory',
+        'Fix: sudo chown -R $USER ~/.scc ~/.claude && chmod 755 ~/.scc ~/.claude',
+        { status: 'ERROR', info: 'Cannot write to config directory' }
       );
     }
   }

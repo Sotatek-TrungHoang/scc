@@ -57,7 +57,8 @@ export function setGlobalConfigDir(dir: string | undefined): void {
 }
 
 /**
- * Get the CCS home directory (respects CCS_HOME env var for test isolation)
+ * Get the CCS home directory.
+ * Precedence: SCC_HOME > CCS_HOME > os.homedir()
  * @returns Home directory path
  */
 export function getCcsHome(): string {
@@ -65,12 +66,16 @@ export function getCcsHome(): string {
   if (scopedHome) {
     return scopedHome;
   }
-  return process.env.CCS_HOME || os.homedir();
+  return process.env.SCC_HOME || process.env.CCS_HOME || os.homedir();
 }
 
 /**
- * Resolve the CCS directory with source information.
+ * Resolve the config directory with source information.
  * Single source of truth for precedence logic.
+ *
+ * Precedence:
+ *   scoped:ccsDir > scoped:ccsHome > --config-dir >
+ *   SCC_DIR > CCS_DIR > SCC_HOME > CCS_HOME > default (~/.scc, fallback ~/.ccs)
  */
 function _resolveCcsDir(): { source: string; dir: string } {
   const scopedConfig = configScopeStorage.getStore();
@@ -78,16 +83,25 @@ function _resolveCcsDir(): { source: string; dir: string } {
   if (scopedConfig?.ccsHome)
     return { source: 'scoped:CCS_HOME', dir: path.join(scopedConfig.ccsHome, '.ccs') };
   if (_globalConfigDir) return { source: '--config-dir', dir: _globalConfigDir };
+
+  // SCC env vars take priority over CCS equivalents
+  if (process.env.SCC_DIR) return { source: 'SCC_DIR', dir: path.resolve(process.env.SCC_DIR) };
   if (process.env.CCS_DIR) return { source: 'CCS_DIR', dir: path.resolve(process.env.CCS_DIR) };
+  if (process.env.SCC_HOME)
+    return { source: 'SCC_HOME', dir: path.join(path.resolve(process.env.SCC_HOME), '.scc') };
   if (process.env.CCS_HOME)
     return { source: 'CCS_HOME', dir: path.join(path.resolve(process.env.CCS_HOME), '.ccs') };
-  return { source: 'default', dir: path.join(os.homedir(), '.ccs') };
+
+  // SCC always uses ~/.scc — never falls back to ~/.ccs.
+  // This ensures SCC and CCS have independent config directories
+  // and don't interfere with each other on the same machine.
+  return { source: 'default', dir: path.join(os.homedir(), '.scc') };
 }
 
 /**
- * Get the CCS directory path.
- * Precedence: --config-dir flag > CCS_DIR env > CCS_HOME env (legacy, appends .ccs) > ~/.ccs default
- * @returns Path to CCS config directory
+ * Get the config directory path.
+ * Precedence: --config-dir > SCC_DIR > CCS_DIR > SCC_HOME > CCS_HOME > ~/.scc (fallback ~/.ccs)
+ * @returns Path to config directory
  */
 export function getCcsDir(): string {
   return _resolveCcsDir().dir;
@@ -103,12 +117,13 @@ export function getCcsDirSource(): [string, string] {
 }
 
 /**
- * Get the CCS directory as a user-facing display path.
+ * Get the config directory as a user-facing display path.
  * Keeps the default path concise while preserving explicit overrides.
  */
 export function getCcsDirDisplay(): string {
   const [source, dir] = getCcsDirSource();
-  return source === 'default' ? '~/.ccs' : dir;
+  if (source === 'default') return '~/.scc';
+  return dir;
 }
 
 /**
@@ -153,7 +168,7 @@ export function getCcsHooksDir(): string {
  * @deprecated Use getActiveConfigPath() for mode-aware config path
  */
 export function getConfigPath(): string {
-  return process.env.CCS_CONFIG || path.join(getCcsDir(), 'config.json');
+  return process.env.SCC_CONFIG || process.env.CCS_CONFIG || path.join(getCcsDir(), 'config.json');
 }
 
 /**

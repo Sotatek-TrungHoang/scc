@@ -48,38 +48,38 @@ function writeGroupedCommands(group: RootCommandEntry['group'], writeLine: HelpW
 
 async function showProfilesHelp(writeLine: HelpWriter): Promise<void> {
   await initUI();
-  writeLine(header('CCS Profiles Help'));
+  writeLine(header('SCC Profiles Help'));
   writeLine('');
   writeCommandTable(
     'Profile Types',
     [
-      { name: 'ccs auth create <name>', summary: 'Concurrent Claude account profile' },
-      { name: 'ccs api create', summary: 'API-backed settings profile' },
-      { name: 'ccs cliproxy create <name>', summary: 'Named CLIProxy variant profile' },
-      { name: 'ccs env <profile>', summary: 'Export an existing profile for other tools' },
+      { name: 'scc auth create <name>', summary: 'Concurrent Claude account profile' },
+      { name: 'scc api create', summary: 'API-backed settings profile' },
+      { name: 'scc cliproxy create <name>', summary: 'Named CLIProxy variant profile' },
+      { name: 'scc env <profile>', summary: 'Export an existing profile for other tools' },
     ],
     writeLine
   );
   writeCommandTable('Examples', ROOT_PROFILE_EXAMPLES, writeLine);
-  writeLine(`  ${dim('Deep help: ccs auth --help | ccs api --help | ccs cliproxy --help')}`);
+  writeLine(`  ${dim('Deep help: scc auth --help | scc api --help | scc cliproxy --help')}`);
   writeLine('');
 }
 
 async function showProvidersHelp(writeLine: HelpWriter): Promise<void> {
   await initUI();
-  writeLine(header('CCS Providers Help'));
+  writeLine(header('SCC Providers Help'));
   writeLine('');
   writeCommandTable('Built-in OAuth Providers', BUILTIN_PROVIDER_SHORTCUTS, writeLine);
   writeCommandTable(
     'Common Setup Paths',
     [
       {
-        name: 'ccs <provider> --auth',
+        name: 'scc <provider> --auth',
         summary: 'Authenticate a provider account without launching',
       },
-      { name: 'ccs api create --preset <id>', summary: 'Create an API-backed provider profile' },
-      { name: 'ccs config', summary: 'Use the dashboard for provider and model setup' },
-      { name: 'ccs help kiro', summary: 'Kiro-specific auth methods and IDC flags' },
+      { name: 'scc api create --preset <id>', summary: 'Create an API-backed provider profile' },
+      { name: 'scc config', summary: 'Use the dashboard for provider and model setup' },
+      { name: 'scc help kiro', summary: 'Kiro-specific auth methods and IDC flags' },
     ],
     writeLine
   );
@@ -87,21 +87,21 @@ async function showProvidersHelp(writeLine: HelpWriter): Promise<void> {
     'GitLab Duo Flags',
     [
       {
-        name: 'ccs gitlab --auth --gitlab-token-login',
+        name: 'scc gitlab --auth --gitlab-token-login',
         summary: 'Authenticate with a GitLab Personal Access Token',
       },
       {
-        name: 'ccs gitlab --auth --token-login',
+        name: 'scc gitlab --auth --token-login',
         summary: 'Legacy alias for GitLab PAT login (still supported)',
       },
       {
-        name: 'ccs gitlab --auth --gitlab-url <url>',
+        name: 'scc gitlab --auth --gitlab-url <url>',
         summary: 'Use a self-hosted GitLab base URL during OAuth or PAT auth',
       },
     ],
     writeLine
   );
-  writeLine(`  ${dim('Deep help: ccs cliproxy --help | ccs api --help')}`);
+  writeLine(`  ${dim('Deep help: scc cliproxy --help | scc api --help')}`);
   writeLine('');
 }
 
@@ -117,17 +117,17 @@ export async function showProviderShortcutHelp(
   await initUI();
 
   const providerEntry = BUILTIN_PROVIDER_SHORTCUTS.find((entry) => entry.name === provider);
-  writeLine(header(`CCS ${provider} Shortcut Help`));
+  writeLine(header(`SCC ${provider} Shortcut Help`));
   writeLine('');
   writeLine(`  ${providerEntry?.summary || 'CLIProxy OAuth provider shortcut'}.`);
   writeLine('');
   writeCommandTable(
     'Common Commands',
     [
-      { name: `ccs ${provider} --auth`, summary: 'Authenticate the provider account via CLIProxy' },
-      { name: `ccs ${provider} --accounts`, summary: 'List or manage stored CLIProxy accounts' },
-      { name: `ccs ${provider} --config`, summary: 'Open the provider config flow' },
-      { name: `ccs ${provider} "task"`, summary: 'Run Claude through this provider shortcut' },
+      { name: `scc ${provider} --auth`, summary: 'Authenticate the provider account via CLIProxy' },
+      { name: `scc ${provider} --accounts`, summary: 'List or manage stored CLIProxy accounts' },
+      { name: `scc ${provider} --config`, summary: 'Open the provider config flow' },
+      { name: `scc ${provider} "task"`, summary: 'Run Claude through this provider shortcut' },
     ],
     writeLine
   );
@@ -153,30 +153,30 @@ export async function showProviderShortcutHelp(
     );
   }
 
-  writeLine(`  ${dim('See also: ccs help providers | ccs cliproxy --help')}`);
+  writeLine(`  ${dim('See also: scc help providers | scc cliproxy --help')}`);
   writeLine('');
 }
 
 async function showKiroHelp(writeLine: HelpWriter): Promise<void> {
   await initUI();
-  writeLine(header('CCS Kiro Help'));
+  writeLine(header('SCC Kiro Help'));
   writeLine('');
   writeLine('  Kiro supports Builder ID, IDC, and management-only social OAuth flows.');
   writeLine('');
   writeCommandTable(
     'Authentication Methods',
     [
-      { name: 'ccs kiro --auth', summary: 'Default AWS Builder ID device-code flow' },
+      { name: 'scc kiro --auth', summary: 'Default AWS Builder ID device-code flow' },
       {
-        name: 'ccs kiro --auth --kiro-auth-method aws-authcode',
+        name: 'scc kiro --auth --kiro-auth-method aws-authcode',
         summary: 'AWS Builder ID auth-code flow via local callback server',
       },
       {
-        name: 'ccs kiro --auth --kiro-auth-method idc',
+        name: 'scc kiro --auth --kiro-auth-method idc',
         summary: 'IAM Identity Center flow; requires IDC start URL',
       },
       {
-        name: 'ccs config',
+        name: 'scc config',
         summary: 'Dashboard flow for GitHub OAuth and account management',
       },
     ],
@@ -203,42 +203,42 @@ async function showKiroHelp(writeLine: HelpWriter): Promise<void> {
   writeCommandTable(
     'Examples',
     [
-      { name: 'ccs kiro --auth', summary: 'Start the default Builder ID device flow' },
+      { name: 'scc kiro --auth', summary: 'Start the default Builder ID device flow' },
       {
-        name: 'ccs kiro --auth --kiro-auth-method aws-authcode --paste-callback',
+        name: 'scc kiro --auth --kiro-auth-method aws-authcode --paste-callback',
         summary: 'Use auth-code flow and paste the callback URL manually',
       },
       {
-        name: 'ccs kiro --auth --kiro-auth-method idc --kiro-idc-start-url https://d-xxx.awsapps.com/start',
+        name: 'scc kiro --auth --kiro-auth-method idc --kiro-idc-start-url https://d-xxx.awsapps.com/start',
         summary: 'Start IDC auth with the default authcode flow',
       },
       {
-        name: 'ccs kiro --auth --kiro-auth-method idc --kiro-idc-start-url https://d-xxx.awsapps.com/start --kiro-idc-flow device',
+        name: 'scc kiro --auth --kiro-auth-method idc --kiro-idc-start-url https://d-xxx.awsapps.com/start --kiro-idc-flow device',
         summary: 'Use IDC device-code flow instead of authcode',
       },
     ],
     writeLine
   );
   writeLine(
-    `  ${dim('GitHub OAuth is dashboard-only: ccs config -> Accounts -> Add Kiro account')}`
+    `  ${dim('GitHub OAuth is dashboard-only: scc config -> Accounts -> Add Kiro account')}`
   );
   writeLine('');
 }
 
 async function showTargetsHelp(writeLine: HelpWriter): Promise<void> {
   await initUI();
-  writeLine(header('CCS Targets Help'));
+  writeLine(header('SCC Targets Help'));
   writeLine('');
   writeCommandTable('Target Routing', ROOT_COMPATIBLE_ALIAS_EXAMPLES, writeLine);
   writeCommandTable(
     'Examples',
     [
-      { name: 'ccs glm --target droid', summary: 'Run a profile on Droid instead of Claude' },
+      { name: 'scc glm --target droid', summary: 'Run a profile on Droid instead of Claude' },
       {
-        name: 'ccs --target codex',
+        name: 'scc --target codex',
         summary: 'Open a native Codex session with your current setup',
       },
-      { name: 'ccs codex-api --target codex', summary: 'Run a routed API bridge on native Codex' },
+      { name: 'scc codex-api --target codex', summary: 'Run a routed API bridge on native Codex' },
     ],
     writeLine
   );
@@ -247,15 +247,15 @@ async function showTargetsHelp(writeLine: HelpWriter): Promise<void> {
 export async function handleHelpCommand(writeLine: HelpWriter = console.log): Promise<void> {
   await initUI();
 
-  writeLine(header(`CCS CLI v${packageJson.version}`));
+  writeLine(header(`SCC CLI v${packageJson.version}`));
   writeLine('');
   writeLine('  Claude profile switching, provider routing, runtime bridges, and browser tooling.');
   writeLine('');
 
   writeLine(subheader('Usage'));
-  writeLine(`  ${color('ccs <profile> [claude-args...]', 'command')}`);
-  writeLine(`  ${color('ccs <command> [options]', 'command')}`);
-  writeLine(`  ${color('ccs help <topic>', 'command')}`);
+  writeLine(`  ${color('scc <profile> [claude-args...]', 'command')}`);
+  writeLine(`  ${color('scc <command> [options]', 'command')}`);
+  writeLine(`  ${color('scc help <topic>', 'command')}`);
   writeLine('');
 
   writeGroupedCommands('start', writeLine);
@@ -266,7 +266,7 @@ export async function handleHelpCommand(writeLine: HelpWriter = console.log): Pr
   writeCommandTable(
     'OAuth Provider Shortcuts',
     BUILTIN_PROVIDER_SHORTCUTS.map((entry) => ({
-      name: `ccs ${entry.name}`,
+      name: `scc ${entry.name}`,
       summary: entry.summary,
     })),
     writeLine
@@ -277,20 +277,20 @@ export async function handleHelpCommand(writeLine: HelpWriter = console.log): Pr
   writeCommandTable(
     'More Help',
     [
-      { name: 'ccs help profiles', summary: getTopicSummary('profiles') },
-      { name: 'ccs help providers', summary: getTopicSummary('providers') },
-      { name: 'ccs help browser', summary: getTopicSummary('browser') },
-      { name: 'ccs help completion', summary: getTopicSummary('completion') },
-      { name: 'ccs help targets', summary: getTopicSummary('targets') },
-      { name: 'ccs api --help', summary: 'Deep help for API profile lifecycle commands' },
+      { name: 'scc help profiles', summary: getTopicSummary('profiles') },
+      { name: 'scc help providers', summary: getTopicSummary('providers') },
+      { name: 'scc help browser', summary: getTopicSummary('browser') },
+      { name: 'scc help completion', summary: getTopicSummary('completion') },
+      { name: 'scc help targets', summary: getTopicSummary('targets') },
+      { name: 'scc api --help', summary: 'Deep help for API profile lifecycle commands' },
       {
-        name: 'ccs cliproxy --help',
+        name: 'scc cliproxy --help',
         summary: 'Deep help for variants, routing, quota, and lifecycle',
       },
-      { name: 'ccs proxy --help', summary: 'Deep help for the OpenAI-compatible local proxy' },
-      { name: 'ccs docker --help', summary: 'Deep help for Docker deployment commands' },
-      { name: 'ccs cursor --help', summary: 'Deep help for Cursor runtime/admin commands' },
-      { name: 'ccs copilot --help', summary: 'Deep help for GitHub Copilot commands' },
+      { name: 'scc proxy --help', summary: 'Deep help for the OpenAI-compatible local proxy' },
+      { name: 'scc docker --help', summary: 'Deep help for Docker deployment commands' },
+      { name: 'scc cursor --help', summary: 'Deep help for Cursor runtime/admin commands' },
+      { name: 'scc copilot --help', summary: 'Deep help for GitHub Copilot commands' },
     ],
     writeLine
   );

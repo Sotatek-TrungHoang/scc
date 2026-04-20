@@ -2,9 +2,9 @@ import * as path from 'path';
 import { getCcsDir } from '../utils/config-manager';
 import type { DockerConfigSummary } from './docker-types';
 
-export const DOCKER_REMOTE_DIR = '~/.ccs/docker';
-export const DOCKER_COMPOSE_SERVICE = 'ccs-cliproxy';
-export const DOCKER_CONTAINER_NAME = 'ccs-cliproxy';
+export const DOCKER_REMOTE_DIR = '~/.scc/docker';
+export const DOCKER_COMPOSE_SERVICE = 'scc-cliproxy';
+export const DOCKER_CONTAINER_NAME = 'scc-cliproxy';
 export const DOCKER_DEFAULT_DASHBOARD_PORT = 3000;
 export const DOCKER_DEFAULT_PROXY_PORT = 8317;
 

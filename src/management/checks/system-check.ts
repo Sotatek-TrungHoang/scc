@@ -8,7 +8,7 @@ import { getClaudeCliInfo } from '../../utils/claude-detector';
 import { escapeShellArg, stripClaudeCodeEnv } from '../../utils/shell-executor';
 import { ok, fail } from '../../utils/ui';
 import { HealthCheck, IHealthChecker, createSpinner } from './types';
-import { getCcsDir } from '../../utils/config-manager';
+import { getCcsDir, getCcsDirDisplay } from '../../utils/config-manager';
 
 const ora = createSpinner();
 
@@ -93,10 +93,10 @@ export class ClaudeCliChecker implements IHealthChecker {
 }
 
 /**
- * Check ~/.ccs/ directory exists
+ * Check config directory exists
  */
 export class CcsDirectoryChecker implements IHealthChecker {
-  name = 'CCS Directory';
+  name = 'SCC Directory';
   private readonly ccsDir: string;
 
   constructor() {
@@ -104,22 +104,22 @@ export class CcsDirectoryChecker implements IHealthChecker {
   }
 
   run(results: HealthCheck): void {
-    const spinner = ora('Checking ~/.ccs/ directory').start();
+    const spinner = ora('Checking config directory').start();
 
     if (fs.existsSync(this.ccsDir)) {
       spinner.succeed();
-      console.log(`  ${ok('CCS Directory'.padEnd(22))}  ~/.ccs/`);
-      results.addCheck('CCS Directory', 'success', undefined, undefined, {
+      console.log(`  ${ok('SCC Directory'.padEnd(22))}  ${getCcsDirDisplay()}`);
+      results.addCheck('SCC Directory', 'success', undefined, undefined, {
         status: 'OK',
-        info: '~/.ccs/',
+        info: getCcsDirDisplay(),
       });
     } else {
       spinner.fail();
-      console.log(`  ${fail('CCS Directory'.padEnd(22))}  Not found`);
+      console.log(`  ${fail('SCC Directory'.padEnd(22))}  Not found`);
       results.addCheck(
-        'CCS Directory',
+        'SCC Directory',
         'error',
-        '~/.ccs/ directory not found',
+        'Config directory not found',
         'Run: npm install -g @kaitranntt/ccs --force',
         { status: 'ERROR', info: 'Not found' }
       );

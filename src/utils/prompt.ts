@@ -42,6 +42,7 @@ export class InteractivePrompt {
 
     // Check for --yes flag (automation) - always returns true
     if (
+      process.env.SCC_YES === '1' ||
       process.env.CCS_YES === '1' ||
       process.argv.includes('--yes') ||
       process.argv.includes('-y')
@@ -50,7 +51,11 @@ export class InteractivePrompt {
     }
 
     // Check for --no-input flag (CI)
-    if (process.env.CCS_NO_INPUT === '1' || process.argv.includes('--no-input')) {
+    if (
+      process.env.SCC_NO_INPUT === '1' ||
+      process.env.CCS_NO_INPUT === '1' ||
+      process.argv.includes('--no-input')
+    ) {
       throw new Error('Interactive input required but --no-input specified');
     }
 
@@ -263,6 +268,7 @@ export class InteractivePrompt {
 
     // Check for --yes flag (automation) - use default
     if (
+      process.env.SCC_YES === '1' ||
       process.env.CCS_YES === '1' ||
       process.argv.includes('--yes') ||
       process.argv.includes('-y')
@@ -272,7 +278,11 @@ export class InteractivePrompt {
     }
 
     // Check for --no-input flag (CI)
-    if (process.env.CCS_NO_INPUT === '1' || process.argv.includes('--no-input')) {
+    if (
+      process.env.SCC_NO_INPUT === '1' ||
+      process.env.CCS_NO_INPUT === '1' ||
+      process.argv.includes('--no-input')
+    ) {
       console.error(`[i] Using default: ${options[defaultIndex].label}`);
       return options[defaultIndex].id;
     }

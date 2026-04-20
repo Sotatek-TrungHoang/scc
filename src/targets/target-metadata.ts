@@ -15,13 +15,13 @@ export const TARGET_METADATA: Record<TargetType, TargetMetadata> = {
   },
   droid: {
     displayName: 'Factory Droid',
-    runtimeAliases: ['ccs-droid', 'ccsd'],
+    runtimeAliases: ['scc-droid', 'sccd', 'ccs-droid', 'ccsd'],
     legacyAliasEnvVar: 'CCS_DROID_ALIASES',
     persistedTarget: true,
   },
   codex: {
     displayName: 'Codex CLI',
-    runtimeAliases: ['ccs-codex', 'ccsx'],
+    runtimeAliases: ['scc-codex', 'sccx', 'ccs-codex', 'ccsx'],
     legacyAliasEnvVar: 'CCS_CODEX_ALIASES',
     persistedTarget: false,
   },

@@ -16,7 +16,7 @@ import { getProfileLookupCandidates } from '../utils/profile-compat';
  */
 export async function handleVersionCommand(): Promise<void> {
   await initUI();
-  console.log(header(`CCS (Claude Code Switch) v${getVersion()}`));
+  console.log(header(`SCC (Claude Code Switch) v${getVersion()}`));
   console.log('');
 
   console.log(subheader('Installation:'));
@@ -24,7 +24,7 @@ export async function handleVersionCommand(): Promise<void> {
   console.log(`  ${color('Location:'.padEnd(17), 'info')} ${installLocation}`);
 
   const ccsDir = getCcsDir();
-  console.log(`  ${color('CCS Directory:'.padEnd(17), 'info')} ${ccsDir}`);
+  console.log(`  ${color('SCC Directory:'.padEnd(17), 'info')} ${ccsDir}`);
 
   const configPath = getActiveConfigPath();
   console.log(`  ${color('Config:'.padEnd(17), 'info')} ${configPath}`);
@@ -85,7 +85,7 @@ export async function handleVersionCommand(): Promise<void> {
   console.log(`${subheader('Documentation:')} ${color('https://docs.ccs.kaitran.ca', 'path')}`);
   console.log(`${subheader('License:')} MIT`);
   console.log('');
-  console.log(color("Run 'ccs --help' for usage information", 'command'));
+  console.log(color("Run 'scc --help' for usage information", 'command'));
 
   process.exit(0);
 }

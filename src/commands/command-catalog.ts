@@ -224,8 +224,8 @@ export const ROOT_PROFILE_EXAMPLES: readonly ShortcutEntry[] = [
 
 export const ROOT_COMPATIBLE_ALIAS_EXAMPLES: readonly ShortcutEntry[] = [
   { name: '--target claude|droid|codex', summary: 'Route a profile to the target runtime' },
-  { name: 'ccs-droid / ccsd', summary: 'Explicit Droid runtime aliases' },
-  { name: 'ccs-codex / ccsx / ccsxp', summary: 'Explicit Codex runtime aliases' },
+  { name: 'scc-droid / sccd', summary: 'Explicit Droid runtime aliases' },
+  { name: 'scc-codex / sccx / sccxp', summary: 'Explicit Codex runtime aliases' },
 ] as const;
 
 export const ROOT_COMMAND_FLAGS = [

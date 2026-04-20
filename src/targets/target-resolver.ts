@@ -28,7 +28,11 @@ const INTERNAL_ENTRY_TARGET_ENV_VAR = 'CCS_INTERNAL_ENTRY_TARGET';
 const GENERIC_TARGET_ALIAS_ENV_VAR = 'CCS_TARGET_ALIASES';
 const LEGACY_TARGET_ALIAS_ENV_VARS: Partial<Record<TargetType, string>> =
   getLegacyTargetAliasEnvVars();
-const RESERVED_BIN_NAMES = new Set<string>(['ccs', ...Object.keys(BUILTIN_ARGV0_TARGET_MAP)]);
+const RESERVED_BIN_NAMES = new Set<string>([
+  'scc',
+  'ccs',
+  ...Object.keys(BUILTIN_ARGV0_TARGET_MAP),
+]);
 
 function addAliasToMap(map: Record<string, TargetType>, alias: string, target: TargetType): void {
   const normalizedAlias = alias.trim().toLowerCase();

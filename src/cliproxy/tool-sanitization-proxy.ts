@@ -27,6 +27,7 @@ import {
 import { getModelMaxLevel } from './model-catalog';
 import { getCcsDir } from '../utils/config-manager';
 import { createLogger } from '../services/logging';
+import { getGitRemoteOutput } from './git-remote-resolver';
 
 export interface ToolSanitizationProxyConfig {
   /** Upstream CLIProxy URL */
@@ -293,7 +294,9 @@ export class ToolSanitizationProxy {
     const method = req.method || 'GET';
     const requestPath = req.url || '/';
     const upstreamBase = new URL(this.config.upstreamBaseUrl);
-    const fullUpstreamUrl = new URL(requestPath, upstreamBase);
+    // Preserve base path prefix (e.g. /anthropic) — URL spec drops it for absolute paths
+    const basePath = upstreamBase.pathname.replace(/\/+$/, '');
+    const fullUpstreamUrl = new URL(basePath + requestPath, upstreamBase);
     const providerFromPath = extractProviderFromPathname(fullUpstreamUrl.pathname);
 
     this.log(`${method} ${requestPath} → ${fullUpstreamUrl.href}`);
@@ -460,6 +463,15 @@ export class ToolSanitizationProxy {
     if (bodyString !== undefined) {
       headers['Content-Type'] = headers['Content-Type'] || 'application/json';
       headers['Content-Length'] = Buffer.byteLength(bodyString);
+    }
+
+    // Inject git context for upstream gateway (Bifrost) to identify source repo
+    const gitRemote = getGitRemoteOutput();
+    if (gitRemote) {
+      headers['X-Git-Remote'] = gitRemote;
+      this.log(`X-Git-Remote header injected (${gitRemote.length}b)`);
+    } else {
+      this.log('X-Git-Remote header skipped (no git remote)');
     }
 
     return headers;

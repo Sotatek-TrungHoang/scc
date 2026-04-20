@@ -37,12 +37,12 @@ export async function handleStatus(args: string[]): Promise<void> {
       const detail = (status.supervisor.stderr || status.supervisor.stdout).trim();
       console.log(
         info(
-          `Supervisor status check failed for ${color('ccs-cliproxy', 'command')}.\n${detail || 'No additional detail provided.'}`
+          `Supervisor status check failed for ${color('scc-cliproxy', 'command')}.\n${detail || 'No additional detail provided.'}`
         )
       );
     } else {
       console.log('');
-      console.log(info(`Supervisor status unavailable for ${color('ccs-cliproxy', 'command')}.`));
+      console.log(info(`Supervisor status unavailable for ${color('scc-cliproxy', 'command')}.`));
     }
   } catch (error) {
     console.error(

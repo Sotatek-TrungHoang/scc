@@ -41,7 +41,7 @@ async function validateProviderKey(
   baseUrl?: string,
   timeoutMs = 2000
 ): Promise<ValidationResult> {
-  if (process.env.CCS_SKIP_PREFLIGHT === '1') {
+  if (process.env.SCC_SKIP_PREFLIGHT === '1' || process.env.CCS_SKIP_PREFLIGHT === '1') {
     return { valid: true };
   }
 
@@ -172,7 +172,7 @@ export async function validateAnthropicKey(
   apiKey: string,
   timeoutMs = 2000
 ): Promise<ValidationResult> {
-  if (process.env.CCS_SKIP_PREFLIGHT === '1') {
+  if (process.env.SCC_SKIP_PREFLIGHT === '1' || process.env.CCS_SKIP_PREFLIGHT === '1') {
     return { valid: true };
   }
 

@@ -49,7 +49,10 @@ function isTruthyEnv(value: string | undefined): boolean {
 }
 
 export function isAntigravityResponsibilityBypassEnabled(): boolean {
-  if (isTruthyEnv(process.env.CCS_ACCEPT_AGY_RISK)) {
+  if (
+    isTruthyEnv(process.env.SCC_ACCEPT_AGY_RISK) ||
+    isTruthyEnv(process.env.CCS_ACCEPT_AGY_RISK)
+  ) {
     return true;
   }
 

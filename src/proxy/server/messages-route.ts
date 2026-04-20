@@ -7,6 +7,7 @@ import { ProxySseStreamTransformer } from '../transformers/sse-stream-transforme
 import { resolveOpenAIChatCompletionsUrl } from '../upstream-url';
 import { createLogger } from '../../services/logging';
 import { pipeWebResponseToNode, readJsonBody, writeJson } from './http-helpers';
+import { getGitRemoteOutput } from '../../cliproxy/git-remote-resolver';
 
 const REQUEST_TIMEOUT_MS = 600_000;
 const logger = createLogger('proxy:openai-compat:messages');
@@ -19,11 +20,16 @@ class ProxyInputError extends Error {
 }
 
 function buildUpstreamHeaders(profile: OpenAICompatProfileConfig): Record<string, string> {
-  return {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${profile.apiKey}`,
     'User-Agent': 'CCS-OpenAI-Compat-Proxy/1.0',
   };
+  const gitRemote = getGitRemoteOutput();
+  if (gitRemote) {
+    headers['X-Git-Remote'] = gitRemote;
+  }
+  return headers;
 }
 
 function buildUpstreamRequest(
