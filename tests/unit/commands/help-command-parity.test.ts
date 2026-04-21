@@ -46,7 +46,7 @@ describe('help command parity', () => {
     const rendered = await renderLines((writeLine) => handleHelpRoute(['providers'], writeLine));
 
     expect(rendered.includes('Built-in OAuth Providers')).toBe(true);
-    expect(rendered.includes('ccs cliproxy --help')).toBe(true);
+    expect(rendered.includes('scc cliproxy --help')).toBe(true);
     expect(rendered.includes('ccs help kiro')).toBe(true);
     expect(rendered.includes('gemini')).toBe(true);
     expect(rendered.includes('codex')).toBe(true);
