@@ -131,48 +131,49 @@ describe('cross-platform', () => {
       const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
       assert(packageJson.bin, 'package.json should have bin field');
-      assert(packageJson.bin.ccs, 'bin field should specify ccs command');
-      assert(packageJson.bin['ccs-droid'], 'bin field should specify ccs-droid command');
-      assert(packageJson.bin.ccsd, 'bin field should specify ccsd command');
-      assert(packageJson.bin['ccs-codex'], 'bin field should specify ccs-codex command');
-      assert(packageJson.bin.ccsx, 'bin field should specify ccsx command');
-      assert(packageJson.bin.ccsxp, 'bin field should specify ccsxp command');
+      assert(packageJson.bin.scc, 'bin field should specify scc command');
+      assert(packageJson.bin['scc-droid'], 'bin field should specify scc-droid command');
+      assert(packageJson.bin.sccd, 'bin field should specify sccd command');
+      assert(packageJson.bin['scc-codex'], 'bin field should specify scc-codex command');
+      assert(packageJson.bin.sccx, 'bin field should specify sccx command');
+      assert(packageJson.bin.sccxp, 'bin field should specify sccxp command');
+      assert(!packageJson.bin.ccs, 'bin field should NOT specify ccs command (independent from CCS)');
       assert.notStrictEqual(
-        packageJson.bin['ccs-droid'],
-        packageJson.bin.ccs,
-        'ccs-droid should use a dedicated runtime entrypoint'
+        packageJson.bin['scc-droid'],
+        packageJson.bin.scc,
+        'scc-droid should use a dedicated runtime entrypoint'
       );
       assert.strictEqual(
-        packageJson.bin['ccs-droid'],
-        packageJson.bin.ccsd,
-        'legacy ccsd alias should share the dedicated droid runtime entrypoint'
+        packageJson.bin['scc-droid'],
+        packageJson.bin.sccd,
+        'sccd alias should share the dedicated droid runtime entrypoint'
       );
       assert.notStrictEqual(
-        packageJson.bin['ccs-codex'],
-        packageJson.bin.ccs,
-        'ccs-codex should use a dedicated runtime entrypoint'
+        packageJson.bin['scc-codex'],
+        packageJson.bin.scc,
+        'scc-codex should use a dedicated runtime entrypoint'
       );
       assert.strictEqual(
-        packageJson.bin['ccs-codex'],
-        packageJson.bin.ccsx,
-        'ccsx should share the dedicated codex runtime entrypoint'
+        packageJson.bin['scc-codex'],
+        packageJson.bin.sccx,
+        'sccx should share the dedicated codex runtime entrypoint'
       );
       assert.notStrictEqual(
-        packageJson.bin.ccsxp,
-        packageJson.bin.ccsx,
-        'ccsxp should use a dedicated shortcut entrypoint'
+        packageJson.bin.sccxp,
+        packageJson.bin.sccx,
+        'sccxp should use a dedicated shortcut entrypoint'
       );
       assert(
-        fs.existsSync(path.join(__dirname, '..', '..', packageJson.bin['ccs-droid'])),
+        fs.existsSync(path.join(__dirname, '..', '..', packageJson.bin['scc-droid'])),
         'dedicated droid runtime entrypoint should exist'
       );
       assert(
-        fs.existsSync(path.join(__dirname, '..', '..', packageJson.bin['ccs-codex'])),
+        fs.existsSync(path.join(__dirname, '..', '..', packageJson.bin['scc-codex'])),
         'dedicated codex runtime entrypoint should exist'
       );
       assert(
-        fs.existsSync(path.join(__dirname, '..', '..', packageJson.bin.ccsxp)),
-        'dedicated ccsxp shortcut entrypoint should exist'
+        fs.existsSync(path.join(__dirname, '..', '..', packageJson.bin.sccxp)),
+        'dedicated sccxp shortcut entrypoint should exist'
       );
       assert(packageJson.scripts, 'package.json should have scripts field');
       assert.strictEqual(
