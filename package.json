@@ -1,5 +1,8 @@
 {
   "name": "@sotadev/scc",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "7.74.0",
   "description": "Switch Claude Code - Instant profile switching between Claude, GLM, Kimi, and more",
   "keywords": [
