@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "7.74.0",
+  "version": "7.74.1",
   "description": "Switch Claude Code - Instant profile switching between Claude, GLM, Kimi, and more",
   "keywords": [
     "cli",
@@ -95,7 +95,10 @@
     "ui:validate": "cd ui && bun run validate",
     "prepack": "bun run build:all",
     "prepare": "husky",
-    "postinstall": "node scripts/postinstall.js"
+    "postinstall": "node scripts/postinstall.js",
+    "release:patch": "npm version patch && npm run build && npm publish --access public",
+    "release:minor": "npm version minor && npm run build && npm publish --access public",
+    "release:major": "npm version minor && npm run build && npm publish --access public"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
