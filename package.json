@@ -1,5 +1,5 @@
 {
-  "name": "scc",
+  "name": "@sotadev/scc",
   "version": "7.74.0",
   "description": "Switch Claude Code - Instant profile switching between Claude, GLM, Kimi, and more",
   "keywords": [
