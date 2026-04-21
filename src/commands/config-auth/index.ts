@@ -24,7 +24,7 @@ async function ensureNoConfigAuthArgs(command: string, args: string[]): Promise<
   console.log(fail(`Unexpected arguments for "config auth ${command}": ${args.join(' ')}`));
   console.log('');
   console.log('Run for help:');
-  console.log(`  ${color('ccs config auth --help', 'command')}`);
+  console.log(`  ${color('scc config auth --help', 'command')}`);
   process.exit(1);
 }
 
@@ -59,7 +59,7 @@ async function showHelp(): Promise<void> {
   console.log(header('Dashboard Auth Management'));
   console.log('');
   console.log(subheader('Usage'));
-  console.log(`  ${color('ccs config auth', 'command')} <command>`);
+  console.log(`  ${color('scc config auth', 'command')} <command>`);
   console.log('');
   console.log(subheader('Commands'));
   console.log(`  ${color('setup', 'command')}               Configure username and password`);
@@ -68,13 +68,13 @@ async function showHelp(): Promise<void> {
   console.log('');
   console.log(subheader('Examples'));
   console.log(`  ${dim('# Interactive setup wizard')}`);
-  console.log(`  ${color('ccs config auth setup', 'command')}`);
+  console.log(`  ${color('scc config auth setup', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Check current status')}`);
-  console.log(`  ${color('ccs config auth show', 'command')}`);
+  console.log(`  ${color('scc config auth show', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Disable authentication')}`);
-  console.log(`  ${color('ccs config auth disable', 'command')}`);
+  console.log(`  ${color('scc config auth disable', 'command')}`);
   console.log('');
   console.log(subheader('Environment Variables'));
   console.log('  These override config.yaml values:');
@@ -103,7 +103,7 @@ export async function handleConfigAuthCommand(args: string[]): Promise<void> {
       console.log(fail(`Unknown command: ${command}`));
       console.log('');
       console.log('Run for help:');
-      console.log(`  ${color('ccs config auth --help', 'command')}`);
+      console.log(`  ${color('scc config auth --help', 'command')}`);
       process.exit(1);
     },
   });

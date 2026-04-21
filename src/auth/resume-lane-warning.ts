@@ -33,11 +33,11 @@ export async function maybeWarnAboutResumeLaneMismatch(
 
     log(
       warn(
-        `Resume for account "${profileName}" will search that account lane, not the current plain ccs lane.`
+        `Resume for account "${profileName}" will search that account lane, not the current plain scc lane.`
       )
     );
     log(info(`  Account lane: ${accountConfigDir}`));
-    log(info(`  Plain ccs lane: ${plainLane.label} (${plainLane.configDir})`));
+    log(info(`  Plain scc lane: ${plainLane.label} (${plainLane.configDir})`));
     if (resumeIntent.explicitSessionId) {
       log(
         info(
@@ -45,10 +45,10 @@ export async function maybeWarnAboutResumeLaneMismatch(
         )
       );
     }
-    log(info('  Recover the original lane first: ccs -r'));
-    log(info('  Back it up before changing setup: ccs auth backup default'));
+    log(info('  Recover the original lane first: scc -r'));
+    log(info('  Back it up before changing setup: scc auth backup default'));
     log(
-      info(`  For future work, align plain ccs with this account: ccs auth default ${profileName}`)
+      info(`  For future work, align plain scc with this account: scc auth default ${profileName}`)
     );
     log('');
   } catch (error) {

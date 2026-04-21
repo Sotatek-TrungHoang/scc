@@ -14,17 +14,17 @@ import type { ProfileType } from '../types/profile';
 export type TargetType = 'claude' | 'droid' | 'codex';
 
 /**
- * Credentials resolved by CCS profile system, ready for delivery to target CLI.
+ * Credentials resolved by SCC profile system, ready for delivery to target CLI.
  */
 export interface TargetCredentials {
-  /** CCS profile name (e.g., 'gemini', 'codex', 'glm') */
+  /** SCC profile name (e.g., 'gemini', 'codex', 'glm') */
   profile: string;
   baseUrl: string;
   apiKey: string;
   model?: string;
   provider?: 'anthropic' | 'openai' | 'generic-chat-completion-api';
   /**
-   * Runtime reasoning/thinking override resolved from CCS flags/env
+   * Runtime reasoning/thinking override resolved from SCC flags/env
    * (e.g. --thinking high, --effort xhigh, CCS_THINKING=medium).
    * Targets may ignore this when unsupported.
    */
@@ -76,7 +76,7 @@ export interface TargetAdapter {
 
   /**
    * Build target-specific argument vector.
-   * `userArgs` are the arguments after CCS profile/flag parsing.
+   * `userArgs` are the arguments after SCC profile/flag parsing.
    */
   buildArgs(
     profile: string,
@@ -90,7 +90,7 @@ export interface TargetAdapter {
 
   /**
    * Build environment variables for process spawn.
-   * `profileType` allows targets to vary env behavior by CCS profile mode.
+   * `profileType` allows targets to vary env behavior by SCC profile mode.
    */
   buildEnv(creds: TargetCredentials, profileType: ProfileType): NodeJS.ProcessEnv;
 
@@ -107,7 +107,7 @@ export interface TargetAdapter {
   ): void;
 
   /**
-   * Report whether this target can run a given CCS profile type.
+   * Report whether this target can run a given SCC profile type.
    */
   supportsProfileType(profileType: ProfileType): boolean;
 }

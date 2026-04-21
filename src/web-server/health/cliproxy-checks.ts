@@ -38,7 +38,7 @@ export function checkCliproxyBinary(): HealthCheck {
         status: 'warning',
         message: `v${version} (faulty)`,
         details: binaryPath,
-        fix: `Upgrade: ccs cliproxy install ${CLIPROXY_MAX_STABLE_VERSION.replace(/-\d+$/, '')}`,
+        fix: `Upgrade: scc cliproxy install ${CLIPROXY_MAX_STABLE_VERSION.replace(/-\d+$/, '')}`,
       };
     }
 
@@ -49,7 +49,7 @@ export function checkCliproxyBinary(): HealthCheck {
         status: 'warning',
         message: `v${version} (experimental)`,
         details: binaryPath,
-        fix: `Stable: ccs cliproxy install ${CLIPROXY_MAX_STABLE_VERSION.replace(/-\d+$/, '')}`,
+        fix: `Stable: scc cliproxy install ${CLIPROXY_MAX_STABLE_VERSION.replace(/-\d+$/, '')}`,
       };
     }
 
@@ -120,7 +120,7 @@ export function checkOAuthProviders(): HealthCheck[] {
         name: `${providerName} Auth`,
         status: 'info',
         message: 'Not authenticated',
-        fix: `Run: ccs ${status.provider} --auth`,
+        fix: `Run: scc ${status.provider} --auth`,
       });
     }
   }

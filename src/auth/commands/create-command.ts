@@ -43,9 +43,9 @@ export async function handleCreate(ctx: CommandContext, args: string[]): Promise
     console.log(fail(`Unknown option(s): ${unknownList}`));
     console.log('');
     console.log(
-      `Usage: ${color('ccs auth create <profile> [--force] [--bare] [--share-context] [--context-group <name>] [--deeper-continuity]', 'command')}`
+      `Usage: ${color('scc auth create <profile> [--force] [--bare] [--share-context] [--context-group <name>] [--deeper-continuity]', 'command')}`
     );
-    console.log(`Help:  ${color('ccs auth --help', 'command')}`);
+    console.log(`Help:  ${color('scc auth --help', 'command')}`);
     console.log('');
     exitWithError(`Unknown option(s): ${unknownList}`, ExitCode.PROFILE_ERROR);
   }
@@ -54,11 +54,11 @@ export async function handleCreate(ctx: CommandContext, args: string[]): Promise
     console.log(fail('Profile name is required'));
     console.log('');
     console.log(
-      `Usage: ${color('ccs auth create <profile> [--force] [--bare] [--share-context] [--context-group <name>] [--deeper-continuity]', 'command')}`
+      `Usage: ${color('scc auth create <profile> [--force] [--bare] [--share-context] [--context-group <name>] [--deeper-continuity]', 'command')}`
     );
     console.log('');
     console.log('Example:');
-    console.log(`  ${color('ccs auth create work', 'command')}`);
+    console.log(`  ${color('scc auth create work', 'command')}`);
     exitWithError('Profile name is required', ExitCode.PROFILE_ERROR);
   }
 
@@ -286,16 +286,16 @@ export async function handleCreate(ctx: CommandContext, args: string[]): Promise
         );
         console.log('');
         console.log(header('Usage'));
-        console.log(`  ${color(`ccs ${profileName} "your prompt here"`, 'command')}`);
+        console.log(`  ${color(`scc ${profileName} "your prompt here"`, 'command')}`);
         console.log('');
         console.log(
           warnBox(
             `Running the command below will SWITCH your default\n` +
-              `CCS account to "${profileName}". After this, running\n` +
+              `SCC account to "${profileName}". After this, running\n` +
               `"ccs" without a profile name will use this account.\n\n` +
-              `  ${color(`ccs auth default ${profileName}`, 'command')}\n\n` +
+              `  ${color(`scc auth default ${profileName}`, 'command')}\n\n` +
               `To restore the original default, run:\n` +
-              `  ${color('ccs auth reset-default', 'command')}`,
+              `  ${color('scc auth reset-default', 'command')}`,
             'Set as Default?'
           )
         );
@@ -308,7 +308,7 @@ export async function handleCreate(ctx: CommandContext, args: string[]): Promise
         console.log(fail('Login failed or cancelled'));
         console.log('');
         console.log('To retry:');
-        console.log(`  ${color(`ccs auth create ${profileName} --force`, 'command')}`);
+        console.log(`  ${color(`scc auth create ${profileName} --force`, 'command')}`);
         console.log('');
         exitWithError('Login failed or cancelled', ExitCode.AUTH_ERROR);
       }

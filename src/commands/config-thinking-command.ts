@@ -2,7 +2,7 @@
  * Config Thinking Command Handler
  *
  * Manages thinking section of config.yaml via CLI.
- * Usage: ccs config thinking [options]
+ * Usage: scc config thinking [options]
  */
 
 import { initUI, header, ok, info, warn, fail, subheader, color, dim } from '../utils/ui';
@@ -27,13 +27,13 @@ export { parseThinkingCommandArgs, parseThinkingOverrideInput } from './config-t
 
 function showHelp(): void {
   console.log('');
-  console.log(header('ccs config thinking'));
+  console.log(header('scc config thinking'));
   console.log('');
   console.log('  Configure extended thinking/reasoning for CLIProxy providers.');
   console.log('');
 
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs config thinking', 'command')} [options]`);
+  console.log(`  ${color('scc config thinking', 'command')} [options]`);
   console.log('');
 
   console.log(subheader('Options:'));
@@ -66,22 +66,22 @@ function showHelp(): void {
 
   console.log(subheader('Examples:'));
   console.log(
-    `  $ ${color('ccs config thinking', 'command')}                            ${dim('# Show status')}`
+    `  $ ${color('scc config thinking', 'command')}                            ${dim('# Show status')}`
   );
   console.log(
-    `  $ ${color('ccs config thinking --mode auto', 'command')}                ${dim('# Auto mode')}`
+    `  $ ${color('scc config thinking --mode auto', 'command')}                ${dim('# Auto mode')}`
   );
   console.log(
-    `  $ ${color('ccs config thinking --mode manual --override high', 'command')} ${dim('# Persistent high')}`
+    `  $ ${color('scc config thinking --mode manual --override high', 'command')} ${dim('# Persistent high')}`
   );
   console.log(
-    `  $ ${color('ccs config thinking --tier opus xhigh', 'command')}          ${dim('# Opus -> xhigh')}`
+    `  $ ${color('scc config thinking --tier opus xhigh', 'command')}          ${dim('# Opus -> xhigh')}`
   );
   console.log(
-    `  $ ${color('ccs config thinking --provider-override codex opus xhigh', 'command')}`
+    `  $ ${color('scc config thinking --provider-override codex opus xhigh', 'command')}`
   );
   console.log(
-    `  $ ${color('ccs config thinking --clear-provider-override codex opus', 'command')}`
+    `  $ ${color('scc config thinking --clear-provider-override codex opus', 'command')}`
   );
   console.log('');
 

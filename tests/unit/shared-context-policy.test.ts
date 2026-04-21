@@ -211,7 +211,7 @@ describe('SharedManager context policy', () => {
     expect(fs.readFileSync(path.join(localTodoDir, 'todo.md'), 'utf8')).toContain('shared todo');
   });
 
-  it('skips merge when projects symlink target is outside canonical CCS roots', async () => {
+  it('skips merge when projects symlink target is outside canonical SCC roots', async () => {
     const ccsDir = getTestCcsDir();
     const instancePath = path.join(ccsDir, 'instances', 'work');
     const projectsPath = path.join(instancePath, 'projects');

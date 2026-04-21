@@ -4,8 +4,8 @@ import type { CursorConfig } from '../config/unified-config-types';
 import { getCcsDirDisplay } from '../utils/config-manager';
 import { color } from '../utils/ui';
 
-const LEGACY_CURSOR_COMMAND = 'ccs legacy cursor';
-const CLIPROXY_CURSOR_COMMAND = 'ccs cursor';
+const LEGACY_CURSOR_COMMAND = 'scc legacy cursor';
+const CLIPROXY_CURSOR_COMMAND = 'scc cursor';
 
 function printLines(lines: string[]): void {
   for (const line of lines) {
@@ -17,9 +17,9 @@ export function renderCursorHelp(): number {
   printLines([
     'Legacy Cursor Compatibility',
     '',
-    'Deprecated: `ccs cursor` now belongs to the CLIProxy Cursor provider.',
+    'Deprecated: `scc cursor` now belongs to the CLIProxy Cursor provider.',
     `Supported auth path: ${CLIPROXY_CURSOR_COMMAND} --auth`,
-    'Supported dashboard path: ccs config -> CLIProxy -> Cursor',
+    'Supported dashboard path: scc config -> CLIProxy -> Cursor',
     '',
     `Usage: ${LEGACY_CURSOR_COMMAND} <subcommand>`,
     '',
@@ -54,7 +54,7 @@ export function renderCursorHelp(): number {
     `  5. ${LEGACY_CURSOR_COMMAND} "task"   # Run Claude through the local bridge`,
     `  6. ${LEGACY_CURSOR_COMMAND} status   # Inspect auth/daemon wiring`,
     '',
-    'Web UI: ccs config -> Deprecated -> Cursor IDE',
+    'Web UI: scc config -> Deprecated -> Cursor IDE',
     '',
   ]);
 
@@ -153,7 +153,7 @@ export function renderCursorModels(models: CursorModel[], defaultModel: string):
 
   console.log('');
   console.log('Model selection is request-driven by the calling client.');
-  console.log('Dashboard: ccs config -> Cursor page');
+  console.log('Dashboard: scc config -> Cursor page');
 }
 
 export function renderCursorProbe(result: CursorProbeResult): void {

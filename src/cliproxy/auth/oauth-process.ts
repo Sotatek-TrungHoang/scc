@@ -587,7 +587,7 @@ async function handleTokenNotFound(
     console.log(fail('Authentication failed before a usable token was saved'));
     console.log(`    ${sanitizedReason}`);
     console.log('');
-    console.log(`Try: ccs ${provider} --auth --verbose`);
+    console.log(`Try: scc ${provider} --auth --verbose`);
     return null;
   }
 
@@ -607,7 +607,7 @@ async function handleTokenNotFound(
     console.log('');
     console.log('To manually import from Kiro IDE:');
     console.log('  1. Ensure you are logged into Kiro IDE');
-    console.log('  2. Run: ccs kiro --import');
+    console.log('  2. Run: scc kiro --import');
     return null;
   }
 
@@ -628,7 +628,7 @@ async function handleTokenNotFound(
     console.log('');
     console.log('Try running as Administrator:');
     console.log(
-      `  netsh advfirewall firewall add rule name="CCS OAuth" dir=in action=allow protocol=TCP localport=${callbackPort}`
+      `  netsh advfirewall firewall add rule name="SCC OAuth" dir=in action=allow protocol=TCP localport=${callbackPort}`
     );
   }
 
@@ -638,7 +638,7 @@ async function handleTokenNotFound(
   console.log('  - Ensure you are on the same machine (localhost callback)');
   console.log('  - Copy the entire URL including all parameters');
   console.log('');
-  console.log(`Try: ccs ${provider} --auth --verbose`);
+  console.log(`Try: scc ${provider} --auth --verbose`);
   return null;
 }
 
@@ -682,7 +682,7 @@ export function executeOAuthProcess(options: OAuthProcessOptions): Promise<Accou
     const knownTokenFiles = listProviderTokenSnapshots(provider, tokenDir);
 
     // Device-code flows can usually inherit stdin, but Kiro's default AWS flow now
-    // prints an intermediate Builder ID vs IDC selector that CCS auto-answers.
+    // prints an intermediate Builder ID vs IDC selector that SCC auto-answers.
     const stdinMode =
       isDeviceCodeFlow &&
       process.stdin.isTTY &&
@@ -808,7 +808,7 @@ export function executeOAuthProcess(options: OAuthProcessOptions): Promise<Accou
           info('Complete the login in your browser. This page will update automatically.')
         );
       }
-      if (!verbose) console.log(info('If stuck, try: ccs ' + provider + ' --auth --verbose'));
+      if (!verbose) console.log(info('If stuck, try: scc ' + provider + ' --auth --verbose'));
     }, 2000);
 
     // Timeout handling

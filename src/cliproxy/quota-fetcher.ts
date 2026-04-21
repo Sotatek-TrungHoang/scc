@@ -813,7 +813,7 @@ export async function fetchAccountQuota(
       lastUpdated: Date.now(),
       error,
       errorCode: 'auth_file_missing',
-      actionHint: 'Reconnect this account so CCS can read a current auth token.',
+      actionHint: 'Reconnect this account so SCC can read a current auth token.',
     };
   }
 

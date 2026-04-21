@@ -27,10 +27,10 @@ export async function showApiCommandHelp(writeLine: HelpWriter = console.log): P
   const presetAliases = getPresetAliases();
   const presetIdWidth = Math.max(0, ...presetIds.map((id) => id.length)) + 2;
 
-  writeLine(header('CCS API Management'));
+  writeLine(header('SCC API Management'));
   writeLine('');
   writeLine(subheader('Usage'));
-  writeLine(`  ${color('ccs api', 'command')} <command> [options]`);
+  writeLine(`  ${color('scc api', 'command')} <command> [options]`);
   writeLine('');
   writeLine(subheader('Commands'));
   writeLine(`  ${color('create [name]', 'command')}    Create new API profile (interactive)`);
@@ -81,20 +81,20 @@ export async function showApiCommandHelp(writeLine: HelpWriter = console.log): P
   writeLine('');
   writeLine(subheader('Examples'));
   writeLine(`  ${dim('# Interactive wizard')}`);
-  writeLine(`  ${color('ccs api create', 'command')}`);
+  writeLine(`  ${color('scc api create', 'command')}`);
   writeLine('');
   writeLine(`  ${dim('# Quick setup with preset')}`);
-  writeLine(`  ${color('ccs api create --preset anthropic', 'command')}`);
+  writeLine(`  ${color('scc api create --preset anthropic', 'command')}`);
   writeLine(
-    `  ${color('ccs api create --preset anthropic --1m', 'command')} ${dim('# explicit Claude [1m] opt-in')}`
+    `  ${color('scc api create --preset anthropic --1m', 'command')} ${dim('# explicit Claude [1m] opt-in')}`
   );
-  writeLine(`  ${color('ccs api create --preset openrouter', 'command')}`);
-  writeLine(`  ${color('ccs api create --preset alibaba-coding-plan', 'command')}`);
-  writeLine(`  ${color('ccs api create --preset alibaba', 'command')} ${dim('# alias')}`);
+  writeLine(`  ${color('scc api create --preset openrouter', 'command')}`);
+  writeLine(`  ${color('scc api create --preset alibaba-coding-plan', 'command')}`);
+  writeLine(`  ${color('scc api create --preset alibaba', 'command')} ${dim('# alias')}`);
   writeLine(
-    `  ${color('ccs api create hf-router --preset hf', 'command')} ${dim('# defaults to droid for generic chat completions')}`
+    `  ${color('scc api create hf-router --preset hf', 'command')} ${dim('# defaults to droid for generic chat completions')}`
   );
-  writeLine(`  ${color('ccs api create --preset glm', 'command')}`);
+  writeLine(`  ${color('scc api create --preset glm', 'command')}`);
   writeLine('');
   writeLine(subheader('Claude Long Context'));
   writeLine(`  ${dim('Plain Claude model IDs stay on standard context by default.')}`);
@@ -102,39 +102,39 @@ export async function showApiCommandHelp(writeLine: HelpWriter = console.log): P
     `  ${dim('Use --1m during create to append [1m] to compatible Claude mappings, or --no-1m to force plain IDs.')}`
   );
   writeLine(
-    `  ${dim('CCS controls only the saved [1m] suffix. Provider pricing/entitlement stay upstream, and some accounts can still return 429 for long-context requests.')}`
+    `  ${dim('SCC controls only the saved [1m] suffix. Provider pricing/entitlement stay upstream, and some accounts can still return 429 for long-context requests.')}`
   );
   writeLine('');
   writeLine(`  ${dim('# Create routed profile from existing CLIProxy provider config')}`);
-  writeLine(`  ${color('ccs api create --cliproxy-provider gemini', 'command')}`);
+  writeLine(`  ${color('scc api create --cliproxy-provider gemini', 'command')}`);
   writeLine(
-    `  ${color('ccs api create gemini-droid --cliproxy-provider gemini --target droid', 'command')}`
+    `  ${color('scc api create gemini-droid --cliproxy-provider gemini --target droid', 'command')}`
   );
-  writeLine(`  ${color('ccs api create codex-api --cliproxy-provider codex', 'command')}`);
+  writeLine(`  ${color('scc api create codex-api --cliproxy-provider codex', 'command')}`);
   writeLine(
-    `  ${color('ccs codex-api --target codex', 'command')} ${dim('# runtime-only native Codex launch')}`
+    `  ${color('scc codex-api --target codex', 'command')} ${dim('# runtime-only native Codex launch')}`
   );
   writeLine('');
   writeLine(`  ${dim('# Create with name')}`);
-  writeLine(`  ${color('ccs api create myapi', 'command')}`);
-  writeLine(`  ${color('ccs api create mydroid --preset glm --target droid', 'command')}`);
+  writeLine(`  ${color('scc api create myapi', 'command')}`);
+  writeLine(`  ${color('scc api create mydroid --preset glm --target droid', 'command')}`);
   writeLine('');
   writeLine(`  ${dim('# Remove API profile')}`);
-  writeLine(`  ${color('ccs api remove myapi', 'command')}`);
+  writeLine(`  ${color('scc api remove myapi', 'command')}`);
   writeLine('');
   writeLine(`  ${dim('# Discover and register orphan settings files')}`);
-  writeLine(`  ${color('ccs api discover', 'command')}`);
-  writeLine(`  ${color('ccs api discover --register', 'command')}`);
+  writeLine(`  ${color('scc api discover', 'command')}`);
+  writeLine(`  ${color('scc api discover --register', 'command')}`);
   writeLine('');
   writeLine(`  ${dim('# Duplicate an existing API profile')}`);
-  writeLine(`  ${color('ccs api copy glm glm-backup', 'command')}`);
+  writeLine(`  ${color('scc api copy glm glm-backup', 'command')}`);
   writeLine('');
   writeLine(`  ${dim('# Export and import across devices')}`);
-  writeLine(`  ${color('ccs api export glm --out ./glm.ccs-profile.json', 'command')}`);
-  writeLine(`  ${color('ccs api import ./glm.ccs-profile.json', 'command')}`);
+  writeLine(`  ${color('scc api export glm --out ./glm.ccs-profile.json', 'command')}`);
+  writeLine(`  ${color('scc api import ./glm.ccs-profile.json', 'command')}`);
   writeLine('');
   writeLine(`  ${dim('# Show all API profiles')}`);
-  writeLine(`  ${color('ccs api list', 'command')}`);
+  writeLine(`  ${color('scc api list', 'command')}`);
   writeLine('');
 }
 
@@ -143,6 +143,6 @@ export async function showUnknownApiCommand(command: string): Promise<void> {
   console.log(fail(`Unknown command: ${command}`));
   console.log('');
   console.log('Run for help:');
-  console.log(`  ${color('ccs api --help', 'command')}`);
+  console.log(`  ${color('scc api --help', 'command')}`);
   process.exit(1);
 }

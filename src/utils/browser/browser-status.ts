@@ -83,9 +83,9 @@ async function buildClaudeBrowserStatus(
       state: 'disabled',
       title: 'Claude Browser Attach is disabled.',
       detail:
-        'CCS will not provision the managed browser MCP runtime for Claude launches until this lane is enabled.',
+        'SCC will not provision the managed browser MCP runtime for Claude launches until this lane is enabled.',
       nextStep:
-        'Enable Claude Browser Attach in Settings > Browser or in ~/.ccs/config.yaml, then rerun `ccs browser doctor`.',
+        'Enable Claude Browser Attach in Settings > Browser or in ~/.ccs/config.yaml, then rerun `scc browser doctor`.',
     };
   }
 
@@ -120,8 +120,8 @@ async function buildClaudeBrowserStatus(
       state: 'ready',
       title: 'Claude Browser Attach is ready.',
       detail:
-        'CCS can reach the configured Chrome DevTools endpoint for the current attach session.',
-      nextStep: 'Launch a Claude-target CCS session to use the managed browser MCP runtime.',
+        'SCC can reach the configured Chrome DevTools endpoint for the current attach session.',
+      nextStep: 'Launch a Claude-target SCC session to use the managed browser MCP runtime.',
       runtimeEnv,
     };
   } catch (error) {
@@ -176,7 +176,7 @@ function buildCodexBrowserStatus(browserConfig = getBrowserConfig()): CodexBrows
       enabled: false,
       state: 'disabled',
       title: 'Codex Browser Tools are disabled.',
-      detail: 'CCS will not inject Playwright MCP browser tooling into Codex-target launches.',
+      detail: 'SCC will not inject Playwright MCP browser tooling into Codex-target launches.',
       nextStep:
         'Enable Codex Browser Tools in Settings > Browser to restore the managed Codex browser path.',
       serverName: 'ccs_browser',
@@ -194,7 +194,7 @@ function buildCodexBrowserStatus(browserConfig = getBrowserConfig()): CodexBrows
       title: 'Codex Browser Tools need a Codex build with --config override support.',
       detail: binaryInfo
         ? `Detected Codex at ${binaryInfo.path}, but it does not advertise --config overrides.`
-        : 'No Codex binary was detected, so CCS cannot confirm managed browser override support.',
+        : 'No Codex binary was detected, so SCC cannot confirm managed browser override support.',
       nextStep: 'Install or upgrade Codex, then rerun browser status/doctor.',
       serverName: 'ccs_browser',
       supportsConfigOverrides,
@@ -207,8 +207,8 @@ function buildCodexBrowserStatus(browserConfig = getBrowserConfig()): CodexBrows
     enabled: true,
     state: 'enabled',
     title: 'Codex Browser Tools are enabled.',
-    detail: 'CCS can inject the managed Playwright MCP overrides into Codex-target launches.',
-    nextStep: 'Use a Codex-target CCS launch to access browser tools.',
+    detail: 'SCC can inject the managed Playwright MCP overrides into Codex-target launches.',
+    nextStep: 'Use a Codex-target SCC launch to access browser tools.',
     serverName: 'ccs_browser',
     supportsConfigOverrides,
     binaryPath: binaryInfo.path,

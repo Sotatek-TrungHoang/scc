@@ -1,5 +1,5 @@
 /**
- * Centralized error handler for CCS CLI
+ * Centralized error handler for SCC CLI
  *
  * Provides unified error handling with:
  * - Consistent error formatting

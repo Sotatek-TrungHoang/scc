@@ -11,13 +11,13 @@ import { initUI, header, dim, color, subheader } from '../utils/ui';
  */
 function showHelp(): void {
   console.log('');
-  console.log(header('ccs doctor'));
+  console.log(header('scc doctor'));
   console.log('');
-  console.log('  Run health diagnostics on CCS installation.');
+  console.log('  Run health diagnostics on SCC installation.');
   console.log('');
 
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs doctor', 'command')} [options]`);
+  console.log(`  ${color('scc doctor', 'command')} [options]`);
   console.log('');
 
   console.log(subheader('Options:'));
@@ -42,10 +42,10 @@ function showHelp(): void {
 
   console.log(subheader('Examples:'));
   console.log(
-    `  $ ${color('ccs doctor', 'command')}          ${dim('# Run diagnostics (read-only)')}`
+    `  $ ${color('scc doctor', 'command')}          ${dim('# Run diagnostics (read-only)')}`
   );
   console.log(
-    `  $ ${color('ccs doctor --fix', 'command')}    ${dim('# Run diagnostics and fix issues')}`
+    `  $ ${color('scc doctor --fix', 'command')}    ${dim('# Run diagnostics and fix issues')}`
   );
   console.log('');
 

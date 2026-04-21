@@ -1,5 +1,5 @@
 /**
- * CCS Error Codes
+ * SCC Error Codes
  * Documentation: https://docs.ccs.kaitran.ca/reference/error-codes
  */
 

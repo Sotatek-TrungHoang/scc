@@ -51,7 +51,7 @@ export async function handleApiExportCommand(
 
   const name = syntax.positionals[0];
   if (!name) {
-    console.log(deps.fail('Profile name is required. Usage: ccs api export <name> [--out <file>]'));
+    console.log(deps.fail('Profile name is required. Usage: scc api export <name> [--out <file>]'));
     process.exit(1);
   }
 

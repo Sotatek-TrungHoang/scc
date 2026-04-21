@@ -27,7 +27,7 @@ describe('cleanup command', () => {
     tempHome = '';
   });
 
-  it('reports CCS archives alongside current logs in dry-run mode', async () => {
+  it('reports SCC archives alongside current logs in dry-run mode', async () => {
     const ccsLogsDir = getNativeLogsDir();
     const archiveDir = getLogArchiveDir();
     const cliproxyLogsDir = path.join(getCliproxyDir(), 'logs');
@@ -46,8 +46,8 @@ describe('cleanup command', () => {
         .flatMap((call) => call.map((value) => String(value)))
         .join('\n');
 
-      expect(output).toContain('CCS Logs: 1 files (100.00 B)');
-      expect(output).toContain('CCS Log Archives: 1 files (1.95 KB)');
+      expect(output).toContain('SCC Logs: 1 files (100.00 B)');
+      expect(output).toContain('SCC Log Archives: 1 files (1.95 KB)');
       expect(output).toContain('Would delete 2 files (2.05 KB)');
     } finally {
       logSpy.mockRestore();

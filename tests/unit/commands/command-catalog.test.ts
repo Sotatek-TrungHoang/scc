@@ -28,9 +28,9 @@ describe('command catalog', () => {
     expect(hiddenCommands).toContain('__complete');
   });
 
-  test('describes cleanup as removing both CCS and CLIProxy logs', () => {
+  test('describes cleanup as removing both SCC and CLIProxy logs', () => {
     const cleanupCommand = ROOT_COMMAND_CATALOG.find((entry) => entry.name === 'cleanup');
 
-    expect(cleanupCommand?.summary).toBe('Remove old CCS and CLIProxy logs');
+    expect(cleanupCommand?.summary).toBe('Remove old SCC and CLIProxy logs');
   });
 });

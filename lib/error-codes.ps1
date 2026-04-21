@@ -1,4 +1,4 @@
-# CCS Error Codes
+# SCC Error Codes
 # Documentation: https://docs.ccs.kaitran.ca/reference/error-codes
 
 $script:ERROR_CODE_DOCS_BASE_URL = "https://docs.ccs.kaitran.ca/reference/error-codes"

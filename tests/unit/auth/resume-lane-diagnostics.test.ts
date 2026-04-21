@@ -68,7 +68,7 @@ describe('resume lane diagnostics', () => {
     expect(lane.configDir).toBe(path.join(tempHome, '.claude'));
   });
 
-  it('resolves the plain ccs lane to a default account when configured', async () => {
+  it('resolves the plain scc lane to a default account when configured', async () => {
     writeConfig([
       'version: 12',
       'default: work',
@@ -91,7 +91,7 @@ describe('resume lane diagnostics', () => {
     expect(lane.configDir).toBe(path.join(tempHome, '.ccs', 'instances', 'work'));
   });
 
-  it('resolves the plain ccs lane to inherited account continuity when configured', async () => {
+  it('resolves the plain scc lane to inherited account continuity when configured', async () => {
     writeConfig([
       'version: 12',
       'accounts:',

@@ -117,9 +117,9 @@ export async function handleSetup(): Promise<AuthSetupResult> {
       info(`Session timeout: ${config.dashboard_auth?.session_timeout_hours ?? 24} hours`)
     );
     console.log('');
-    console.log(dim('    Start dashboard: ccs config'));
-    console.log(dim('    Show status: ccs config auth show'));
-    console.log(dim('    Disable auth: ccs config auth disable'));
+    console.log(dim('    Start dashboard: scc config'));
+    console.log(dim('    Show status: scc config auth show'));
+    console.log(dim('    Disable auth: scc config auth disable'));
     console.log('');
 
     return { success: true, username };

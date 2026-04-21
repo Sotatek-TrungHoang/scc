@@ -22,7 +22,7 @@ interface CatalogCacheData {
   fetchedAt: number;
 }
 
-/** Channel name → CCS provider mapping */
+/** Channel name → SCC provider mapping */
 const CHANNEL_TO_PROVIDER: Record<string, CLIProxyProvider> = {
   antigravity: 'agy',
   claude: 'claude',
@@ -35,7 +35,7 @@ const CHANNEL_TO_PROVIDER: Record<string, CLIProxyProvider> = {
   'github-copilot': 'ghcp',
 };
 
-/** CCS provider → channel name mapping (reverse) */
+/** SCC provider → channel name mapping (reverse) */
 export const PROVIDER_TO_CHANNEL: Record<string, string> = Object.fromEntries(
   Object.entries(CHANNEL_TO_PROVIDER).map(([k, v]) => [v, k])
 );
@@ -183,7 +183,7 @@ export async function refreshCatalogFromProxy(): Promise<Record<string, RemoteMo
   return providers;
 }
 
-/** Map remote thinking support to CCS ThinkingSupport */
+/** Map remote thinking support to SCC ThinkingSupport */
 function mapThinking(remote?: RemoteThinkingSupport): ThinkingSupport | undefined {
   if (!remote) return undefined;
   // If levels are provided, it's a levels-type thinking

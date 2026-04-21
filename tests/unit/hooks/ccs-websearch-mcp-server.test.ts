@@ -106,7 +106,7 @@ function waitForClose(child: ReturnType<typeof spawn>): Promise<number | null> {
 }
 
 describe('ccs-websearch MCP server', () => {
-  it('lists the CCS WebSearch tool and returns provider-backed results', async () => {
+  it('lists the SCC WebSearch tool and returns provider-backed results', async () => {
     const tempDir = mkdtempSync(join(tmpdir(), 'ccs-websearch-mcp-server-'));
     const preloadPath = join(tempDir, 'mock-fetch.cjs');
     const html = `
@@ -176,7 +176,7 @@ describe('ccs-websearch MCP server', () => {
                 query: {
                   type: 'string',
                   description:
-                    'Web query to resolve through CCS providers. Prefer this tool over ad hoc Bash/curl lookups when you need current web information.',
+                    'Web query to resolve through SCC providers. Prefer this tool over ad hoc Bash/curl lookups when you need current web information.',
                 },
               },
               required: ['query'],
@@ -188,7 +188,7 @@ describe('ccs-websearch MCP server', () => {
       expect(toolCall?.result).toBeDefined();
       expect(
         ((toolCall?.result as { content: Array<{ text: string }> }).content[0] || {}).text
-      ).toContain('CCS local WebSearch evidence');
+      ).toContain('SCC local WebSearch evidence');
       expect(
         ((toolCall?.result as { content: Array<{ text: string }> }).content[0] || {}).text
       ).toContain('Provider: DuckDuckGo');
@@ -332,7 +332,7 @@ describe('ccs-websearch MCP server', () => {
       expect(toolCall?.result).toBeDefined();
       expect(
         ((toolCall?.result as { content: Array<{ text: string }> }).content[0] || {}).text
-      ).toContain('CCS local WebSearch evidence');
+      ).toContain('SCC local WebSearch evidence');
       expect(
         ((toolCall?.result as { content: Array<{ text: string }> }).content[0] || {}).text
       ).toContain('Provider: DuckDuckGo');

@@ -43,7 +43,7 @@ export class DroidAdapter implements TargetAdapter {
   }
 
   /**
-   * Write CCS credentials to ~/.factory/settings.json as a custom model entry.
+   * Write SCC credentials to ~/.factory/settings.json as a custom model entry.
    * This is the key difference from Claude — Droid reads config files, not env vars.
    */
   async prepareCredentials(creds: TargetCredentials): Promise<void> {
@@ -55,7 +55,7 @@ export class DroidAdapter implements TargetAdapter {
     });
     const modelRef = await upsertCcsModel(creds.profile, {
       model: creds.model || 'claude-opus-4-6',
-      displayName: `CCS ${creds.profile}`,
+      displayName: `SCC ${creds.profile}`,
       baseUrl: creds.baseUrl,
       apiKey: creds.apiKey,
       provider,

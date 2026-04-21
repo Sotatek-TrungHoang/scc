@@ -39,7 +39,7 @@ describe('glmt deprecation helpers', () => {
     expect(result.env['MAX_THINKING_TOKENS']).toBeUndefined();
     expect(result.env['API_TIMEOUT_MS']).toBeUndefined();
     expect(result.warnings).toContain(
-      'CCS normalized legacy GLMT proxy settings to the direct GLM endpoint for this run.'
+      'SCC normalized legacy GLMT proxy settings to the direct GLM endpoint for this run.'
     );
   });
 

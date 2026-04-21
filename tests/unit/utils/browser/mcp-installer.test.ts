@@ -225,7 +225,7 @@ describe('ensureBrowserMcp', () => {
     const ensureSpy = spyOn(browserInstaller, 'ensureBrowserMcp').mockReturnValue(false);
 
     expect(() => ensureBrowserMcpOrThrow()).toThrow(
-      'Browser MCP is enabled, but CCS could not prepare the local browser tool.'
+      'Browser MCP is enabled, but SCC could not prepare the local browser tool.'
     );
     expect(ensureSpy).toHaveBeenCalled();
   });

@@ -67,7 +67,7 @@ export async function handleTokenExpiration(
     if (tokenResult.error) {
       console.error(`    ${tokenResult.error}`);
     }
-    console.error(`    Run "ccs ${provider} --auth" to re-authenticate`);
+    console.error(`    Run "scc ${provider} --auth" to re-authenticate`);
     process.exit(1);
   }
 

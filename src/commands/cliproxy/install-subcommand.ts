@@ -2,10 +2,10 @@
  * CLIProxy Binary Installation
  *
  * Handles:
- * - ccs cliproxy (show status)
- * - ccs cliproxy --install <version>
- * - ccs cliproxy --latest
- * - ccs cliproxy --update
+ * - scc cliproxy (show status)
+ * - scc cliproxy --install <version>
+ * - scc cliproxy --latest
+ * - scc cliproxy --update
  */
 
 import { initUI, color, dim, ok, fail, info } from '../../utils/ui';
@@ -44,7 +44,7 @@ export async function showStatus(verbose: boolean, backend: CLIProxyBackend): Pr
   } else {
     console.log(`  Installed:  ${color('No', 'error')}`);
     console.log(`  Fallback:   ${color(`v${status.fallbackVersion}`, 'info')}`);
-    console.log(`  ${dim('Run "ccs gemini" or any provider to auto-install')}`);
+    console.log(`  ${dim('Run "scc gemini" or any provider to auto-install')}`);
   }
 
   const latestCheck = await checkLatestVersion();
@@ -56,13 +56,13 @@ export async function showStatus(verbose: boolean, backend: CLIProxyBackend): Pr
           `  Latest:     ${color(`v${latestCheck.latestVersion}`, 'success')} ${dim('(pinned to v' + status.pinnedVersion + ')')}`
         );
         console.log('');
-        console.log(`  ${dim('Run "ccs cliproxy --update" to unpin and update')}`);
+        console.log(`  ${dim('Run "scc cliproxy --update" to unpin and update')}`);
       } else {
         console.log(
           `  Latest:     ${color(`v${latestCheck.latestVersion}`, 'success')} ${dim('(update available)')}`
         );
         console.log('');
-        console.log(`  ${dim('Run "ccs cliproxy --latest" to update')}`);
+        console.log(`  ${dim('Run "scc cliproxy --latest" to update')}`);
       }
     } else {
       console.log(
@@ -74,7 +74,7 @@ export async function showStatus(verbose: boolean, backend: CLIProxyBackend): Pr
   }
 
   console.log('');
-  console.log(dim('Run "ccs cliproxy --help" for all available commands'));
+  console.log(dim('Run "scc cliproxy --help" for all available commands'));
   console.log('');
 }
 
@@ -108,7 +108,7 @@ export async function handleInstallVersion(
   console.log('');
   console.log(dim('This version will be used until you run:'));
   console.log(
-    `  ${color('ccs cliproxy --update', 'command')}  ${dim('# Update to latest and unpin')}`
+    `  ${color('scc cliproxy --update', 'command')}  ${dim('# Update to latest and unpin')}`
   );
   console.log('');
 }

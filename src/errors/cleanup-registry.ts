@@ -1,5 +1,5 @@
 /**
- * Cleanup registry for CCS CLI
+ * Cleanup registry for SCC CLI
  *
  * Manages cleanup callbacks that should be run on exit or error.
  * Used to clean up resources like:

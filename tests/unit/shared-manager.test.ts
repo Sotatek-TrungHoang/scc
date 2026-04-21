@@ -361,7 +361,7 @@ describe('SharedManager', () => {
     });
 
     it('does not register transient marketplace directories left behind by interrupted auto-updates', () => {
-      // Regression: CCS used to write bare { installLocation } entries for marketplace
+      // Regression: SCC used to write bare { installLocation } entries for marketplace
       // directories with no registry record. Claude Code requires source + lastUpdated,
       // so those entries corrupted known_marketplaces.json and broke /plugin.
       const manager = new SharedManager();

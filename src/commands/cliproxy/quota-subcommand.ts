@@ -2,11 +2,11 @@
  * CLIProxy Quota Management
  *
  * Handles:
- * - ccs cliproxy quota [--provider <name>]
- * - ccs cliproxy default <account>
- * - ccs cliproxy pause <account>
- * - ccs cliproxy resume <account>
- * - ccs cliproxy doctor
+ * - scc cliproxy quota [--provider <name>]
+ * - scc cliproxy default <account>
+ * - scc cliproxy pause <account>
+ * - scc cliproxy resume <account>
+ * - scc cliproxy doctor
  */
 
 import {
@@ -751,7 +751,7 @@ const QUOTA_PROVIDER_RUNTIME: Record<QuotaSupportedProvider, QuotaProviderRuntim
       displayAntigravityQuotaSection(result as Awaited<ReturnType<typeof fetchAllProviderQuotas>>),
     emptyTitle: 'Antigravity (0 accounts)',
     emptyMessage: 'No Antigravity accounts configured',
-    authCommand: 'ccs agy --auth',
+    authCommand: 'scc agy --auth',
   },
   codex: {
     fetch: (verbose) => fetchAllCodexQuotas(verbose),
@@ -760,7 +760,7 @@ const QUOTA_PROVIDER_RUNTIME: Record<QuotaSupportedProvider, QuotaProviderRuntim
       displayCodexQuotaSection(result as { account: string; quota: CodexQuotaResult }[]),
     emptyTitle: 'Codex (0 accounts)',
     emptyMessage: 'No Codex accounts configured',
-    authCommand: 'ccs codex --auth',
+    authCommand: 'scc codex --auth',
   },
   claude: {
     fetch: (verbose) => fetchAllClaudeQuotas(verbose),
@@ -769,7 +769,7 @@ const QUOTA_PROVIDER_RUNTIME: Record<QuotaSupportedProvider, QuotaProviderRuntim
       displayClaudeQuotaSection(result as { account: string; quota: ClaudeQuotaResult }[]),
     emptyTitle: 'Claude (0 accounts)',
     emptyMessage: 'No Claude accounts configured',
-    authCommand: 'ccs claude --auth',
+    authCommand: 'scc claude --auth',
   },
   gemini: {
     fetch: (verbose) => fetchAllGeminiCliQuotas(verbose),
@@ -778,7 +778,7 @@ const QUOTA_PROVIDER_RUNTIME: Record<QuotaSupportedProvider, QuotaProviderRuntim
       displayGeminiCliQuotaSection(result as { account: string; quota: GeminiCliQuotaResult }[]),
     emptyTitle: 'Gemini CLI (0 accounts)',
     emptyMessage: 'No Gemini CLI accounts configured',
-    authCommand: 'ccs gemini --auth',
+    authCommand: 'scc gemini --auth',
   },
   ghcp: {
     fetch: (verbose) => fetchAllGhcpQuotas(verbose),
@@ -787,7 +787,7 @@ const QUOTA_PROVIDER_RUNTIME: Record<QuotaSupportedProvider, QuotaProviderRuntim
       displayGhcpQuotaSection(result as { account: string; quota: GhcpQuotaResult }[]),
     emptyTitle: 'GitHub Copilot (0 accounts)',
     emptyMessage: 'No GitHub Copilot accounts configured',
-    authCommand: 'ccs ghcp --auth',
+    authCommand: 'scc ghcp --auth',
   },
 };
 
@@ -854,7 +854,7 @@ export async function handleDoctor(verbose = false): Promise<void> {
 
   if (accounts.length === 0) {
     console.log(info('No Antigravity accounts configured'));
-    console.log(`    Run: ${color('ccs agy --auth', 'command')} to authenticate`);
+    console.log(`    Run: ${color('scc agy --auth', 'command')} to authenticate`);
     return;
   }
 
@@ -939,11 +939,11 @@ export async function handleSetDefault(args: string[]): Promise<void> {
   const parsed = parseProfileArgs(args);
 
   if (!parsed.name) {
-    console.log(fail('Usage: ccs cliproxy default <account> [--provider <provider>]'));
+    console.log(fail('Usage: scc cliproxy default <account> [--provider <provider>]'));
     console.log('');
     console.log('Examples:');
-    console.log('  ccs cliproxy default ultra@gmail.com');
-    console.log('  ccs cliproxy default john --provider agy');
+    console.log('  scc cliproxy default ultra@gmail.com');
+    console.log('  scc cliproxy default john --provider agy');
     process.exit(1);
   }
 
@@ -962,7 +962,7 @@ export async function handleSetDefault(args: string[]): Promise<void> {
       }
     } else {
       console.log(`No accounts found for provider: ${provider}`);
-      console.log(`Run: ccs ${provider} --auth`);
+      console.log(`Run: scc ${provider} --auth`);
     }
     process.exit(1);
   }
@@ -983,7 +983,7 @@ export async function handlePauseAccount(args: string[]): Promise<void> {
   const parsed = parseProfileArgs(args);
 
   if (!parsed.name) {
-    console.log(fail('Usage: ccs cliproxy pause <account> [--provider <provider>]'));
+    console.log(fail('Usage: scc cliproxy pause <account> [--provider <provider>]'));
     console.log('');
     console.log('Pauses an account so it will be skipped in quota rotation.');
     process.exit(1);
@@ -1019,7 +1019,7 @@ export async function handleResumeAccount(args: string[]): Promise<void> {
   const parsed = parseProfileArgs(args);
 
   if (!parsed.name) {
-    console.log(fail('Usage: ccs cliproxy resume <account> [--provider <provider>]'));
+    console.log(fail('Usage: scc cliproxy resume <account> [--provider <provider>]'));
     console.log('');
     console.log('Resumes a paused account for quota rotation.');
     process.exit(1);

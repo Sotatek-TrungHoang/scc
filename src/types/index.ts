@@ -1,5 +1,5 @@
 /**
- * CCS Type Definitions
+ * SCC Type Definitions
  * Single entry point for all types
  */
 

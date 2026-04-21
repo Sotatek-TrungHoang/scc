@@ -35,26 +35,26 @@ describe('droid-config-manager', () => {
     it('should return a selector reference for the managed model', async () => {
       const ref = await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy-key',
         provider: 'anthropic',
       });
 
       expect(ref.profile).toBe('gemini');
-      expect(ref.selectorAlias).toBe('CCS-gemini-0');
-      expect(ref.selector).toBe('custom:CCS-gemini-0');
+      expect(ref.selectorAlias).toBe('SCC-gemini-0');
+      expect(ref.selector).toBe('custom:SCC-gemini-0');
       expect(ref.index).toBe(0);
 
       const settingsPath = path.join(tmpDir, '.factory', 'settings.json');
       const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
-      expect(settings.model).toBe('custom:CCS-gemini-0');
+      expect(settings.model).toBe('custom:SCC-gemini-0');
     });
 
     it('should create settings.json with customModels', async () => {
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy-key',
         provider: 'anthropic',
@@ -65,15 +65,15 @@ describe('droid-config-manager', () => {
 
       const settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8'));
       expect(settings.customModels).toHaveLength(1);
-      expect(settings.customModels[0].displayName).toBe('CCS gemini');
+      expect(settings.customModels[0].displayName).toBe('SCC gemini');
       expect(settings.customModels[0].baseUrl).toBe('http://localhost:8317');
-      expect(settings.model).toBe('custom:CCS-gemini-0');
+      expect(settings.model).toBe('custom:SCC-gemini-0');
     });
 
     it('should update existing entry on second upsert', async () => {
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'key-1',
         provider: 'anthropic',
@@ -81,7 +81,7 @@ describe('droid-config-manager', () => {
 
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8318',
         apiKey: 'key-2',
         provider: 'anthropic',
@@ -97,7 +97,7 @@ describe('droid-config-manager', () => {
     it('should persist generic provider reasoning_effort from override', async () => {
       await upsertCcsModel('glm', {
         model: 'glm-4.7',
-        displayName: 'CCS glm',
+        displayName: 'SCC glm',
         baseUrl: 'https://api.z.ai/api/coding/paas/v4',
         apiKey: 'glm-key',
         provider: 'generic-chat-completion-api',
@@ -114,7 +114,7 @@ describe('droid-config-manager', () => {
     it('should persist openai provider reasoning.effort from --effort alias override', async () => {
       await upsertCcsModel('codex', {
         model: 'gpt-5.2',
-        displayName: 'CCS codex',
+        displayName: 'SCC codex',
         baseUrl: 'https://api.openai.com/v1',
         apiKey: 'openai-key',
         provider: 'openai',
@@ -130,7 +130,7 @@ describe('droid-config-manager', () => {
     it('should persist anthropic thinking budget from numeric override', async () => {
       await upsertCcsModel('agy', {
         model: 'claude-opus-4-5-thinking',
-        displayName: 'CCS agy',
+        displayName: 'SCC agy',
         baseUrl: 'https://api.anthropic.com',
         apiKey: 'anthropic-key',
         provider: 'anthropic',
@@ -146,7 +146,7 @@ describe('droid-config-manager', () => {
     it('should clear prior reasoning config when override disables thinking', async () => {
       await upsertCcsModel('glm', {
         model: 'glm-4.7',
-        displayName: 'CCS glm',
+        displayName: 'SCC glm',
         baseUrl: 'https://api.z.ai/api/coding/paas/v4',
         apiKey: 'glm-key',
         provider: 'generic-chat-completion-api',
@@ -155,7 +155,7 @@ describe('droid-config-manager', () => {
 
       await upsertCcsModel('glm', {
         model: 'glm-4.7',
-        displayName: 'CCS glm',
+        displayName: 'SCC glm',
         baseUrl: 'https://api.z.ai/api/coding/paas/v4',
         apiKey: 'glm-key',
         provider: 'generic-chat-completion-api',
@@ -188,7 +188,7 @@ describe('droid-config-manager', () => {
 
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy',
         provider: 'anthropic',
@@ -197,7 +197,7 @@ describe('droid-config-manager', () => {
       const settings = JSON.parse(fs.readFileSync(path.join(factoryDir, 'settings.json'), 'utf8'));
       expect(settings.customModels).toHaveLength(2);
       expect(settings.customModels[0].displayName).toBe('My GPT');
-      expect(settings.customModels[1].displayName).toBe('CCS gemini');
+      expect(settings.customModels[1].displayName).toBe('SCC gemini');
     });
 
     it('should preserve user entries with unknown provider strings', async () => {
@@ -220,7 +220,7 @@ describe('droid-config-manager', () => {
 
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy',
         provider: 'anthropic',
@@ -229,13 +229,13 @@ describe('droid-config-manager', () => {
       const settings = JSON.parse(fs.readFileSync(path.join(factoryDir, 'settings.json'), 'utf8'));
       expect(settings.customModels).toHaveLength(2);
       expect(settings.customModels[0].provider).toBe('custom-provider');
-      expect(settings.customModels[1].displayName).toBe('CCS gemini');
+      expect(settings.customModels[1].displayName).toBe('SCC gemini');
     });
 
     it('should write with restricted permissions', async () => {
       await upsertCcsModel('test', {
         model: 'test-model',
-        displayName: 'CCS test',
+        displayName: 'SCC test',
         baseUrl: 'http://localhost:8317',
         apiKey: 'secret',
         provider: 'anthropic',
@@ -260,7 +260,7 @@ describe('droid-config-manager', () => {
       await expect(
         upsertCcsModel('gemini', {
           model: 'claude-opus-4-6',
-          displayName: 'CCS gemini',
+          displayName: 'SCC gemini',
           baseUrl: 'http://localhost:8317',
           apiKey: 'dummy-key',
           provider: 'anthropic',
@@ -277,7 +277,7 @@ describe('droid-config-manager', () => {
           customModels: [
             {
               model: 'claude-opus-4-6',
-              displayName: 'ccs-gemini',
+              displayName: 'scc-gemini',
               baseUrl: 'http://localhost:8317',
               apiKey: 'old-key',
               provider: 'anthropic',
@@ -288,7 +288,7 @@ describe('droid-config-manager', () => {
 
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8318',
         apiKey: 'new-key',
         provider: 'anthropic',
@@ -296,7 +296,7 @@ describe('droid-config-manager', () => {
 
       const settings = JSON.parse(fs.readFileSync(path.join(factoryDir, 'settings.json'), 'utf8'));
       expect(settings.customModels).toHaveLength(1);
-      expect(settings.customModels[0].displayName).toBe('CCS gemini');
+      expect(settings.customModels[0].displayName).toBe('SCC gemini');
       expect(settings.customModels[0].apiKey).toBe('new-key');
       expect(settings.customModels[0].baseUrl).toBe('http://localhost:8318');
     });
@@ -312,7 +312,7 @@ describe('droid-config-manager', () => {
       await expect(
         upsertCcsModel('gemini', {
           model: 'claude-opus-4-6',
-          displayName: 'CCS gemini',
+          displayName: 'SCC gemini',
           baseUrl: 'http://localhost:8317',
           apiKey: 'dummy-key',
           provider: 'anthropic',
@@ -322,10 +322,10 @@ describe('droid-config-manager', () => {
   });
 
   describe('removeCcsModel', () => {
-    it('should remove a CCS entry', async () => {
+    it('should remove a SCC entry', async () => {
       await upsertCcsModel('gemini', {
         model: 'claude-opus-4-6',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy',
         provider: 'anthropic',
@@ -354,7 +354,7 @@ describe('droid-config-manager', () => {
             },
             {
               model: 'opus',
-              displayName: 'CCS gemini',
+              displayName: 'SCC gemini',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
@@ -379,7 +379,7 @@ describe('droid-config-manager', () => {
           customModels: [
             {
               model: 'opus',
-              displayName: 'ccs-gemini',
+              displayName: 'scc-gemini',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
@@ -404,10 +404,10 @@ describe('droid-config-manager', () => {
   });
 
   describe('listCcsModels', () => {
-    it('should list only CCS entries', async () => {
+    it('should list only SCC entries', async () => {
       await upsertCcsModel('gemini', {
         model: 'opus',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy',
         provider: 'anthropic',
@@ -415,7 +415,7 @@ describe('droid-config-manager', () => {
 
       await upsertCcsModel('codex', {
         model: 'sonnet',
-        displayName: 'CCS codex',
+        displayName: 'SCC codex',
         baseUrl: 'http://localhost:8317',
         apiKey: 'dummy',
         provider: 'anthropic',
@@ -441,7 +441,7 @@ describe('droid-config-manager', () => {
           customModels: {
             gemini: {
               model: 'opus',
-              displayName: 'CCS gemini',
+              displayName: 'SCC gemini',
               baseUrl: 'http://localhost:8317',
               apiKey: 'dummy',
               provider: 'anthropic',
@@ -469,7 +469,7 @@ describe('droid-config-manager', () => {
             null,
             123,
             'bad',
-            { displayName: 'CCS ok', model: 'x', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
+            { displayName: 'SCC ok', model: 'x', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
           ],
         })
       );
@@ -498,7 +498,7 @@ describe('droid-config-manager', () => {
           customModels: [
             {
               model: 'opus',
-              displayName: 'ccs-gemini',
+              displayName: 'scc-gemini',
               baseUrl: 'http://localhost:8317',
               apiKey: 'dummy',
               provider: 'anthropic',
@@ -519,9 +519,9 @@ describe('droid-config-manager', () => {
         path.join(factoryDir, 'settings.json'),
         JSON.stringify({
           customModels: [
-            { model: 'x', displayName: 'CCS ', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
-            { model: 'x', displayName: 'ccs-', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
-            { model: 'x', displayName: 'CCS ok', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
+            { model: 'x', displayName: 'SCC ', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
+            { model: 'x', displayName: 'scc-', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
+            { model: 'x', displayName: 'SCC ok', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
           ],
         })
       );
@@ -545,17 +545,17 @@ describe('droid-config-manager', () => {
   });
 
   describe('pruneOrphanedModels', () => {
-    it('should remove orphaned CCS entries', async () => {
+    it('should remove orphaned SCC entries', async () => {
       await upsertCcsModel('gemini', {
         model: 'opus',
-        displayName: 'CCS gemini',
+        displayName: 'SCC gemini',
         baseUrl: 'x',
         apiKey: 'y',
         provider: 'anthropic',
       });
       await upsertCcsModel('codex', {
         model: 'sonnet',
-        displayName: 'CCS codex',
+        displayName: 'SCC codex',
         baseUrl: 'x',
         apiKey: 'y',
         provider: 'anthropic',
@@ -586,7 +586,7 @@ describe('droid-config-manager', () => {
             },
             {
               model: 'opus',
-              displayName: 'CCS old-profile',
+              displayName: 'SCC old-profile',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
@@ -612,14 +612,14 @@ describe('droid-config-manager', () => {
           customModels: [
             {
               model: 'opus',
-              displayName: 'ccs-gemini',
+              displayName: 'scc-gemini',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
             },
             {
               model: 'sonnet',
-              displayName: 'ccs-codex',
+              displayName: 'scc-codex',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
@@ -643,8 +643,8 @@ describe('droid-config-manager', () => {
         path.join(factoryDir, 'settings.json'),
         JSON.stringify({
           customModels: [
-            { model: 'x', displayName: 'CCS ', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
-            { model: 'x', displayName: 'ccs-', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
+            { model: 'x', displayName: 'SCC ', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
+            { model: 'x', displayName: 'scc-', baseUrl: 'x', apiKey: 'y', provider: 'anthropic' },
             {
               model: 'gpt-4o',
               displayName: 'My GPT',
@@ -677,14 +677,14 @@ describe('droid-config-manager', () => {
           customModels: [
             {
               model: 'opus',
-              displayName: 'CCS gemini',
+              displayName: 'SCC gemini',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
             },
             {
               model: 'sonnet',
-              displayName: 'CCS codex',
+              displayName: 'SCC codex',
               baseUrl: 'x',
               apiKey: 'y',
               provider: 'anthropic',
@@ -715,7 +715,7 @@ describe('droid-config-manager', () => {
         profiles.map((p) =>
           upsertCcsModel(p, {
             model: 'test-model',
-            displayName: `CCS ${p}`,
+            displayName: `SCC ${p}`,
             baseUrl: 'http://localhost:8317',
             apiKey: 'key',
             provider: 'anthropic',

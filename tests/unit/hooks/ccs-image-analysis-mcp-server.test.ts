@@ -188,7 +188,7 @@ describe('ccs-image-analysis MCP server', () => {
           {
             name: 'ImageAnalysis',
             description:
-              'Analyze a local image or PDF file with CCS provider-backed vision. Prefer this tool over Read for image and PDF paths. Use Read for text, code, and other plain files.',
+              'Analyze a local image or PDF file with SCC provider-backed vision. Prefer this tool over Read for image and PDF paths. Use Read for text, code, and other plain files.',
             inputSchema: {
               type: 'object',
               properties: {

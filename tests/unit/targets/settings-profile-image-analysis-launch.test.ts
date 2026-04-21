@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-const STEERING_PROMPT_SNIPPET = 'prefer the CCS MCP tool ImageAnalysis instead of Read';
+const STEERING_PROMPT_SNIPPET = 'prefer the SCC MCP tool ImageAnalysis instead of Read';
 
 interface RunResult {
   status: number | null;
@@ -170,7 +170,7 @@ exit 0
     expect(launchedArgs).not.toContain(STEERING_PROMPT_SNIPPET);
   });
 
-  it('suppresses stale CCS image hooks during a healthy MCP-first launch', () => {
+  it('suppresses stale SCC image hooks during a healthy MCP-first launch', () => {
     if (process.platform === 'win32') return;
 
     fs.writeFileSync(

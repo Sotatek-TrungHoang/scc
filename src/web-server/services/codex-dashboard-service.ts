@@ -686,7 +686,7 @@ function getCodexSupportMatrix(supportsManagedRouting: boolean): CodexSupportMat
       id: 'cliproxy-composite',
       label: 'cliproxy composite',
       supported: false,
-      notes: 'Not yet proven safe for native Codex routing in CCS v1.',
+      notes: 'Not yet proven safe for native Codex routing in SCC v1.',
     },
     {
       id: 'settings-generic-api',

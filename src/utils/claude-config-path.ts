@@ -3,7 +3,7 @@ import { getCcsHome } from './config-manager';
 
 /**
  * Resolve the canonical default Claude config directory.
- * Ignores CLAUDE_CONFIG_DIR so CCS can keep a stable source of truth
+ * Ignores CLAUDE_CONFIG_DIR so SCC can keep a stable source of truth
  * for shared plugin/channel state while still honoring test/dev home overrides.
  */
 export function getDefaultClaudeConfigDir(): string {

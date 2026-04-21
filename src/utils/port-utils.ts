@@ -160,7 +160,7 @@ export async function checkWindowsFirewall(port: number): Promise<FirewallCheckR
       checked: true,
       mayBlock: true,
       message: `Port ${port} may be blocked by Windows Firewall`,
-      fixCommand: `netsh advfirewall firewall add rule name="CCS OAuth" dir=in action=allow protocol=TCP localport=${port}`,
+      fixCommand: `netsh advfirewall firewall add rule name="SCC OAuth" dir=in action=allow protocol=TCP localport=${port}`,
     };
   } catch {
     // Command failed - could be no matching rules, assume might block
@@ -168,7 +168,7 @@ export async function checkWindowsFirewall(port: number): Promise<FirewallCheckR
       checked: true,
       mayBlock: true,
       message: `Could not verify firewall rules for port ${port}`,
-      fixCommand: `netsh advfirewall firewall add rule name="CCS OAuth" dir=in action=allow protocol=TCP localport=${port}`,
+      fixCommand: `netsh advfirewall firewall add rule name="SCC OAuth" dir=in action=allow protocol=TCP localport=${port}`,
     };
   }
 }

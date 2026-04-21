@@ -20,7 +20,7 @@ export interface ProviderCapabilities {
   tokenTypeValues: readonly string[];
   /**
    * Alternative provider names used by CLIProxyAPI or stats endpoints.
-   * These aliases normalize external names to canonical CCS provider IDs.
+   * These aliases normalize external names to canonical SCC provider IDs.
    */
   aliases: readonly string[];
 }

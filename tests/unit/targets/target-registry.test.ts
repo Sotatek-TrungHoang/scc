@@ -116,7 +116,7 @@ describe('ClaudeAdapter', () => {
     });
 
     expect(args).toContain('--append-system-prompt');
-    expect(args.join(' ')).toContain('prefer the CCS MCP Browser tool');
+    expect(args.join(' ')).toContain('prefer the SCC MCP Browser tool');
   });
 
   it('should merge browser runtime env into Claude launch env', () => {

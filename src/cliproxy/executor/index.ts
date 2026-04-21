@@ -188,7 +188,7 @@ export async function execClaudeWithCLIProxy(
   // Validate Claude CLI exists before proceeding
   if (!fs.existsSync(claudeCli)) {
     console.error(fail(`Claude CLI not found at: ${claudeCli}`));
-    console.error('    Run "ccs doctor --fix" to reinstall or check your PATH');
+    console.error('    Run "scc doctor --fix" to reinstall or check your PATH');
     process.exit(1);
   }
 
@@ -219,7 +219,7 @@ export async function execClaudeWithCLIProxy(
       console.error('');
       console.error('To use this provider, either:');
       console.error('  1. Set `cliproxy.backend: plus` in ~/.ccs/config.yaml');
-      console.error('  2. Use --backend=plus flag: ccs ' + p + ' --backend=plus');
+      console.error('  2. Use --backend=plus flag: scc ' + p + ' --backend=plus');
       console.error('');
       throw new Error(`Provider ${p} requires Plus backend`);
     }
@@ -261,7 +261,7 @@ export async function execClaudeWithCLIProxy(
     log(`Remote host: ${proxyConfig.host}:${proxyConfig.port} (${proxyConfig.protocol})`);
   }
 
-  // Setup first-class CCS WebSearch runtime
+  // Setup first-class SCC WebSearch runtime
   ensureWebSearchMcpOrThrow();
   const imageAnalysisMcpReady = ensureImageAnalysisMcpOrThrow();
   const browserAttachConfig = getEffectiveClaudeBrowserAttachConfig(getBrowserConfig());
@@ -475,7 +475,7 @@ export async function execClaudeWithCLIProxy(
   }
 
   if (kiroAuthMethod && provider !== 'kiro' && !compositeProviders.includes('kiro')) {
-    console.error(fail('--kiro-auth-method is only valid for ccs kiro'));
+    console.error(fail('--kiro-auth-method is only valid for scc kiro'));
     process.exitCode = 1;
     return;
   }
@@ -487,7 +487,7 @@ export async function execClaudeWithCLIProxy(
   ) {
     console.error(
       fail(
-        '--kiro-idc-start-url, --kiro-idc-region, and --kiro-idc-flow are only valid for ccs kiro'
+        '--kiro-idc-start-url, --kiro-idc-region, and --kiro-idc-flow are only valid for scc kiro'
       )
     );
     process.exitCode = 1;
@@ -501,7 +501,7 @@ export async function execClaudeWithCLIProxy(
   if (kiroAuthMethod === 'idc' && !kiroIDCStartUrl) {
     console.error(fail('Kiro IDC login requires --kiro-idc-start-url'));
     console.error(
-      '    Example: ccs kiro --auth --kiro-auth-method idc --kiro-idc-start-url https://d-xxx.awsapps.com/start'
+      '    Example: scc kiro --auth --kiro-auth-method idc --kiro-idc-start-url https://d-xxx.awsapps.com/start'
     );
     process.exitCode = 1;
     return;
@@ -525,7 +525,7 @@ export async function execClaudeWithCLIProxy(
     const flagName = gitlabTokenLogin
       ? getGitLabTokenLoginFlagName(argsWithoutProxy)
       : '--gitlab-url';
-    console.error(fail(`${flagName} is only valid for ccs gitlab`));
+    console.error(fail(`${flagName} is only valid for scc gitlab`));
     process.exitCode = 1;
     return;
   }
@@ -590,7 +590,7 @@ export async function execClaudeWithCLIProxy(
     const accounts = getProviderAccounts(provider);
     if (accounts.length === 0) {
       console.log(info(`No accounts registered for ${providerConfig.displayName}`));
-      console.log(`    Run "ccs ${provider} --auth" to add an account`);
+      console.log(`    Run "scc ${provider} --auth" to add an account`);
     } else {
       console.log(`\n${providerConfig.displayName} Accounts:\n`);
       for (const acct of accounts) {
@@ -598,7 +598,7 @@ export async function execClaudeWithCLIProxy(
         const nickname = acct.nickname ? `[${acct.nickname}]` : '';
         console.log(`  ${nickname.padEnd(12)} ${formatAccountDisplayName(acct)}${defaultMark}`);
       }
-      console.log(`\n  Use "ccs ${provider} --use <nickname-or-id>" to switch accounts`);
+      console.log(`\n  Use "scc ${provider} --use <nickname-or-id>" to switch accounts`);
     }
     process.exit(0);
   }
@@ -632,7 +632,7 @@ export async function execClaudeWithCLIProxy(
     const defaultAccount = getDefaultAccount(provider);
     if (!defaultAccount) {
       console.error(fail(`No account found for ${providerConfig.displayName}`));
-      console.error(`    Run "ccs ${provider} --auth" to add an account first`);
+      console.error(`    Run "scc ${provider} --auth" to add an account first`);
       process.exit(1);
     }
     try {
@@ -658,7 +658,7 @@ export async function execClaudeWithCLIProxy(
       console.log(
         warn('Composite variants use per-tier config. Edit config.yaml to change tier models.')
       );
-      console.error(`    Use "ccs cliproxy edit ${variantName}" to modify composite variants`);
+      console.error(`    Use "scc cliproxy edit ${variantName}" to modify composite variants`);
       process.exit(1);
     } else {
       await configureProviderModel(provider, true, cfg.customSettingsPath);
@@ -681,7 +681,7 @@ export async function execClaudeWithCLIProxy(
   if (forceImport) {
     if (provider !== 'kiro') {
       console.error(fail('--import is only available for Kiro'));
-      console.error(`    Run "ccs ${provider} --auth" to authenticate`);
+      console.error(`    Run "scc ${provider} --auth" to authenticate`);
       process.exit(1);
     }
     if (forceAuth) {
@@ -802,7 +802,7 @@ export async function execClaudeWithCLIProxy(
       if (unauthenticatedProviders.length > 0) {
         console.error(fail('Composite variant requires authentication for multiple providers:'));
         for (const p of unauthenticatedProviders) {
-          console.error(`    - ${p} (run "ccs ${p} --auth")`);
+          console.error(`    - ${p} (run "scc ${p} --auth")`);
         }
         process.exit(1);
       }
@@ -926,7 +926,7 @@ export async function execClaudeWithCLIProxy(
       if (skipLocalAuth) {
         console.error('    Note: Model may be overridden by remote proxy configuration.');
       } else {
-        console.error(`    Run "ccs ${provider} --config" to change model.`);
+        console.error(`    Run "scc ${provider} --config" to change model.`);
       }
       console.error('');
     }
@@ -1066,7 +1066,7 @@ export async function execClaudeWithCLIProxy(
     !syncBrowserMcpToConfigDir(inheritedClaudeConfigDir)
   ) {
     throw new Error(
-      'Browser MCP is enabled, but CCS could not sync the browser MCP config into the inherited Claude instance.'
+      'Browser MCP is enabled, but SCC could not sync the browser MCP config into the inherited Claude instance.'
     );
   }
 

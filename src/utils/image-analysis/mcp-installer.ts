@@ -491,7 +491,7 @@ export function ensureImageAnalysisMcpOrThrow(): boolean {
   if (!ready) {
     console.error(
       warn(
-        'Image Analysis is enabled, but CCS could not prepare the local ImageAnalysis tool. This session will fall back to native Read.'
+        'Image Analysis is enabled, but SCC could not prepare the local ImageAnalysis tool. This session will fall back to native Read.'
       )
     );
   }

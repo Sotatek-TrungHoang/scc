@@ -39,7 +39,7 @@ function getMigrationMarkerPath(): string {
 }
 
 /**
- * Check if CCS image analyzer hook exists in settings
+ * Check if SCC image analyzer hook exists in settings
  */
 function hasCcsHook(settings: Record<string, unknown>): boolean {
   const hooks = settings.hooks as Record<string, unknown[]> | undefined;
@@ -173,10 +173,10 @@ export function ensureProfileHooks(input: string | ImageAnalysisResolutionContex
     // One-time migration marker
     migrateGlobalHook();
 
-    // Get CCS directory (respects CCS_HOME for test isolation)
+    // Get SCC directory (respects CCS_HOME for test isolation)
     const ccsDir = getCcsDir();
 
-    // Ensure CCS dir exists
+    // Ensure SCC dir exists
     if (!fs.existsSync(ccsDir)) {
       fs.mkdirSync(ccsDir, { recursive: true, mode: 0o700 });
     }
@@ -200,7 +200,7 @@ export function ensureProfileHooks(input: string | ImageAnalysisResolutionContex
       }
     }
 
-    // Check if CCS hook already present
+    // Check if SCC hook already present
     if (hasCcsHook(settings)) {
       const hadDuplicates = deduplicateCcsImageAnalyzerHooks(settings);
       if (hadDuplicates) {
@@ -223,7 +223,7 @@ export function ensureProfileHooks(input: string | ImageAnalysisResolutionContex
       settingsHooks.PreToolUse = [];
     }
 
-    // Add CCS hook
+    // Add SCC hook
     const preToolUseHooks = hookConfig.PreToolUse as unknown[];
     settingsHooks.PreToolUse.push(...preToolUseHooks);
 
@@ -276,7 +276,7 @@ function updateHookTimeoutIfNeeded(
         .replace(/\/+/g, '/'); // Collapse multiple slashes
       if (!normalizedCommand.includes('.ccs/hooks/image-analyzer-transformer')) continue;
 
-      // Found CCS hook - check if needs update
+      // Found SCC hook - check if needs update
       if (hookArray[0].command !== expectedCommand) {
         hookArray[0].command = expectedCommand;
         needsUpdate = true;

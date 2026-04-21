@@ -35,7 +35,7 @@ export const KIRO_IDC_FLOWS = ['authcode', 'device'] as const;
 export type KiroIDCFlow = (typeof KIRO_IDC_FLOWS)[number];
 export const DEFAULT_KIRO_IDC_FLOW: KiroIDCFlow = 'authcode';
 
-/** Default Kiro method for CCS UX and AWS Organization support. */
+/** Default Kiro method for SCC UX and AWS Organization support. */
 export const DEFAULT_KIRO_AUTH_METHOD: KiroAuthMethod = 'aws';
 
 export function isKiroAuthMethod(value: string): value is KiroAuthMethod {
@@ -326,7 +326,7 @@ export const PROVIDER_TYPE_VALUES: Record<CLIProxyProvider, string[]> = buildPro
 );
 
 /**
- * Maps CCS provider names to CLIProxyAPI callback provider names
+ * Maps SCC provider names to CLIProxyAPI callback provider names
  * Used when submitting OAuth callbacks to CLIProxyAPI management endpoint
  */
 export const CLIPROXY_CALLBACK_PROVIDER_MAP: Record<CLIProxyProvider, string> = buildProviderMap(
@@ -334,7 +334,7 @@ export const CLIPROXY_CALLBACK_PROVIDER_MAP: Record<CLIProxyProvider, string> = 
 );
 
 /**
- * Maps CCS provider names to CLIProxyAPI auth-url endpoint prefixes.
+ * Maps SCC provider names to CLIProxyAPI auth-url endpoint prefixes.
  * Used for GET /v0/management/${prefix}-auth-url endpoints.
  * These differ from callback names for some providers (e.g., gemini-cli vs gemini).
  */

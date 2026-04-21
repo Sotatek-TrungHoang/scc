@@ -79,7 +79,7 @@ if [ "$RESTORE" = true ]; then
     rm -f "$BACKUP_PATH"
 
     echo "[OK] Restored original global ccs"
-    echo "Run 'ccs --version' to verify"
+    echo "Run 'scc --version' to verify"
     exit 0
 fi
 

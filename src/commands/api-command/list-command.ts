@@ -12,7 +12,7 @@ export async function handleApiListCommand(args: string[] = []): Promise<void> {
     process.exit(1);
   }
 
-  console.log(header('CCS API Profiles'));
+  console.log(header('SCC API Profiles'));
   console.log('');
 
   const { profiles, variants } = listApiProfiles();
@@ -20,7 +20,7 @@ export async function handleApiListCommand(args: string[] = []): Promise<void> {
     console.log(warn('No API profiles configured'));
     console.log('');
     console.log('To create an API profile:');
-    console.log(`  ${color('ccs api create', 'command')}`);
+    console.log(`  ${color('scc api create', 'command')}`);
     console.log('');
     return;
   }

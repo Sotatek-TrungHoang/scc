@@ -169,7 +169,7 @@ export { ensureCliproxyService, stopCliproxyService, getServiceStatus } from './
 export type { ProxyStatus, DetectionMethod } from './proxy-detector';
 export { detectRunningProxy, waitForProxyHealthy, reclaimOrphanedProxy } from './proxy-detector';
 
-// Startup lock (prevents race conditions between CCS processes)
+// Startup lock (prevents race conditions between SCC processes)
 export type { LockResult } from './startup-lock';
 export { acquireStartupLock, withStartupLock } from './startup-lock';
 

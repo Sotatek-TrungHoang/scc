@@ -353,7 +353,7 @@ export function buildClaudeEnvironment(config: ProxyChainConfig): Record<string,
   applyExtendedContextConfig(envVars, provider, extendedContextOverride);
 
   // Fallback compatibility for Codex:
-  // CLIProxyAPI provider lookup recognizes model(level) suffix form, while CCS stores codex
+  // CLIProxyAPI provider lookup recognizes model(level) suffix form, while SCC stores codex
   // effort aliases as model-level (e.g., gpt-5.3-codex-high). If codex reasoning proxy is
   // unavailable, normalize to model(level) to avoid "unknown provider for model ..." failures.
   if (provider === 'codex' && !isComposite && !codexReasoningPort) {

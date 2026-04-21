@@ -368,7 +368,7 @@ export function uninstallBrowserMcp(): boolean {
 export function ensureBrowserMcpOrThrow(): boolean {
   const ready = ensureBrowserMcp();
   if (!ready) {
-    throw new Error('Browser MCP is enabled, but CCS could not prepare the local browser tool.');
+    throw new Error('Browser MCP is enabled, but SCC could not prepare the local browser tool.');
   }
 
   return ready;

@@ -5,7 +5,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { mutateUnifiedConfig } from '../../../src/config/unified-config-loader';
 
-const BROWSER_PROMPT_SNIPPET = 'prefer the CCS MCP Browser tool';
+const BROWSER_PROMPT_SNIPPET = 'prefer the SCC MCP Browser tool';
 
 interface RunResult {
   status: number | null;
@@ -195,7 +195,7 @@ server.listen(0, '127.0.0.1', () => {
       CCS_BROWSER_PROFILE_DIR: browserProfileDir,
     });
 
-    expect(result.stderr).not.toContain('Browser MCP is enabled, but CCS could not prepare the local browser tool.');
+    expect(result.stderr).not.toContain('Browser MCP is enabled, but SCC could not prepare the local browser tool.');
     expect(result.stderr).not.toContain('could not sync the browser MCP config');
     expect(result.stderr).not.toContain('Chrome reuse metadata not found');
     expect(result.status).toBe(0);
@@ -210,7 +210,7 @@ server.listen(0, '127.0.0.1', () => {
     expect(launchedEnv).toContain('wsUrl=ws://127.0.0.1/devtools/browser/browser-target');
   });
 
-  it('skips managed browser attach for settings-profile launches when the default CCS browser profile directory is missing', () => {
+  it('skips managed browser attach for settings-profile launches when the default SCC browser profile directory is missing', () => {
     if (process.platform === 'win32') return;
 
     const originalCcsHome = process.env.CCS_HOME;
@@ -235,7 +235,7 @@ server.listen(0, '127.0.0.1', () => {
       });
 
       expect(result.status).toBe(0);
-      expect(result.stderr).toContain('CCS created the managed browser profile');
+      expect(result.stderr).toContain('SCC created the managed browser profile');
       expect(result.stderr).toContain('Start Chrome with remote debugging');
       expect(result.stderr).toContain('continue without browser tools');
       expect(fs.existsSync(path.join(tmpHome, '.ccs', 'browser', 'chrome-user-data'))).toBe(true);

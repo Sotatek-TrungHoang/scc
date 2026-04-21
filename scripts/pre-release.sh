@@ -27,7 +27,7 @@ bun test
 
 # 6. Help consistency check
 echo "[i] Checking help text includes config command..."
-if ! grep -q "ccs config" src/commands/help-command.ts; then
+if ! grep -q "scc config" src/commands/help-command.ts; then
     echo "[!] Missing config in help-command.ts"
 fi
 

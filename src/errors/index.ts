@@ -1,7 +1,7 @@
 /**
- * CCS Error Handling Module
+ * SCC Error Handling Module
  *
- * Centralized error handling system for CCS CLI providing:
+ * Centralized error handling system for SCC CLI providing:
  * - Standardized exit codes
  * - Custom error types with exit code mapping
  * - Centralized error handler with cleanup

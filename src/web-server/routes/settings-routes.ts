@@ -518,7 +518,7 @@ router.put('/:profile', (req: Request, res: Response): void => {
 
     const normalizedSettings = canonicalizeProfileSettings(profile, settings as Settings);
 
-    // Deduplicate CCS hooks to prevent accumulation (fixes #450)
+    // Deduplicate SCC hooks to prevent accumulation (fixes #450)
     // This handles cases where duplicate hooks were added by previous versions
     deduplicateCcsHooks(normalizedSettings as Record<string, unknown>);
     removeCcsImageAnalyzerHooks(normalizedSettings as Record<string, unknown>);

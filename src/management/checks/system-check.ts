@@ -1,5 +1,5 @@
 /**
- * System Health Checks - Claude CLI and CCS Directory
+ * System Health Checks - Claude CLI and SCC Directory
  */
 
 import * as fs from 'fs';

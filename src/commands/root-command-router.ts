@@ -2,7 +2,7 @@ import { resolveNamedCommand, type NamedCommandRoute } from './named-command-rou
 
 async function printUpdateCommandHelp(): Promise<void> {
   console.log('');
-  console.log('Usage: ccs update [options]');
+  console.log('Usage: scc update [options]');
   console.log('');
   console.log('Options:');
   console.log('  --force       Force reinstall current version');
@@ -10,9 +10,9 @@ async function printUpdateCommandHelp(): Promise<void> {
   console.log('  --help, -h    Show this help message');
   console.log('');
   console.log('Examples:');
-  console.log('  ccs update           Update to latest stable');
-  console.log('  ccs update --force   Force reinstall');
-  console.log('  ccs update --beta    Install dev channel');
+  console.log('  scc update           Update to latest stable');
+  console.log('  scc update --force   Force reinstall');
+  console.log('  scc update --beta    Install dev channel');
   console.log('');
 }
 

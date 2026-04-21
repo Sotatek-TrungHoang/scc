@@ -58,13 +58,13 @@ export class PermissionsChecker implements IHealthChecker {
 }
 
 /**
- * Check CCS symlinks to ~/.claude/
+ * Check SCC symlinks to ~/.claude/
  */
 export class CcsSymlinksChecker implements IHealthChecker {
-  name = 'CCS Symlinks';
+  name = 'SCC Symlinks';
 
   run(results: HealthCheck): void {
-    const spinner = ora('Checking CCS symlinks').start();
+    const spinner = ora('Checking SCC symlinks').start();
 
     try {
       const { ClaudeSymlinkManager } = require('../../utils/claude-symlink-manager');
@@ -74,27 +74,27 @@ export class CcsSymlinksChecker implements IHealthChecker {
       if (health.healthy) {
         const cnt = manager.ccsItems.length;
         spinner.succeed();
-        console.log(`  ${ok('CCS Symlinks'.padEnd(22))}  ${cnt}/${cnt} items linked`);
-        results.addCheck('CCS Symlinks', 'success', 'All CCS items properly symlinked', undefined, {
+        console.log(`  ${ok('SCC Symlinks'.padEnd(22))}  ${cnt}/${cnt} items linked`);
+        results.addCheck('SCC Symlinks', 'success', 'All SCC items properly symlinked', undefined, {
           status: 'OK',
           info: `${cnt}/${cnt} items synced`,
         });
       } else {
         spinner.warn();
-        console.log(`  ${warn('CCS Symlinks'.padEnd(22))}  ${health.issues.length} issues found`);
-        results.addCheck('CCS Symlinks', 'warning', health.issues.join(', '), 'Run: ccs sync', {
+        console.log(`  ${warn('SCC Symlinks'.padEnd(22))}  ${health.issues.length} issues found`);
+        results.addCheck('SCC Symlinks', 'warning', health.issues.join(', '), 'Run: scc sync', {
           status: 'WARN',
           info: `${health.issues.length} issues`,
         });
       }
     } catch (e) {
       spinner.warn();
-      console.log(`  ${warn('CCS Symlinks'.padEnd(22))}  Could not check`);
+      console.log(`  ${warn('SCC Symlinks'.padEnd(22))}  Could not check`);
       results.addCheck(
-        'CCS Symlinks',
+        'SCC Symlinks',
         'warning',
-        'Could not check CCS symlinks: ' + (e as Error).message,
-        'Run: ccs sync',
+        'Could not check SCC symlinks: ' + (e as Error).message,
+        'Run: scc sync',
         { status: 'WARN', info: 'Could not check' }
       );
     }
@@ -138,7 +138,7 @@ export class SettingsSymlinksChecker implements IHealthChecker {
           'Settings Symlinks',
           'warning',
           'Shared settings.json not found',
-          'Run: ccs sync'
+          'Run: scc sync'
         );
         return;
       }
@@ -151,7 +151,7 @@ export class SettingsSymlinksChecker implements IHealthChecker {
           'Settings Symlinks',
           'warning',
           'Shared settings.json is not a symlink',
-          'Run: ccs sync'
+          'Run: scc sync'
         );
         return;
       }
@@ -163,7 +163,7 @@ export class SettingsSymlinksChecker implements IHealthChecker {
           'Settings Symlinks',
           'warning',
           'Shared symlink points to wrong target',
-          'Run: ccs sync'
+          'Run: scc sync'
         );
         return;
       }
@@ -196,7 +196,7 @@ export class SettingsSymlinksChecker implements IHealthChecker {
           'Settings Symlinks',
           'warning',
           `${broken} instance(s) have broken symlinks`,
-          'Run: ccs sync',
+          'Run: scc sync',
           { status: 'WARN', info: `${broken} broken instance(s)` }
         );
       } else {
@@ -214,7 +214,7 @@ export class SettingsSymlinksChecker implements IHealthChecker {
         'Settings Symlinks',
         'warning',
         `Failed to check: ${(err as Error).message}`,
-        'Run: ccs sync',
+        'Run: scc sync',
         { status: 'WARN', info: 'Check failed' }
       );
     }

@@ -1,7 +1,7 @@
 /**
  * Health Check Service
  *
- * Orchestrates comprehensive health checks for CCS dashboard matching `ccs doctor` output.
+ * Orchestrates comprehensive health checks for SCC dashboard matching `scc doctor` output.
  * Groups: System, Environment, Configuration, Profiles & Delegation, System Health, CLIProxy, OAuth Readiness
  */
 

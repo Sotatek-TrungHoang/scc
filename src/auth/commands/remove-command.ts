@@ -23,7 +23,7 @@ export async function handleRemove(ctx: CommandContext, args: string[]): Promise
   if (!profileName) {
     console.log(fail('Profile name is required'));
     console.log('');
-    console.log(`Usage: ${color('ccs auth remove <profile> [--yes]', 'command')}`);
+    console.log(`Usage: ${color('scc auth remove <profile> [--yes]', 'command')}`);
     exitWithError('Profile name is required', ExitCode.PROFILE_ERROR);
   }
 

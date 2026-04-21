@@ -46,7 +46,7 @@ export function evaluateTargetRuntimeCompatibility(
   if (input.profileType === 'account') {
     return unsupported(
       'Codex CLI does not support Claude account-based profiles.',
-      'Use native Codex auth with: ccs --target codex'
+      'Use native Codex auth with: scc --target codex'
     );
   }
 
@@ -72,7 +72,7 @@ export function evaluateTargetRuntimeCompatibility(
     if (input.cliproxyProvider !== 'codex') {
       return unsupported(
         `Codex CLI only supports CLIProxy provider "codex". This profile routes to "${input.cliproxyProvider || 'unknown'}".`,
-        'Use: ccsxp, ccs codex --target codex, or stay on Claude/Droid for other providers.'
+        'Use: ccsxp, scc codex --target codex, or stay on Claude/Droid for other providers.'
       );
     }
     return { supported: true };
@@ -85,12 +85,12 @@ export function evaluateTargetRuntimeCompatibility(
     if (input.cliproxyBridgeProvider) {
       return unsupported(
         `Codex CLI only supports CLIProxy Codex bridge profiles. This API profile bridges "${input.cliproxyBridgeProvider}".`,
-        'Create a Codex bridge with: ccs api create --cliproxy-provider codex'
+        'Create a Codex bridge with: scc api create --cliproxy-provider codex'
       );
     }
     return unsupported(
       'Codex CLI currently supports native default sessions and Codex-routed CLIProxy sessions only.',
-      'Use Claude/Droid for generic API profiles, or create a Codex bridge with: ccs api create --cliproxy-provider codex'
+      'Use Claude/Droid for generic API profiles, or create a Codex bridge with: scc api create --cliproxy-provider codex'
     );
   }
 

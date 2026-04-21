@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { appendBrowserToolArgs } from '../../../../src/utils/browser/claude-tool-args';
 
 const BROWSER_STEERING_PROMPT =
-  'For DOM/screenshots/elements/page actions, prefer the CCS MCP Browser tool, reuse the configured running Chrome context whenever possible, and if the tool or context is unavailable, explain that clearly instead of pretending page state is available.';
+  'For DOM/screenshots/elements/page actions, prefer the SCC MCP Browser tool, reuse the configured running Chrome context whenever possible, and if the tool or context is unavailable, explain that clearly instead of pretending page state is available.';
 
 describe('appendBrowserToolArgs', () => {
   it('appends the browser steering prompt when it is missing', () => {

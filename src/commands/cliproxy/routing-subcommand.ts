@@ -17,7 +17,7 @@ function printStrategyGuide(): void {
   console.log('');
   console.log(
     dim(
-      '  Default stays round-robin. CCS will not switch strategy from your account mix automatically.'
+      '  Default stays round-robin. SCC will not switch strategy from your account mix automatically.'
     )
   );
   console.log('');

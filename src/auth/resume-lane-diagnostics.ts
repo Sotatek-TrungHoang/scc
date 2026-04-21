@@ -68,8 +68,8 @@ function resolveAccountLaneSummary(
     kind,
     label:
       kind === 'account-inherited'
-        ? `plain ccs inherits from account "${accountName}"`
-        : `plain ccs defaults to account "${accountName}"`,
+        ? `plain scc inherits from account "${accountName}"`
+        : `plain scc defaults to account "${accountName}"`,
     configDir,
     accountName,
     projectCount: countTopLevelProjectDirs(path.join(configDir, 'projects')),

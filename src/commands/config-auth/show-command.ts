@@ -52,7 +52,7 @@ export async function handleShow(): Promise<void> {
     console.log(ok(`Username: ${status.username}`));
     console.log(info(`Session timeout: ${status.sessionTimeoutHours} hours`));
   } else {
-    console.log(warn('Not configured - run `ccs config auth setup`'));
+    console.log(warn('Not configured - run `scc config auth setup`'));
   }
 
   console.log('');
@@ -82,8 +82,8 @@ export async function handleShow(): Promise<void> {
 
   // Help section
   console.log(subheader('Commands'));
-  console.log(dim('  ccs config auth setup     Configure authentication'));
-  console.log(dim('  ccs config auth disable   Disable authentication'));
-  console.log(dim('  ccs config                Open dashboard'));
+  console.log(dim('  scc config auth setup     Configure authentication'));
+  console.log(dim('  scc config auth disable   Disable authentication'));
+  console.log(dim('  scc config                Open dashboard'));
   console.log('');
 }

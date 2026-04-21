@@ -5,7 +5,7 @@
  * Test Environment Isolation
  *
  * Provides isolated ~/.ccs/ directory for tests to prevent
- * interference with the user's actual CCS configuration.
+ * interference with the user's actual SCC configuration.
  *
  * Usage:
  *   const { createTestEnvironment } = require('../fixtures/test-environment');
@@ -119,7 +119,7 @@ function createTestEnvironment() {
     originalHome,
 
     /**
-     * Get a path within the test CCS directory
+     * Get a path within the test SCC directory
      * @param {...string} parts - Path segments
      * @returns {string} Full path
      */
@@ -128,7 +128,7 @@ function createTestEnvironment() {
     },
 
     /**
-     * Create a file in the test CCS directory
+     * Create a file in the test SCC directory
      * @param {string} relativePath - Path relative to .ccs/
      * @param {string|object} content - File content (objects are JSON stringified)
      */
@@ -143,7 +143,7 @@ function createTestEnvironment() {
     },
 
     /**
-     * Read a file from the test CCS directory
+     * Read a file from the test SCC directory
      * @param {string} relativePath - Path relative to .ccs/
      * @param {boolean} [asJson=false] - Parse as JSON
      * @returns {string|object} File content
@@ -155,7 +155,7 @@ function createTestEnvironment() {
     },
 
     /**
-     * Check if a file exists in the test CCS directory
+     * Check if a file exists in the test SCC directory
      * @param {string} relativePath - Path relative to .ccs/
      * @returns {boolean}
      */
@@ -216,8 +216,8 @@ function createTestEnvironment() {
 }
 
 /**
- * Get the CCS home directory (respects CCS_HOME env var)
- * This should be used instead of os.homedir() for CCS paths
+ * Get the SCC home directory (respects CCS_HOME env var)
+ * This should be used instead of os.homedir() for SCC paths
  *
  * @returns {string} Home directory path
  */
@@ -226,7 +226,7 @@ function getCcsHome() {
 }
 
 /**
- * Get the CCS directory path
+ * Get the SCC directory path
  *
  * @returns {string} Path to .ccs directory
  */

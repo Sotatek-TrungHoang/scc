@@ -23,10 +23,10 @@ function summarizeBrowserHealth(status: BrowserStatusPayload): {
 function writeCommandTable(writeLine: HelpWriter): void {
   writeLine(subheader('Commands'));
   writeLine(
-    `  ${color('ccs browser status', 'command')}  Show Claude attach and Codex browser readiness`
+    `  ${color('scc browser status', 'command')}  Show Claude attach and Codex browser readiness`
   );
   writeLine(
-    `  ${color('ccs browser doctor', 'command')}  Explain what is missing and how to fix it`
+    `  ${color('scc browser doctor', 'command')}  Explain what is missing and how to fix it`
   );
   writeLine('');
 }
@@ -81,12 +81,12 @@ function writeCodexStatus(status: BrowserStatusPayload['codex'], writeLine: Help
 
 export async function showBrowserHelp(writeLine: HelpWriter = console.log): Promise<void> {
   await initUI();
-  writeLine(header('CCS Browser Help'));
+  writeLine(header('SCC Browser Help'));
   writeLine('');
   writeIntro(writeLine);
   writeLine(subheader('Usage'));
-  writeLine(`  ${color('ccs browser <status|doctor>', 'command')}`);
-  writeLine(`  ${color('ccs help browser', 'command')}`);
+  writeLine(`  ${color('scc browser <status|doctor>', 'command')}`);
+  writeLine(`  ${color('scc help browser', 'command')}`);
   writeLine('');
   writeCommandTable(writeLine);
   writeLine(subheader('What Each Lane Does'));
@@ -94,12 +94,12 @@ export async function showBrowserHelp(writeLine: HelpWriter = console.log): Prom
   writeLine('  Codex Browser Tools depend on a Codex build that supports --config overrides.');
   writeLine('');
   writeLine(subheader('Examples'));
-  writeLine(`  ${color('ccs browser status', 'command')}  ${dim('# Quick readiness snapshot')}`);
+  writeLine(`  ${color('scc browser status', 'command')}  ${dim('# Quick readiness snapshot')}`);
   writeLine(
-    `  ${color('ccs browser doctor', 'command')}  ${dim('# Detailed troubleshooting output')}`
+    `  ${color('scc browser doctor', 'command')}  ${dim('# Detailed troubleshooting output')}`
   );
   writeLine(
-    `  ${color('ccs config', 'command')}          ${dim('# Open Settings > Browser in the dashboard')}`
+    `  ${color('scc config', 'command')}          ${dim('# Open Settings > Browser in the dashboard')}`
   );
   writeLine('');
 }
@@ -127,7 +127,7 @@ export async function handleBrowserCommand(
   await initUI();
   const status = await getBrowserStatus();
 
-  writeLine(header(`ccs browser ${subcommand}`));
+  writeLine(header(`scc browser ${subcommand}`));
   writeLine('');
   writeIntro(writeLine);
 

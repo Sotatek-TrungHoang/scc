@@ -109,7 +109,7 @@ function Cleanup-AndRestore {
 
 Write-Host ""
 Write-ColorOutput "========================================" "Cyan"
-Write-ColorOutput "CCS --uninstall Functionality Tests" "Cyan"
+Write-ColorOutput "SCC --uninstall Functionality Tests" "Cyan"
 Write-ColorOutput "========================================" "Cyan"
 Write-Host ""
 
@@ -136,7 +136,7 @@ if (-not (Test-Path $CcsPath)) {
 Write-ColorOutput "Testing CCS executable basic functionality..." "Yellow"
 try {
     $versionOutput = & "$CcsPath" --version 2>&1 | Out-String
-    Write-ColorOutput "CCS Version: $versionOutput" "Green"
+    Write-ColorOutput "SCC Version: $versionOutput" "Green"
 } catch {
     Write-ColorOutput "Warning: CCS executable test failed: $($_.Exception.Message)" "Yellow"
     Write-ColorOutput "Attempting to continue with tests..." "Yellow"

@@ -31,7 +31,7 @@ export async function runImageAnalysisCheck(results: HealthCheck): Promise<void>
       info: 'Disabled (using native Read)',
     };
     console.log(`  ${dim('Status:')} Disabled`);
-    console.log(`  ${dim('Tip:')} Enable with: ccs config image-analysis --enable`);
+    console.log(`  ${dim('Tip:')} Enable with: scc config image-analysis --enable`);
     return;
   }
 
@@ -48,7 +48,7 @@ export async function runImageAnalysisCheck(results: HealthCheck): Promise<void>
     results.errors.push({
       name: 'Image Analysis',
       message: 'No provider models configured for image analysis',
-      fix: 'ccs config image-analysis --set-model agy gemini-3-1-flash-preview',
+      fix: 'scc config image-analysis --set-model agy gemini-3-1-flash-preview',
     });
     console.log(`  ${warn('Providers:')} None configured`);
     return;
@@ -64,7 +64,7 @@ export async function runImageAnalysisCheck(results: HealthCheck): Promise<void>
     results.errors.push({
       name: 'Image Analysis',
       message: `Timeout ${config.timeout}s out of range (10-600)`,
-      fix: 'ccs config image-analysis --timeout 60',
+      fix: 'scc config image-analysis --timeout 60',
     });
     console.log(`  ${warn('Timeout:')} ${config.timeout}s (invalid, must be 10-600)`);
     return;
@@ -76,7 +76,7 @@ export async function runImageAnalysisCheck(results: HealthCheck): Promise<void>
     results.warnings.push({
       name: 'Image Analysis',
       message: `${staleHookCount} stale CCS-managed image hook setting file(s) were detected`,
-      fix: 'Run: ccs doctor --fix',
+      fix: 'Run: scc doctor --fix',
     });
     console.log(`  ${warn('Hooks:')} ${staleHookCount} stale setting file(s) can be repaired`);
   }
@@ -91,8 +91,8 @@ export async function runImageAnalysisCheck(results: HealthCheck): Promise<void>
     results.warnings.push({
       name: 'Image Analysis',
       message:
-        'CLIProxy not running yet - CCS will start it automatically when ImageAnalysis is used',
-      fix: 'Optional warm-up: ccs config',
+        'CLIProxy not running yet - SCC will start it automatically when ImageAnalysis is used',
+      fix: 'Optional warm-up: scc config',
     });
     console.log(
       `  ${warn('CLIProxy:')} Idle at http://127.0.0.1:${CLIPROXY_DEFAULT_PORT} (auto-start on launch)`

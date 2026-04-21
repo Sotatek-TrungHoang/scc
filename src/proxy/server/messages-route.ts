@@ -23,7 +23,7 @@ function buildUpstreamHeaders(profile: OpenAICompatProfileConfig): Record<string
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${profile.apiKey}`,
-    'User-Agent': 'CCS-OpenAI-Compat-Proxy/1.0',
+    'User-Agent': 'SCC-OpenAI-Compat-Proxy/1.0',
   };
   const gitRemote = getGitRemoteOutput();
   if (gitRemote) {

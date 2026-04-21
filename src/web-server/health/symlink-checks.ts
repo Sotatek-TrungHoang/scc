@@ -1,7 +1,7 @@
 /**
  * Symlink Health Checks
  *
- * Check CCS symlinks and settings symlinks.
+ * Check SCC symlinks and settings symlinks.
  */
 
 import * as fs from 'fs';
@@ -9,7 +9,7 @@ import * as path from 'path';
 import type { HealthCheck } from './types';
 
 /**
- * Check CCS symlinks health
+ * Check SCC symlinks health
  */
 export function checkCcsSymlinks(): HealthCheck {
   try {
@@ -21,7 +21,7 @@ export function checkCcsSymlinks(): HealthCheck {
       const itemCount = manager.ccsItems.length;
       return {
         id: 'ccs-symlinks',
-        name: 'CCS Symlinks',
+        name: 'SCC Symlinks',
         status: 'ok',
         message: `${itemCount}/${itemCount} items linked`,
       };
@@ -29,19 +29,19 @@ export function checkCcsSymlinks(): HealthCheck {
 
     return {
       id: 'ccs-symlinks',
-      name: 'CCS Symlinks',
+      name: 'SCC Symlinks',
       status: 'warning',
       message: `${health.issues.length} issues found`,
-      fix: 'Run: ccs sync',
+      fix: 'Run: scc sync',
     };
   } catch (e) {
     return {
       id: 'ccs-symlinks',
-      name: 'CCS Symlinks',
+      name: 'SCC Symlinks',
       status: 'warning',
       message: 'Could not check',
       details: (e as Error).message,
-      fix: 'Run: ccs sync',
+      fix: 'Run: scc sync',
     };
   }
 }
@@ -61,7 +61,7 @@ export function checkSettingsSymlinks(ccsDir: string, claudeDir: string): Health
         name: 'settings.json',
         status: 'warning',
         message: 'Shared not found',
-        fix: 'Run: ccs sync',
+        fix: 'Run: scc sync',
       };
     }
 
@@ -72,7 +72,7 @@ export function checkSettingsSymlinks(ccsDir: string, claudeDir: string): Health
         name: 'settings.json',
         status: 'warning',
         message: 'Not a symlink',
-        fix: 'Run: ccs sync',
+        fix: 'Run: scc sync',
       };
     }
 
@@ -85,7 +85,7 @@ export function checkSettingsSymlinks(ccsDir: string, claudeDir: string): Health
         name: 'settings.json',
         status: 'warning',
         message: 'Wrong target',
-        fix: 'Run: ccs sync',
+        fix: 'Run: scc sync',
       };
     }
 
@@ -133,7 +133,7 @@ export function checkSettingsSymlinks(ccsDir: string, claudeDir: string): Health
         name: 'settings.json',
         status: 'warning',
         message: `${broken} broken instance(s)`,
-        fix: 'Run: ccs sync',
+        fix: 'Run: scc sync',
       };
     }
 
@@ -150,7 +150,7 @@ export function checkSettingsSymlinks(ccsDir: string, claudeDir: string): Health
       status: 'warning',
       message: 'Check failed',
       details: (e as Error).message,
-      fix: 'Run: ccs sync',
+      fix: 'Run: scc sync',
     };
   }
 }

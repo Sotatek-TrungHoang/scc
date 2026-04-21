@@ -32,7 +32,7 @@ describe('browser command', () => {
         overrideActive: false,
         state: 'ready',
         title: 'Claude Browser Attach is ready.',
-        detail: 'CCS can reach the configured Chrome DevTools endpoint.',
+        detail: 'SCC can reach the configured Chrome DevTools endpoint.',
         nextStep: 'Launch Claude.',
         effectiveUserDataDir: '/tmp/browser-profile',
         recommendedUserDataDir: '/tmp/browser-profile',
@@ -56,7 +56,7 @@ describe('browser command', () => {
         enabled: true,
         state: 'enabled',
         title: 'Codex Browser Tools are enabled.',
-        detail: 'CCS can inject the managed Playwright MCP overrides.',
+        detail: 'SCC can inject the managed Playwright MCP overrides.',
         nextStep: 'Use a Codex-target launch.',
         serverName: 'ccs_browser',
         supportsConfigOverrides: true,
@@ -68,7 +68,7 @@ describe('browser command', () => {
     try {
       const rendered = await renderLines(['status']);
 
-      expect(rendered.includes('ccs browser status')).toBe(true);
+      expect(rendered.includes('scc browser status')).toBe(true);
       expect(rendered.includes('Claude Browser Attach reuses a local Chrome session')).toBe(true);
       expect(rendered.includes('Codex Browser Tools inject managed Playwright MCP overrides')).toBe(
         true
@@ -144,9 +144,9 @@ describe('browser command', () => {
         overrideActive: false,
         state: 'disabled',
         title: 'Claude Browser Attach is disabled.',
-        detail: 'CCS will not provision the managed browser MCP runtime for Claude launches until this lane is enabled.',
+        detail: 'SCC will not provision the managed browser MCP runtime for Claude launches until this lane is enabled.',
         nextStep:
-          'Enable Claude Browser Attach in Settings > Browser or in ~/.ccs/config.yaml, then rerun `ccs browser doctor`.',
+          'Enable Claude Browser Attach in Settings > Browser or in ~/.ccs/config.yaml, then rerun `scc browser doctor`.',
         effectiveUserDataDir: '/tmp/browser-profile',
         recommendedUserDataDir: '/tmp/browser-profile',
         devtoolsPort: 9222,
@@ -164,7 +164,7 @@ describe('browser command', () => {
         enabled: true,
         state: 'unsupported_build',
         title: 'Codex Browser Tools need a Codex build with --config override support.',
-        detail: 'No Codex binary was detected, so CCS cannot confirm managed browser override support.',
+        detail: 'No Codex binary was detected, so SCC cannot confirm managed browser override support.',
         nextStep: 'Install or upgrade Codex, then rerun browser status/doctor.',
         serverName: 'ccs_browser',
         supportsConfigOverrides: false,
@@ -176,7 +176,7 @@ describe('browser command', () => {
       const rendered = await renderLines(['doctor']);
 
       expect(rendered.includes('Result: partial')).toBe(true);
-      expect(rendered.includes('run `ccs browser enable`')).toBe(false);
+      expect(rendered.includes('run `scc browser enable`')).toBe(false);
       expect(process.exitCode).toBe(0);
     } finally {
       statusSpy.mockRestore();

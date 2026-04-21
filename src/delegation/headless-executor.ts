@@ -196,7 +196,7 @@ export class HeadlessExecutor {
       if (!ensureServiceResult.started) {
         console.error(
           warn(
-            `Image analysis via ${imageAnalysisProvider} is unavailable because CCS could not start the local CLIProxy service. This delegation will use native Read.`
+            `Image analysis via ${imageAnalysisProvider} is unavailable because SCC could not start the local CLIProxy service. This delegation will use native Read.`
           )
         );
         imageAnalysisEnv = {
@@ -365,7 +365,7 @@ export class HeadlessExecutor {
         console.error(ui.info(`Delegating to ${modelName}...`));
       }
 
-      // Strip Claude Code nested session guard env var to allow CCS delegation
+      // Strip Claude Code nested session guard env var to allow SCC delegation
       // (Claude Code v2.1.39+ sets CLAUDECODE to detect nested sessions)
       const cleanEnv = stripClaudeCodeEnv({
         ...process.env,

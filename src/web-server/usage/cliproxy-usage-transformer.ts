@@ -2,7 +2,7 @@
  * CLIProxy Usage Transformer
  *
  * Transforms CLIProxy's usage API response into DailyUsage/HourlyUsage/MonthlyUsage
- * types compatible with the CCS analytics dashboard.
+ * types compatible with the SCC analytics dashboard.
  */
 
 import type { CliproxyUsageApiResponse, CliproxyRequestDetail } from '../../cliproxy/stats-fetcher';

@@ -1,7 +1,7 @@
 /**
  * CLIProxy Service Manager
  *
- * Manages CLIProxyAPI as a background service for the CCS dashboard.
+ * Manages CLIProxyAPI as a background service for the SCC dashboard.
  * Ensures the proxy is running when needed for:
  * - Control Panel integration (management.html)
  * - Stats fetching
@@ -88,7 +88,7 @@ function registerCleanup(): void {
       tokenRefreshWorker = null;
     }
     // Do not stop detached CLIProxy on parent exit.
-    // Persistence is expected across CCS command lifecycles.
+    // Persistence is expected across SCC command lifecycles.
   };
 
   process.once('exit', cleanup);
@@ -166,7 +166,7 @@ export async function ensureCliproxyService(
     configRegenerated = true;
   }
 
-  // Use startup lock to coordinate with other CCS processes (ccs agy, ccs config, etc.)
+  // Use startup lock to coordinate with other SCC processes (scc agy, scc config, etc.)
   return await withStartupLock(async () => {
     // Use unified detection (HTTP check + session-lock + port-process)
     log(`Checking if CLIProxy is running on port ${port}...`);

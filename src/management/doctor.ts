@@ -1,5 +1,5 @@
 /**
- * CCS Health Check and Diagnostics - Main Orchestrator
+ * SCC Health Check and Diagnostics - Main Orchestrator
  */
 
 import { initUI, header, box, table, color, ok, fail, warn, info } from '../utils/ui';
@@ -36,11 +36,11 @@ class Doctor {
     await initUI();
 
     // Hero header box
-    console.log(box(`CCS Health Check v${this.ccsVersion}`, { borderStyle: 'round', padding: 0 }));
+    console.log(box(`SCC Health Check v${this.ccsVersion}`, { borderStyle: 'round', padding: 0 }));
     console.log('');
 
-    // Store CCS version in details
-    this.results.details['CCS Version'] = { status: 'OK', info: `v${this.ccsVersion}` };
+    // Store SCC version in details
+    this.results.details['SCC Version'] = { status: 'OK', info: `v${this.ccsVersion}` };
 
     // Group 1: System
     console.log(header('SYSTEM'));
@@ -142,7 +142,7 @@ class Doctor {
     if (this.results.isHealthy() && !this.results.hasWarnings()) {
       console.log(ok('All checks passed! Installation is healthy.'));
       console.log('');
-      console.log(info(`Tip: Use ${color('ccs config', 'command')} for web-based configuration`));
+      console.log(info(`Tip: Use ${color('scc config', 'command')} for web-based configuration`));
     } else if (this.results.hasErrors()) {
       console.log(fail('Installation has errors. Run suggested fixes above.'));
     } else {
@@ -152,7 +152,7 @@ class Doctor {
         )
       );
       console.log('');
-      console.log(info(`Tip: Use ${color('ccs config', 'command')} for web-based configuration`));
+      console.log(info(`Tip: Use ${color('scc config', 'command')} for web-based configuration`));
     }
 
     console.log('');

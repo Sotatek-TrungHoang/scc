@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CCS Progress Indicator (bash 3.2+ compatible)
+# SCC Progress Indicator (bash 3.2+ compatible)
 # Simple spinner for long-running operations
 # NO external dependencies - ASCII-only for cross-platform compatibility
 

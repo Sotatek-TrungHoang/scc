@@ -1,5 +1,5 @@
 /**
- * CCS Configuration Types
+ * SCC Configuration Types
  * Source: ~/.ccs/config.json
  */
 
@@ -54,7 +54,7 @@ export interface OpenAICompatProxyConfig {
 }
 
 /**
- * Main CCS configuration
+ * Main SCC configuration
  * Located at: ~/.ccs/config.json
  */
 export interface Config {

@@ -1,7 +1,7 @@
 /**
  * Auth Commands (Facade)
  *
- * CLI interface for CCS multi-account management.
+ * CLI interface for SCC multi-account management.
  * Commands: create, list, show, remove, default, reset-default
  *
  * Login-per-profile model: Each profile is an isolated Claude instance.
@@ -62,10 +62,10 @@ class AuthCommands {
   async showHelp(): Promise<void> {
     await initUI();
 
-    console.log(header('CCS Concurrent Account Management'));
+    console.log(header('SCC Concurrent Account Management'));
     console.log('');
     console.log(subheader('Usage'));
-    console.log(`  ${color('ccs auth', 'command')} <command> [options]`);
+    console.log(`  ${color('scc auth', 'command')} <command> [options]`);
     console.log('');
     console.log(subheader('Commands'));
     console.log(`  ${color('create <profile>', 'command')}        Create new profile and login`);
@@ -82,39 +82,39 @@ class AuthCommands {
     console.log('');
     console.log(subheader('Examples'));
     console.log(`  ${dim('# Create & login to work profile')}`);
-    console.log(`  ${color('ccs auth create work', 'command')}`);
+    console.log(`  ${color('scc auth create work', 'command')}`);
     console.log('');
     console.log(`  ${dim('# Create account with shared project context (default group)')}`);
-    console.log(`  ${color('ccs auth create work2 --share-context', 'command')}`);
+    console.log(`  ${color('scc auth create work2 --share-context', 'command')}`);
     console.log('');
     console.log(`  ${dim('# Share context only within a specific group')}`);
-    console.log(`  ${color('ccs auth create backup --context-group sprint-a', 'command')}`);
+    console.log(`  ${color('scc auth create backup --context-group sprint-a', 'command')}`);
     console.log('');
     console.log(`  ${dim('# Advanced: deeper shared continuity for session history artifacts')}`);
     console.log(
-      `  ${color('ccs auth create backup --context-group sprint-a --deeper-continuity', 'command')}`
+      `  ${color('scc auth create backup --context-group sprint-a --deeper-continuity', 'command')}`
     );
     console.log('');
     console.log(`  ${dim('# Create clean profile without shared commands/skills/agents')}`);
-    console.log(`  ${color('ccs auth create sandbox --bare', 'command')}`);
+    console.log(`  ${color('scc auth create sandbox --bare', 'command')}`);
     console.log('');
     console.log(`  ${dim('# Set work as default')}`);
-    console.log(`  ${color('ccs auth default work', 'command')}`);
+    console.log(`  ${color('scc auth default work', 'command')}`);
     console.log('');
     console.log(`  ${dim('# Backup the local continuity lane for an account or plain ccs')}`);
-    console.log(`  ${color('ccs auth backup work', 'command')}`);
+    console.log(`  ${color('scc auth backup work', 'command')}`);
     console.log(
-      `  ${color('ccs auth backup default', 'command')}  ${dim('# backup plain ccs lane')}`
+      `  ${color('scc auth backup default', 'command')}  ${dim('# backup plain scc lane')}`
     );
     console.log('');
-    console.log(`  ${dim('# Restore original CCS behavior')}`);
-    console.log(`  ${color('ccs auth reset-default', 'command')}`);
+    console.log(`  ${dim('# Restore original SCC behavior')}`);
+    console.log(`  ${color('scc auth reset-default', 'command')}`);
     console.log('');
     console.log(`  ${dim('# List all profiles')}`);
-    console.log(`  ${color('ccs auth list', 'command')}`);
+    console.log(`  ${color('scc auth list', 'command')}`);
     console.log('');
     console.log(`  ${dim('# Use work profile')}`);
-    console.log(`  ${color('ccs work "review code"', 'command')}`);
+    console.log(`  ${color('scc work "review code"', 'command')}`);
     console.log('');
     console.log(subheader('Options'));
     console.log(
@@ -147,7 +147,7 @@ class AuthCommands {
       `  By default, ${color('ccs', 'command')} uses Claude CLI defaults from ~/.claude/`
     );
     console.log(
-      `  Use ${color('ccs auth default <profile>', 'command')} to change the default profile.`
+      `  Use ${color('scc auth default <profile>', 'command')} to change the default profile.`
     );
     console.log(
       `  Account profiles stay isolated unless you opt in with ${color('--share-context', 'command')}.`
@@ -156,7 +156,7 @@ class AuthCommands {
       `  ${color('--deeper-continuity', 'command')} requires shared mode and syncs session-env/file-history/todos/shell-snapshots.`
     );
     console.log(
-      `  Existing profiles: open ${color('ccs config', 'command')} -> Accounts -> Edit Context.`
+      `  Existing profiles: open ${color('scc config', 'command')} -> Accounts -> Edit Context.`
     );
     console.log(`  Shared context groups are normalized (trim + lowercase) and spaces become "-".`);
     console.log(
@@ -232,7 +232,7 @@ class AuthCommands {
         // Deprecated - redirect to create
         await initUI();
         console.log(warn('Command "save" is deprecated'));
-        console.log(`    Use: ${color('ccs auth create <profile>', 'command')} instead`);
+        console.log(`    Use: ${color('scc auth create <profile>', 'command')} instead`);
         console.log('');
         await this.handleCreate(commandArgs);
         break;
@@ -266,7 +266,7 @@ class AuthCommands {
         console.log(warn('Command "current" has been removed'));
         console.log('');
         console.log('Each profile has its own login in an isolated instance.');
-        console.log(`Use ${color('ccs auth list', 'command')} to see all profiles.`);
+        console.log(`Use ${color('scc auth list', 'command')} to see all profiles.`);
         console.log('');
         break;
 
@@ -275,7 +275,7 @@ class AuthCommands {
         console.log(warn('Command "cleanup" has been removed'));
         console.log('');
         console.log('No cleanup needed - no separate vault files.');
-        console.log(`Use ${color('ccs auth list', 'command')} to see all profiles.`);
+        console.log(`Use ${color('scc auth list', 'command')} to see all profiles.`);
         console.log('');
         break;
 
@@ -284,7 +284,7 @@ class AuthCommands {
         console.log(fail(`Unknown command: ${command}`));
         console.log('');
         console.log('Run for help:');
-        console.log(`  ${color('ccs auth --help', 'command')}`);
+        console.log(`  ${color('scc auth --help', 'command')}`);
         process.exit(1);
     }
   }

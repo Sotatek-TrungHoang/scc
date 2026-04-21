@@ -452,7 +452,7 @@ function buildCodexHttpFailureResult(
       httpStatus: 401,
       errorCode: parsed.errorCode || 'reauth_required',
       errorDetail: parsed.errorDetail,
-      actionHint: 'Run ccs cliproxy auth codex to re-authenticate this account.',
+      actionHint: 'Run scc cliproxy auth codex to re-authenticate this account.',
       needsReauth: true,
       retryable: false,
     });
@@ -556,18 +556,18 @@ export async function fetchCodexQuota(
     return buildCodexFailureResult(accountId, {
       error,
       errorCode: 'auth_file_missing',
-      actionHint: 'Remove the stale account or authenticate again with ccs cliproxy auth codex.',
+      actionHint: 'Remove the stale account or authenticate again with scc cliproxy auth codex.',
       retryable: false,
     });
   }
 
   if (authData.isExpired) {
-    const error = 'Token expired - re-authenticate with ccs cliproxy auth codex';
+    const error = 'Token expired - re-authenticate with scc cliproxy auth codex';
     if (verbose) console.error(`[!] Error: ${error}`);
     return buildCodexFailureResult(accountId, {
       error,
       errorCode: 'token_expired',
-      actionHint: 'Run ccs cliproxy auth codex to refresh the token for this account.',
+      actionHint: 'Run scc cliproxy auth codex to refresh the token for this account.',
       needsReauth: true,
       retryable: false,
     });

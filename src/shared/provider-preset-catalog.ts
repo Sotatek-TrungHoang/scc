@@ -255,7 +255,7 @@ const RAW_PROVIDER_PRESET_DEFINITIONS: readonly ProviderPresetDefinition[] = [
   {
     id: 'novita',
     name: 'Novita AI',
-    description: 'Anthropic-compatible API for Claude Code and CCS profiles',
+    description: 'Anthropic-compatible API for Claude Code and SCC profiles',
     baseUrl: 'https://api.novita.ai/anthropic',
     defaultProfileName: 'novita',
     defaultModel: 'deepseek/deepseek-v3.2',

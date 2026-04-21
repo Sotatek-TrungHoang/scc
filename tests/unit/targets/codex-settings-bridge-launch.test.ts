@@ -132,7 +132,7 @@ exit 0
     expect(fs.readFileSync(codexEnvLogPath, 'utf8')).toBe('bridge-token');
   });
 
-  it('rejects native Codex profile flags when CCS manages the bridge runtime', () => {
+  it('rejects native Codex profile flags when SCC manages the bridge runtime', () => {
     if (process.platform === 'win32') return;
 
     const result = runCcs(['codex-api', '--target', 'codex', '--profile', 'other', 'smoke'], baseEnv);

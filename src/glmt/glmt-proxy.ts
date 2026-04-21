@@ -8,7 +8,7 @@
  * - Supports both streaming and buffered modes
  *
  * Current status:
- * - No longer started by the normal `ccs glmt` runtime path
+ * - No longer started by the normal `scc glmt` runtime path
  * - Kept for legacy/internal compatibility and transformer-adjacent tests
  * - Binds to 127.0.0.1:random_port (security + avoid conflicts)
  * - Terminates when parent process exits
@@ -801,7 +801,7 @@ export class GlmtProxy {
           'To fix:\n' +
           '  1. Go to Z.AI dashboard and regenerate your API key\n' +
           '  2. Update ~/.ccs/glm.settings.json with the new key\n' +
-          '  3. Or run: ccs config -> API Profiles -> GLM -> Update key',
+          '  3. Or run: scc config -> API Profiles -> GLM -> Update key',
       };
     }
 

@@ -55,11 +55,11 @@ export class EnvironmentChecker implements IHealthChecker {
     }
     console.log(`  ${''.padEnd(24)}  Browser: ${diag.browserReason}`);
 
-    // Show CCS directory and source
+    // Show SCC directory and source
     const ccsDir = getCcsDir();
     const [dirSource] = getCcsDirSource();
     const sourceLabel = dirSource === 'default' ? '' : ` (via ${dirSource})`;
-    console.log(`  ${''.padEnd(24)}  CCS Dir: ${ccsDir}${sourceLabel}`);
+    console.log(`  ${''.padEnd(24)}  SCC Dir: ${ccsDir}${sourceLabel}`);
 
     results.addCheck(
       'Environment',

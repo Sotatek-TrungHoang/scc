@@ -21,7 +21,7 @@ const DISALLOWED_TOOLS_FLAG = '--disallowedTools';
 export const THIRD_PARTY_WEBSEARCH_STEERING_PROMPT = {
   name: 'ccs-prompt-websearch-tool',
   content:
-    'For web lookup or current-information requests, prefer the CCS MCP tool WebSearch instead of Bash/curl/http fetches. If the user explicitly wants shell commands, or WebSearch is unavailable or fails, you may fall back to Bash/network tools.',
+    'For web lookup or current-information requests, prefer the SCC MCP tool WebSearch instead of Bash/curl/http fetches. If the user explicitly wants shell commands, or WebSearch is unavailable or fails, you may fall back to Bash/network tools.',
 };
 
 function parseToolValue(rawValue: string): string[] {

@@ -119,12 +119,12 @@ describe('Auth Token Manager', () => {
       assert.strictEqual(maskToken('!@#$abcd____wxyz'), '!@#$...wxyz');
     });
 
-    it('handles default CCS internal key', () => {
+    it('handles default SCC internal key', () => {
       const internalKey = 'ccs-internal-managed';
       assert.strictEqual(maskToken(internalKey), 'ccs-...aged');
     });
 
-    it('handles default CCS control panel secret', () => {
+    it('handles default SCC control panel secret', () => {
       const secret = 'ccs';
       assert.strictEqual(maskToken(secret), '****');
     });

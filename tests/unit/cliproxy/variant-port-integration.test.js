@@ -3,10 +3,10 @@
  *
  * Tests for PR #184: feat(cliproxy): add variant port isolation
  * Maps directly to the PR test plan:
- * - [x] Create multiple variants with `ccs cliproxy create`
+ * - [x] Create multiple variants with `scc cliproxy create`
  * - [x] Verify each variant gets unique port in config
  * - [x] Run multiple variants concurrently
- * - [x] Verify `ccs cliproxy list` shows port column
+ * - [x] Verify `scc cliproxy list` shows port column
  * - [x] Remove variant and verify cleanup of port-specific files
  */
 
@@ -84,7 +84,7 @@ describe('PR #184: Variant Port Isolation Integration', function () {
   });
 
   // ==========================================================================
-  // PR Test Plan: Create multiple variants with ccs cliproxy create
+  // PR Test Plan: Create multiple variants with scc cliproxy create
   // ==========================================================================
   describe('Test Plan: Create multiple variants', function () {
     it('creates 3 variants with unique ports via createVariant flow', function () {
@@ -307,7 +307,7 @@ describe('PR #184: Variant Port Isolation Integration', function () {
   });
 
   // ==========================================================================
-  // PR Test Plan: Verify ccs cliproxy list shows port column
+  // PR Test Plan: Verify scc cliproxy list shows port column
   // ==========================================================================
   describe('Test Plan: Verify list shows port column', function () {
     it('listVariantsFromConfig returns port for each variant', function () {

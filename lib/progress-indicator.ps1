@@ -1,4 +1,4 @@
-# CCS Progress Indicator (PowerShell 5.1+ compatible)
+# SCC Progress Indicator (PowerShell 5.1+ compatible)
 # Simple spinner for long-running operations
 # NO external dependencies - ASCII-only for cross-platform compatibility
 

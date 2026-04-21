@@ -69,7 +69,7 @@ export function maskApiKeyPreview(value: string): string {
 }
 
 function isCcsManagedDisplayName(displayName: string): boolean {
-  return displayName.startsWith('CCS ') || displayName.startsWith('ccs-');
+  return displayName.startsWith('SCC ') || displayName.startsWith('ccs-');
 }
 
 export function resolveDroidConfigPaths(

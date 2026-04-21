@@ -73,7 +73,7 @@ cleanup_and_restore() {
 
 echo ""
 echo "========================================"
-echo "CCS --uninstall Functionality Tests"
+echo "SCC --uninstall Functionality Tests"
 echo "========================================"
 echo ""
 

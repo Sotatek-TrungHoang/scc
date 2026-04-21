@@ -5,7 +5,7 @@ import {
 } from '../../../src/targets/droid-reasoning-runtime';
 
 describe('droid-reasoning-runtime', () => {
-  it('extracts --thinking and strips CCS reasoning flags from args', () => {
+  it('extracts --thinking and strips SCC reasoning flags from args', () => {
     const runtime = resolveDroidReasoningRuntime(['--thinking', 'high', '--verbose'], undefined);
 
     expect(runtime.reasoningOverride).toBe('high');

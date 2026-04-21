@@ -235,10 +235,10 @@ describe('skip-local-auth logic', () => {
       const isModelBroken = true;
 
       // When remote: "Note: Model may be overridden by remote proxy configuration."
-      // When local: "Run ccs <provider> --config to change model."
+      // When local: "Run scc <provider> --config to change model."
       const remoteMessage = skipLocalAuth
         ? 'Note: Model may be overridden by remote proxy configuration.'
-        : 'Run "ccs provider --config" to change model.';
+        : 'Run "scc provider --config" to change model.';
 
       expect(remoteMessage).toContain('remote proxy');
     });

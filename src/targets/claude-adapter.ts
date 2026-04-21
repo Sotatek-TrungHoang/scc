@@ -149,7 +149,7 @@ export class ClaudeAdapter implements TargetAdapter {
   }
 
   /**
-   * Claude supports all CCS profile types.
+   * Claude supports all SCC profile types.
    */
   supportsProfileType(_profileType: ProfileType): boolean {
     return true;

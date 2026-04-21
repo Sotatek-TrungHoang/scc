@@ -276,7 +276,7 @@ class ProfileDetector {
         const error = new Error(
           'Copilot profile is not enabled.\n\n' +
             'To enable GitHub Copilot integration:\n' +
-            '  1. Run: ccs config\n' +
+            '  1. Run: scc config\n' +
             '  2. Go to "GitHub Copilot" section\n' +
             '  3. Enable the integration\n' +
             '  4. Authenticate with GitHub: npx copilot-api auth\n\n' +
@@ -305,9 +305,9 @@ class ProfileDetector {
         const error = new Error(
           'Legacy Cursor profile is not enabled.\n\n' +
             'To enable Cursor integration:\n' +
-            '  1. Run: ccs legacy cursor enable\n' +
-            '  2. Import auth: ccs legacy cursor auth\n' +
-            '  3. Start daemon: ccs legacy cursor start\n\n' +
+            '  1. Run: scc legacy cursor enable\n' +
+            '  2. Import auth: scc legacy cursor auth\n' +
+            '  3. Start daemon: scc legacy cursor start\n\n' +
             'Or manually edit ~/.ccs/config.yaml:\n' +
             '  cursor:\n' +
             '    enabled: true'

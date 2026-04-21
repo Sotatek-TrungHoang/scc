@@ -1,8 +1,8 @@
 /**
  * ClaudeSymlinkManager - Manages selective symlinks from ~/.ccs/.claude/ to ~/.claude/
- * v4.1.0: Selective symlinking for CCS items
+ * v4.1.0: Selective symlinking for SCC items
  *
- * Purpose: Ship CCS items (.claude/) with package and symlink them to user's ~/.claude/
+ * Purpose: Ship SCC items (.claude/) with package and symlink them to user's ~/.claude/
  * Architecture:
  *   - ~/.ccs/.claude/* (source, ships with CCS)
  *   - ~/.claude/* (target, gets selective symlinks)
@@ -76,7 +76,7 @@ export class ClaudeSymlinkManager {
     this.ccsClaudeDir = path.join(getCcsDir(), '.claude');
     this.userClaudeDir = path.join(this.homeDir, '.claude');
 
-    // CCS items to symlink (selective, item-level)
+    // SCC items to symlink (selective, item-level)
     this.ccsItems = [
       { source: 'commands/ccs.md', target: 'commands/ccs.md', type: 'file' },
       { source: 'commands/ccs', target: 'commands/ccs', type: 'directory' },
@@ -85,15 +85,15 @@ export class ClaudeSymlinkManager {
   }
 
   /**
-   * Install CCS items to user's ~/.claude/ via selective symlinks
+   * Install SCC items to user's ~/.claude/ via selective symlinks
    * Safe: backs up existing files before creating symlinks
    */
   install(silent = false): void {
-    const spinner = silent || !ora ? null : ora('Installing CCS items to ~/.claude/').start();
+    const spinner = silent || !ora ? null : ora('Installing SCC items to ~/.claude/').start();
 
     // Ensure ~/.ccs/.claude/ exists (should be shipped with package)
     if (!fs.existsSync(this.ccsClaudeDir)) {
-      const msg = 'CCS .claude/ directory not found, skipping symlink installation';
+      const msg = 'SCC .claude/ directory not found, skipping symlink installation';
       if (spinner) {
         spinner.warn(warn(msg));
       } else {
@@ -110,7 +110,7 @@ export class ClaudeSymlinkManager {
       fs.mkdirSync(this.userClaudeDir, { recursive: true, mode: 0o700 });
     }
 
-    // Install each CCS item
+    // Install each SCC item
     let installed = 0;
     for (const item of this.ccsItems) {
       if (!silent && spinner) {
@@ -129,7 +129,7 @@ export class ClaudeSymlinkManager {
   }
 
   /**
-   * Install a single CCS item with conflict handling
+   * Install a single SCC item with conflict handling
    */
   private installItem(item: CcsItem, silent = false): boolean {
     const sourcePath = path.join(this.ccsClaudeDir, item.source);
@@ -170,7 +170,7 @@ export class ClaudeSymlinkManager {
         return this.copyFallback(sourcePath, targetPath, item, silent);
       }
 
-      // Backup existing file/directory (only for non-CCS items)
+      // Backup existing file/directory (only for non-SCC items)
       this.backupItem(targetPath, silent);
     }
 
@@ -194,7 +194,7 @@ export class ClaudeSymlinkManager {
 
   /**
    * Windows fallback: copy files/directories when symlinks unavailable
-   * Note: Changes won't auto-sync; user must run 'ccs sync' after updates
+   * Note: Changes won't auto-sync; user must run 'scc sync' after updates
    */
   private copyFallback(
     sourcePath: string,
@@ -212,7 +212,7 @@ export class ClaudeSymlinkManager {
       }
       if (!silent) {
         console.log(ok(`Copied ${item.target} (symlink unavailable)`));
-        console.log(info("Run 'ccs sync' after CCS updates to refresh"));
+        console.log(info("Run 'scc sync' after SCC updates to refresh"));
       }
       return true;
     } catch (copyErr) {
@@ -294,8 +294,8 @@ export class ClaudeSymlinkManager {
   }
 
   /**
-   * Uninstall CCS items from ~/.claude/ (remove symlinks or copied files)
-   * Safe: only removes items that are CCS symlinks or valid copies
+   * Uninstall SCC items from ~/.claude/ (remove symlinks or copied files)
+   * Safe: only removes items that are SCC symlinks or valid copies
    * @returns number of items removed
    */
   uninstall(): number {
@@ -339,7 +339,7 @@ export class ClaudeSymlinkManager {
 
   /**
    * Check symlink health and report issues
-   * Used by 'ccs doctor' command
+   * Used by 'scc doctor' command
    */
   checkHealth(): HealthCheckResult {
     const issues: string[] = [];
@@ -347,7 +347,7 @@ export class ClaudeSymlinkManager {
 
     // Check if ~/.ccs/.claude/ exists
     if (!fs.existsSync(this.ccsClaudeDir)) {
-      issues.push('CCS .claude/ directory missing (reinstall CCS)');
+      issues.push('SCC .claude/ directory missing (reinstall CCS)');
       healthy = false;
       return { healthy, issues };
     }
@@ -366,16 +366,16 @@ export class ClaudeSymlinkManager {
 
       // Check target
       if (!fs.existsSync(targetPath)) {
-        issues.push(`Not installed: ${item.target} (run 'ccs sync' to install)`);
+        issues.push(`Not installed: ${item.target} (run 'scc sync' to install)`);
         healthy = false;
       } else if (!this.isOurSymlink(targetPath, sourcePath)) {
         // On Windows, copied files are valid (symlink fallback)
         if (process.platform === 'win32' && this.isCopiedItem(targetPath, sourcePath, item.type)) {
           // Copied file is valid on Windows, but note it's not a symlink
-          issues.push(`${item.target} is a copy (not symlink) - run 'ccs sync' after updates`);
+          issues.push(`${item.target} is a copy (not symlink) - run 'scc sync' after updates`);
           // Still healthy, just a warning
         } else {
-          issues.push(`Not a CCS symlink: ${item.target} (run 'ccs sync' to fix)`);
+          issues.push(`Not a SCC symlink: ${item.target} (run 'scc sync' to fix)`);
           healthy = false;
         }
       }
@@ -411,12 +411,12 @@ export class ClaudeSymlinkManager {
   }
 
   /**
-   * Sync delegation commands and skills to ~/.claude/ (used by 'ccs sync' command)
+   * Sync delegation commands and skills to ~/.claude/ (used by 'scc sync' command)
    * Same as install() but with explicit sync message
    */
   sync(): void {
     console.log('');
-    console.log(color('Syncing CCS Components...', 'info'));
+    console.log(color('Syncing SCC Components...', 'info'));
     console.log('');
     this.install(false);
   }

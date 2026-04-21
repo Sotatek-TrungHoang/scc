@@ -62,7 +62,7 @@ describe('image-analysis-runtime-status', () => {
 
     expect(status.authReadiness).toBe('missing');
     expect(status.effectiveRuntimeMode).toBe('native-read');
-    expect(status.effectiveRuntimeReason).toContain('ccs ghcp --auth');
+    expect(status.effectiveRuntimeReason).toContain('scc ghcp --auth');
   });
 
   it('marks an idle local proxy as launchable when auth is ready', async () => {

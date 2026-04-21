@@ -7,7 +7,7 @@
  * - Remote proxy configuration (host, port, auth token)
  * - Default profile selection
  *
- * Usage: ccs setup
+ * Usage: scc setup
  *
  * Related: Issue #142 - remote CLIProxyAPI configuration
  */
@@ -260,20 +260,20 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
 
   try {
     console.log('');
-    console.log(header('CCS First-Time Setup'));
+    console.log(header('SCC First-Time Setup'));
     console.log('');
 
     // Check if already configured
     if (!force && !isFirstTimeInstall()) {
-      console.log(info('CCS is already configured.'));
-      console.log('  Use --force to reconfigure, or run `ccs config` for the dashboard.');
+      console.log(info('SCC is already configured.'));
+      console.log('  Use --force to reconfigure, or run `scc config` for the dashboard.');
       console.log('');
       rl.close();
       return;
     }
 
-    console.log('Welcome to CCS (Claude Code Switch)!');
-    console.log('This wizard will help you configure CCS for first-time use.');
+    console.log('Welcome to SCC (Claude Code Switch)!');
+    console.log('This wizard will help you configure SCC for first-time use.');
     console.log('');
 
     // Step 1: Local vs Remote mode
@@ -284,7 +284,7 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
         {
           label: 'Local (Recommended)',
           value: 'local',
-          description: 'CCS auto-starts CLIProxyAPI binary on your machine',
+          description: 'SCC auto-starts CLIProxyAPI binary on your machine',
         },
         {
           label: 'Remote Server',
@@ -370,9 +370,9 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
       console.log(info('Creating API profiles...'));
       console.log('  Use the following commands to create profiles:');
       console.log('');
-      console.log('    ccs api create glm --preset glm');
-      console.log('    ccs api create km --preset km');
-      console.log('    ccs api create custom --prompt');
+      console.log('    scc api create glm --preset glm');
+      console.log('    scc api create km --preset km');
+      console.log('    scc api create custom --prompt');
       console.log('');
       console.log('  After creating, edit the settings file to add your API key.');
     }
@@ -390,19 +390,19 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
     console.log('');
 
     if (proxyMode !== 'skip') {
-      console.log('  ccs gemini          # Use Gemini via CLIProxy (OAuth)');
-      console.log('  ccs codex           # Use Codex via CLIProxy (OAuth)');
-      console.log('  ccs agy             # Use Antigravity via CLIProxy (OAuth)');
+      console.log('  scc gemini          # Use Gemini via CLIProxy (OAuth)');
+      console.log('  scc codex           # Use Codex via CLIProxy (OAuth)');
+      console.log('  scc agy             # Use Antigravity via CLIProxy (OAuth)');
     }
 
-    console.log('  ccs                 # Use default Claude CLI');
-    console.log('  ccs config          # Open web dashboard');
-    console.log('  ccs doctor          # Check configuration health');
+    console.log('  scc                 # Use default Claude CLI');
+    console.log('  scc config          # Open web dashboard');
+    console.log('  scc doctor          # Check configuration health');
     console.log('');
 
     if (proxyMode === 'remote') {
       console.log(info('Remote proxy tip:'));
-      console.log('  If connection fails, CCS will offer to start local proxy as fallback.');
+      console.log('  If connection fails, SCC will offer to start local proxy as fallback.');
       console.log('  Edit config.yaml to adjust remote settings.');
       console.log('');
     }
@@ -414,7 +414,7 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
     if (err instanceof UserCancelledError) {
       console.log('');
       console.log(info('Setup cancelled.'));
-      console.log('  Run `ccs setup` when ready to configure.');
+      console.log('  Run `scc setup` when ready to configure.');
       console.log('');
       return;
     }
@@ -422,7 +422,7 @@ async function runSetupWizard(force: boolean = false): Promise<void> {
     const message = err instanceof Error ? err.message : String(err);
     console.log('');
     console.log(warn(`Setup failed: ${message}`));
-    console.log(info('  Run `ccs setup` to try again.'));
+    console.log(info('  Run `scc setup` to try again.'));
     console.log('');
   } finally {
     rl.close();
@@ -444,7 +444,7 @@ function parseArgs(args: string[]): { force: boolean; help: boolean } {
  */
 function showHelp(): void {
   console.log('');
-  console.log('Usage: ccs setup [options]');
+  console.log('Usage: scc setup [options]');
   console.log('');
   console.log('Interactive first-time setup wizard for CCS.');
   console.log('');
@@ -458,8 +458,8 @@ function showHelp(): void {
   console.log('  - API profile creation');
   console.log('');
   console.log('Examples:');
-  console.log('  ccs setup           Run setup wizard');
-  console.log('  ccs setup --force   Force reconfiguration');
+  console.log('  scc setup           Run setup wizard');
+  console.log('  scc setup --force   Force reconfiguration');
   console.log('');
 }
 

@@ -32,17 +32,17 @@ export function showShellCompletionHelp(writeLine: (line: string) => void = cons
   writeLine(header('Shell Completion'));
   writeLine('');
   writeLine(color('Usage:', 'info'));
-  writeLine('  ccs --shell-completion              # Auto-detect shell and install');
-  writeLine('  ccs --shell-completion --bash       # Install for bash');
-  writeLine('  ccs --shell-completion --zsh        # Install for zsh');
-  writeLine('  ccs --shell-completion --fish       # Install for fish');
-  writeLine('  ccs --shell-completion --powershell # Install for PowerShell');
-  writeLine('  ccs --shell-completion --force      # Reinstall/refresh the active shell setup');
+  writeLine('  scc --shell-completion              # Auto-detect shell and install');
+  writeLine('  scc --shell-completion --bash       # Install for bash');
+  writeLine('  scc --shell-completion --zsh        # Install for zsh');
+  writeLine('  scc --shell-completion --fish       # Install for fish');
+  writeLine('  scc --shell-completion --powershell # Install for PowerShell');
+  writeLine('  scc --shell-completion --force      # Reinstall/refresh the active shell setup');
   writeLine('');
   writeLine(color('Test:', 'info'));
-  writeLine('  ccs <TAB>');
-  writeLine('  ccs help <TAB>');
-  writeLine('  ccs auth <TAB>');
+  writeLine('  scc <TAB>');
+  writeLine('  scc help <TAB>');
+  writeLine('  scc auth <TAB>');
   writeLine('');
 }
 
@@ -83,8 +83,8 @@ export function createShellCompletionCommandContract(
       console.log(`  ${result.reload}`);
       console.log('');
       console.log(color('Then test:', 'info'));
-      console.log('  ccs <TAB>        # See available profiles');
-      console.log('  ccs auth <TAB>   # See auth subcommands');
+      console.log('  scc <TAB>        # See available profiles');
+      console.log('  scc auth <TAB>   # See auth subcommands');
       console.log('');
     },
   };

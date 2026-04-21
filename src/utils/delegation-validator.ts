@@ -19,7 +19,7 @@ interface DelegationValidationResult extends ValidationResult {
 }
 
 /**
- * Validates delegation profiles for CCS delegation system
+ * Validates delegation profiles for SCC delegation system
  * Ensures profiles exist and have valid API keys configured
  */
 export class DelegationValidator {

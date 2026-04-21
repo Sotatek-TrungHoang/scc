@@ -355,7 +355,7 @@ describe('official channels runtime planning', () => {
       })
     ).toMatchObject({
       state: 'ready',
-      label: 'Ready from current CCS process env',
+      label: 'Ready from current SCC process env',
     });
 
     expect(
@@ -449,7 +449,7 @@ describe('official channels runtime planning', () => {
 
     expect(needsSetup).toMatchObject({
       state: 'needs_setup',
-      title: 'Needs setup before CCS can auto-add these channels',
+      title: 'Needs setup before SCC can auto-add these channels',
     });
     expect(needsSetup.blockers.join(' ')).toContain('Install Bun');
     expect(needsSetup.blockers.join(' ')).toContain('Missing bot token');
@@ -464,7 +464,7 @@ describe('official channels runtime planning', () => {
       state: 'ready',
       title: 'Ready for the next native Claude run',
     });
-    expect(ready.message).toContain('Discord currently depends on this same CCS process env');
+    expect(ready.message).toContain('Discord currently depends on this same SCC process env');
   });
 
   it('builds a launch preview for the default `ccs` path', () => {

@@ -21,7 +21,7 @@ type SpawnCall = {
   options: Record<string, unknown> | undefined;
 };
 
-const STEERING_PROMPT_SNIPPET = 'prefer the CCS MCP tool WebSearch instead of Bash/curl/http fetches';
+const STEERING_PROMPT_SNIPPET = 'prefer the SCC MCP tool WebSearch instead of Bash/curl/http fetches';
 const spawnCalls: SpawnCall[] = [];
 const originalPlatform = process.platform;
 let baselineSigintListeners: Array<(...args: unknown[]) => void> = [];

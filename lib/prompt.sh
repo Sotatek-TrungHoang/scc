@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CCS Interactive Prompt Utilities (bash 3.2+ compatible)
+# SCC Interactive Prompt Utilities (bash 3.2+ compatible)
 # NO external dependencies
 
 set -euo pipefail

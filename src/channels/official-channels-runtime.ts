@@ -292,11 +292,11 @@ export function getOfficialChannelsStateScopeMessage(): string {
 }
 
 export function getOfficialChannelsSupportMessage(): string {
-  return 'Works only for native Claude default/account sessions. It does not apply to API, OAuth, or non-Claude targets such as `ccs glm`, `ccs gemini`, `ccs codex`, `ccs --target droid`, or `ccs --target codex`.';
+  return 'Works only for native Claude default/account sessions. It does not apply to API, OAuth, or non-Claude targets such as `scc glm`, `scc gemini`, `scc codex`, `scc --target droid`, or `scc --target codex`.';
 }
 
 export function getOfficialChannelsAccountStatusCaveat(): string {
-  return 'Dashboard status reflects the base Claude install visible to the current CCS process. Isolated native account sessions can still differ until that account signs in with claude.ai.';
+  return 'Dashboard status reflects the base Claude install visible to the current SCC process. Isolated native account sessions can still differ until that account signs in with claude.ai.';
 }
 
 export function getOfficialChannelsEnvironmentStatus(
@@ -481,7 +481,7 @@ export function getOfficialChannelReadyMessage(channelId: OfficialChannelId): st
 
   const envKey = getOfficialChannelEnvKey(channelId);
   return envKey
-    ? `${envKey} must be configured before CCS can auto-enable this channel. Claude-side pairing and access policy are still required.`
+    ? `${envKey} must be configured before SCC can auto-enable this channel. Claude-side pairing and access policy are still required.`
     : 'Claude-side setup required.';
 }
 
@@ -492,8 +492,8 @@ export function buildOfficialChannelSetupSummary(
     return {
       state: 'not_selected',
       label: 'Not selected',
-      detail: 'CCS will not auto-add this channel until you turn it on here.',
-      nextStep: 'Turn this channel on if you want CCS to add it on supported native Claude runs.',
+      detail: 'SCC will not auto-add this channel until you turn it on here.',
+      nextStep: 'Turn this channel on if you want SCC to add it on supported native Claude runs.',
     };
   }
 
@@ -511,7 +511,7 @@ export function buildOfficialChannelSetupSummary(
       state: 'needs_claude_setup',
       label: 'Claude-side setup remaining',
       detail:
-        'CCS can add iMessage on the next native Claude run, but plugin install, sender allowlist, Full Disk Access, and the first-reply Automation prompt are still local steps.',
+        'SCC can add iMessage on the next native Claude run, but plugin install, sender allowlist, Full Disk Access, and the first-reply Automation prompt are still local steps.',
       nextStep: 'Complete the one-time Claude and macOS setup below before relying on iMessage.',
     };
   }
@@ -521,26 +521,26 @@ export function buildOfficialChannelSetupSummary(
     return {
       state: 'needs_token',
       label: 'Needs token',
-      detail: `${envKey} is missing. CCS cannot auto-add ${channel.displayName} until you save it here or provide it in the current CCS process env.`,
+      detail: `${envKey} is missing. SCC cannot auto-add ${channel.displayName} until you save it here or provide it in the current SCC process env.`,
       nextStep: `Save ${envKey} below, or export it before launching CCS.`,
     };
   }
 
   const sourceDetail = channel.savedInClaudeState
     ? `${envKey} is saved in Claude channel state.`
-    : `${envKey} is available from the current CCS process env.`;
+    : `${envKey} is available from the current SCC process env.`;
 
   return {
     state: 'ready',
     label: channel.savedInClaudeState
       ? 'Ready for next native run'
-      : 'Ready from current CCS process env',
+      : 'Ready from current SCC process env',
     detail: channel.savedInClaudeState
-      ? `${sourceDetail}${channel.processEnvAvailable ? ` The current CCS process env also provides ${envKey}.` : ''} CCS can auto-add ${channel.displayName} on the next supported native Claude run. Claude-side pairing and access policy still happen in Claude.`
-      : `${sourceDetail} CCS can auto-add ${channel.displayName} on the next supported native Claude run. Claude-side pairing and access policy still happen in Claude.`,
+      ? `${sourceDetail}${channel.processEnvAvailable ? ` The current SCC process env also provides ${envKey}.` : ''} SCC can auto-add ${channel.displayName} on the next supported native Claude run. Claude-side pairing and access policy still happen in Claude.`
+      : `${sourceDetail} SCC can auto-add ${channel.displayName} on the next supported native Claude run. Claude-side pairing and access policy still happen in Claude.`,
     nextStep: channel.savedInClaudeState
       ? 'Run `scc` or a native Claude account profile. Claude-side pairing and access policy may still be required.'
-      : 'Run CCS from this same env, or save the token here if you want persistent Claude state.',
+      : 'Run SCC from this same env, or save the token here if you want persistent Claude state.',
   };
 }
 
@@ -556,7 +556,7 @@ export function buildOfficialChannelsReadinessSummary(input: {
       state: 'needs_setup',
       title: 'No channels selected yet',
       message:
-        'Choose at least one official channel before CCS can auto-add it on supported native Claude runs.',
+        'Choose at least one official channel before SCC can auto-add it on supported native Claude runs.',
       nextStep: 'Turn on Telegram, Discord, and/or iMessage below.',
       blockers: ['Select at least one channel for auto-enable.'],
     };
@@ -586,7 +586,7 @@ export function buildOfficialChannelsReadinessSummary(input: {
   if (blockers.length > 0) {
     return {
       state: 'needs_setup',
-      title: 'Needs setup before CCS can auto-add these channels',
+      title: 'Needs setup before SCC can auto-add these channels',
       message: blockers[0] ?? 'Official Channels still need setup.',
       nextStep: 'Resolve the blockers below, then launch a supported native Claude session again.',
       blockers,
@@ -627,15 +627,15 @@ export function buildOfficialChannelsReadinessSummary(input: {
     title: 'Ready for the next native Claude run',
     message:
       envOnlyChannels.length === 0
-        ? `CCS can auto-add ${selectedLabels} the next time you run \`ccs\` or a native Claude account profile.`
+        ? `SCC can auto-add ${selectedLabels} the next time you run \`ccs\` or a native Claude account profile.`
         : envOnlyChannels.length === selectedChannels.length
-          ? `CCS can auto-add ${selectedLabels} on the next supported native Claude run from this same CCS process env.`
-          : `CCS can auto-add ${selectedLabels} on the next supported native Claude run. ${envOnlyChannels.map((channel) => channel.displayName).join(', ')} currently depends on this same CCS process env.`,
+          ? `SCC can auto-add ${selectedLabels} on the next supported native Claude run from this same SCC process env.`
+          : `SCC can auto-add ${selectedLabels} on the next supported native Claude run. ${envOnlyChannels.map((channel) => channel.displayName).join(', ')} currently depends on this same SCC process env.`,
     nextStep:
       envOnlyChannels.length === 0
         ? 'Claude-side pairing and access policy may still be required inside Claude, but CCS-side prerequisites are ready.'
         : envOnlyChannels.length === selectedChannels.length
-          ? 'Run CCS from this same env, or save the token here first if you want persistent Claude channel state.'
+          ? 'Run SCC from this same env, or save the token here first if you want persistent Claude channel state.'
           : 'Save env-only tokens here if you want persistent Claude channel state across shells.',
     blockers: [],
   };
@@ -792,11 +792,11 @@ export function getOfficialChannelConfiguredPlaceholder(channelId: OfficialChann
 }
 
 export function getOfficialChannelsSectionDescription(): string {
-  return 'Auto-enable Anthropic official channels for compatible Claude sessions. CCS only stores selection in config.yaml; Claude keeps machine-level channel state under ~/.claude/channels/.';
+  return 'Auto-enable Anthropic official channels for compatible Claude sessions. SCC only stores selection in config.yaml; Claude keeps machine-level channel state under ~/.claude/channels/.';
 }
 
 export function getOfficialChannelsRuntimeNote(): string {
-  return 'CCS does not persist a global Claude channels default. It only injects runtime flags for the current Claude session when prerequisites are met.';
+  return 'SCC does not persist a global Claude channels default. It only injects runtime flags for the current Claude session when prerequisites are met.';
 }
 
 export function getOfficialChannelsSetHelp(): string {
@@ -850,7 +850,7 @@ export function getOfficialChannelsBunMissingMessage(): string {
 }
 
 export function getOfficialChannelsCompatibilityMessage(): string {
-  return 'Official Channels auto-enable only works for native Claude default/account sessions. It does not apply to `ccs glm`, other API/OAuth profiles, or Droid targets.';
+  return 'Official Channels auto-enable only works for native Claude default/account sessions. It does not apply to `scc glm`, other API/OAuth profiles, or Droid targets.';
 }
 
 export function getOfficialChannelsNoSelectionMessage(): string {

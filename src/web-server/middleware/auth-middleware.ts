@@ -1,6 +1,6 @@
 /**
  * Dashboard Authentication Middleware
- * Session-based auth with httpOnly cookies for CCS dashboard.
+ * Session-based auth with httpOnly cookies for SCC dashboard.
  */
 
 import type { Request, Response, NextFunction } from 'express';
@@ -82,7 +82,7 @@ export const loginRateLimiter = rateLimit({
 });
 
 /**
- * Create session middleware configured for CCS dashboard.
+ * Create session middleware configured for SCC dashboard.
  */
 export function createSessionMiddleware() {
   const authConfig = getDashboardAuthConfig();

@@ -71,7 +71,7 @@ export function hasWebSearchHook(): boolean {
  * Install WebSearch hook to ~/.ccs/hooks/
  *
  * This hook now serves as a compatibility fallback and a shared provider runtime
- * for the first-class CCS WebSearch MCP server.
+ * for the first-class SCC WebSearch MCP server.
  *
  * @returns true if hook installed successfully
  */

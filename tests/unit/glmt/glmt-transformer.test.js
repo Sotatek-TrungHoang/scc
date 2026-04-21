@@ -203,7 +203,7 @@ describe('GlmtTransformer', () => {
       delete process.env.CCS_DEBUG;
     });
 
-    it('uses CCS logs directory by default', () => {
+    it('uses SCC logs directory by default', () => {
       const transformer = new GlmtTransformer();
       const path = require('path');
       const expectedPath = path.join(getCcsDir(), 'logs');

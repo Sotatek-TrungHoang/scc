@@ -1,7 +1,7 @@
 /**
  * Tokens Command Tests
  *
- * Tests for the `ccs tokens` CLI command including:
+ * Tests for the `scc tokens` CLI command including:
  * - Argument parsing
  * - Token masking
  * - Error handling

@@ -7,7 +7,7 @@
  */
 
 /**
- * Check if a hook entry is a CCS WebSearch hook
+ * Check if a hook entry is a SCC WebSearch hook
  * Normalizes path separators for cross-platform matching (Windows uses backslashes)
  */
 export function isCcsWebSearchHook(hook: Record<string, unknown>): boolean {
@@ -27,7 +27,7 @@ export function isCcsWebSearchHook(hook: Record<string, unknown>): boolean {
 }
 
 /**
- * Remove duplicate CCS WebSearch hooks from settings, keeping only the first one
+ * Remove duplicate SCC WebSearch hooks from settings, keeping only the first one
  * Returns true if duplicates were removed
  */
 export function deduplicateCcsHooks(settings: Record<string, unknown>): boolean {
@@ -39,11 +39,11 @@ export function deduplicateCcsHooks(settings: Record<string, unknown>): boolean 
 
   hooks.PreToolUse = hooks.PreToolUse.filter((h: unknown) => {
     const hook = h as Record<string, unknown>;
-    if (!isCcsWebSearchHook(hook)) return true; // Keep non-CCS hooks
+    if (!isCcsWebSearchHook(hook)) return true; // Keep non-SCC hooks
 
     if (!foundFirst) {
       foundFirst = true;
-      return true; // Keep first CCS hook
+      return true; // Keep first SCC hook
     }
     return false; // Remove subsequent duplicates
   });
@@ -51,7 +51,7 @@ export function deduplicateCcsHooks(settings: Record<string, unknown>): boolean 
   const newLength = hooks.PreToolUse.length;
   if (process.env.CCS_DEBUG && newLength < originalLength) {
     const removedCount = originalLength - newLength;
-    console.error(`Removed ${removedCount} duplicate CCS WebSearch hook(s)`);
+    console.error(`Removed ${removedCount} duplicate SCC WebSearch hook(s)`);
   }
 
   return newLength < originalLength;

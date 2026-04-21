@@ -6,17 +6,17 @@ export async function showHelp(): Promise<void> {
   console.log(header('Docker Deployment'));
   console.log('');
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs docker', 'command')} <command> [options]`);
+  console.log(`  ${color('scc docker', 'command')} <command> [options]`);
   console.log('');
 
   const sections: [string, [string, string][]][] = [
     [
       'Commands:',
       [
-        ['up', 'Build and start the integrated CCS + CLIProxy stack'],
+        ['up', 'Build and start the integrated SCC + CLIProxy stack'],
         ['down', 'Stop and remove the integrated stack'],
         ['status', 'Show docker compose and supervisor status'],
-        ['update', 'Update CCS and CLIProxy inside the running container'],
+        ['update', 'Update SCC and CLIProxy inside the running container'],
         ['logs', 'Show or follow container log output'],
         ['config', 'Show bundled asset paths and deployment defaults'],
       ],
@@ -34,18 +34,18 @@ export async function showHelp(): Promise<void> {
         ['up --port <port>', 'Publish dashboard on a custom host port'],
         ['up --proxy-port <port>', 'Publish CLIProxy on a custom host port'],
         ['logs --follow', 'Stream logs continuously'],
-        ['logs --service <name>', 'Filter logs to ccs or cliproxy'],
+        ['logs --service <name>', 'Filter logs to scc or cliproxy'],
       ],
     ],
     [
       'Examples:',
       [
-        ['ccs docker up', 'Start the stack locally on ports 3000 and 8317'],
-        ['ccs docker up --port 4000 --proxy-port 9317', 'Start locally with custom ports'],
-        ['ccs docker --host my-box status', 'Use the documented common-option ordering'],
-        ['ccs docker up --host my-box', 'Stage assets to ~/.ccs/docker and deploy remotely'],
-        ['ccs docker logs --follow --service ccs', 'Tail dashboard logs only'],
-        ['ccs docker update --host my-box', 'Update the running remote stack in place'],
+        ['scc docker up', 'Start the stack locally on ports 3000 and 8317'],
+        ['scc docker up --port 4000 --proxy-port 9317', 'Start locally with custom ports'],
+        ['scc docker --host my-box status', 'Use the documented common-option ordering'],
+        ['scc docker up --host my-box', 'Stage assets to ~/.ccs/docker and deploy remotely'],
+        ['scc docker logs --follow --service ccs', 'Tail dashboard logs only'],
+        ['scc docker update --host my-box', 'Update the running remote stack in place'],
       ],
     ],
   ];

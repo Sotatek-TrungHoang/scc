@@ -1,7 +1,7 @@
 /**
  * Profile Mapper for CLIProxy Sync
  *
- * Transforms CCS settings-based profiles into CLIProxy ClaudeKey format.
+ * Transforms SCC settings-based profiles into CLIProxy ClaudeKey format.
  */
 
 import * as fs from 'fs';
@@ -42,7 +42,7 @@ function resolveProfileSettingsPath(settingsPath: string): string {
 }
 
 /**
- * Load syncable API profiles from CCS config.
+ * Load syncable API profiles from SCC config.
  * Filters to only configured profiles (with real API keys).
  */
 export function loadSyncableProfiles(): SyncableProfile[] {

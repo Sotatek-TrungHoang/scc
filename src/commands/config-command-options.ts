@@ -78,7 +78,7 @@ export function parseConfigCommandArgs(args: string[]): ConfigCommandParseResult
 
 export function showConfigCommandHelp(): void {
   console.log('');
-  console.log('Usage: ccs config [command] [options]');
+  console.log('Usage: scc config [command] [options]');
   console.log('');
   console.log('Open web-based configuration dashboard');
   console.log('Includes a dedicated Claude IDE Extension page for VS Code-compatible hosts.');
@@ -126,18 +126,18 @@ export function showConfigCommandHelp(): void {
   console.log('  --help, -h         Show this help message');
   console.log('');
   console.log('Examples:');
-  console.log('  ccs config                       Auto-detect available port');
-  console.log('  ccs config --port 3000           Use specific port');
-  console.log('  ccs config --host 0.0.0.0        Force all-interface binding for remote devices');
-  console.log('  ccs config --host 127.0.0.1      Restrict dashboard to this machine');
-  console.log('  ccs config --dev                 Development mode with hot reload');
-  console.log('  ccs config auth setup            Configure dashboard login');
-  console.log('  ccs config channels              Show Official Channels status');
-  console.log('  ccs config channels --set telegram,discord Enable Telegram + Discord');
-  console.log('  ccs config channels --set-token telegram=xxx Save TELEGRAM_BOT_TOKEN');
-  console.log('  ccs config image-analysis        Show image settings');
-  console.log('  ccs config image-analysis --enable Enable feature');
-  console.log('  ccs config thinking              Show thinking settings');
-  console.log('  ccs config thinking --mode auto  Set auto mode');
+  console.log('  scc config                       Auto-detect available port');
+  console.log('  scc config --port 3000           Use specific port');
+  console.log('  scc config --host 0.0.0.0        Force all-interface binding for remote devices');
+  console.log('  scc config --host 127.0.0.1      Restrict dashboard to this machine');
+  console.log('  scc config --dev                 Development mode with hot reload');
+  console.log('  scc config auth setup            Configure dashboard login');
+  console.log('  scc config channels              Show Official Channels status');
+  console.log('  scc config channels --set telegram,discord Enable Telegram + Discord');
+  console.log('  scc config channels --set-token telegram=xxx Save TELEGRAM_BOT_TOKEN');
+  console.log('  scc config image-analysis        Show image settings');
+  console.log('  scc config image-analysis --enable Enable feature');
+  console.log('  scc config thinking              Show thinking settings');
+  console.log('  scc config thinking --mode auto  Set auto mode');
   console.log('');
 }

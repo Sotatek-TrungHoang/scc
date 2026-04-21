@@ -1,8 +1,8 @@
 /**
  * Package Manager Detector Utilities
  *
- * Detect the package manager and install root that own the CURRENT CCS binary.
- * This is intentionally different from "which package manager has CCS installed
+ * Detect the package manager and install root that own the CURRENT SCC binary.
+ * This is intentionally different from "which package manager has SCC installed
  * somewhere on the machine" because self-update must target the current install.
  */
 

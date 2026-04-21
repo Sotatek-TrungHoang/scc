@@ -3,7 +3,7 @@
  *
  * Manages device code display prompts during OAuth Device Code flow.
  * Broadcasts device code events via WebSocket to both CLI terminal
- * and Web UI (ccs config).
+ * and Web UI (scc config).
  *
  * Events emitted by oauth-process.ts:
  * - deviceCode:received - When device code is parsed from output

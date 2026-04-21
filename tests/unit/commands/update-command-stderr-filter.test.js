@@ -2,7 +2,7 @@
  * Unit Tests for Update Command stderr filtering on Windows
  *
  * Tests the npm cleanup warning filter logic that hides cosmetic EPERM
- * warnings on Windows during `ccs update`. These warnings occur when
+ * warnings on Windows during `scc update`. These warnings occur when
  * npm fails to unlink native module prebuilds (bcrypt.node) due to
  * antivirus/indexing file locking.
  *

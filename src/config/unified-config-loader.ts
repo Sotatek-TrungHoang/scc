@@ -659,7 +659,7 @@ export function loadOrCreateUnifiedConfig(): UnifiedConfig {
  * Generate YAML header with helpful comments.
  */
 function generateYamlHeader(): string {
-  return `# CCS Unified Configuration
+  return `# SCC Unified Configuration
 # Docs: https://github.com/kaitranntt/ccs
 `;
 }
@@ -687,7 +687,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
   // Accounts section
   lines.push('# ----------------------------------------------------------------------------');
   lines.push('# Accounts: Isolated Claude instances (each with separate auth/sessions)');
-  lines.push('# Manage with: ccs auth add <name>, ccs auth list, ccs auth remove <name>');
+  lines.push('# Manage with: scc auth add <name>, scc auth list, scc auth remove <name>');
   lines.push('# ----------------------------------------------------------------------------');
   lines.push(
     yaml.dump({ accounts: config.accounts }, { indent: 2, lineWidth: -1, quotingType: '"' }).trim()
@@ -744,7 +744,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
   if (config.cliproxy_server) {
     lines.push('# ----------------------------------------------------------------------------');
     lines.push('# CLIProxy Server: Remote proxy connection settings');
-    lines.push('# Configure via Dashboard (`ccs config`) > Proxy tab.');
+    lines.push('# Configure via Dashboard (`scc config`) > Proxy tab.');
     lines.push('#');
     lines.push('# remote: Connect to a remote CLIProxyAPI instance');
     lines.push('# fallback: Use local proxy if remote is unreachable');
@@ -776,10 +776,10 @@ function generateYamlWithComments(config: UnifiedConfig): string {
   if (config.websearch) {
     lines.push('# ----------------------------------------------------------------------------');
     lines.push('# WebSearch: real search backends for third-party profiles');
-    lines.push('# Dashboard (`ccs config`) is the source of truth for provider selection.');
+    lines.push('# Dashboard (`scc config`) is the source of truth for provider selection.');
     lines.push('#');
     lines.push('# Third-party providers (gemini, codex, agy, etc.) do not have access to');
-    lines.push("# Anthropic's WebSearch tool. CCS intercepts that tool and runs local search.");
+    lines.push("# Anthropic's WebSearch tool. SCC intercepts that tool and runs local search.");
     lines.push('#');
     lines.push(
       '# Priority: Exa -> Tavily -> Brave -> DuckDuckGo -> optional legacy AI CLI fallbacks'
@@ -812,10 +812,10 @@ function generateYamlWithComments(config: UnifiedConfig): string {
     lines.push('# !! DISCLAIMER - USE AT YOUR OWN RISK !!');
     lines.push('# This uses an UNOFFICIAL reverse-engineered API.');
     lines.push('# Excessive usage may trigger GitHub account restrictions.');
-    lines.push('# CCS provides NO WARRANTY and accepts NO RESPONSIBILITY for consequences.');
+    lines.push('# SCC provides NO WARRANTY and accepts NO RESPONSIBILITY for consequences.');
     lines.push('#');
     lines.push('# Setup: npx copilot-api auth (authenticate with GitHub)');
-    lines.push('# Usage: ccs copilot (switch to copilot profile)');
+    lines.push('# Usage: scc copilot (switch to copilot profile)');
     lines.push('#');
     lines.push('# Models: claude-sonnet-4.5, claude-opus-4.5, gpt-5.1, gemini-2.5-pro');
     lines.push('# Account types: individual, business, enterprise');
@@ -834,7 +834,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
     lines.push('#');
     lines.push('# enabled: Enable/disable Cursor integration (default: false)');
     lines.push('# port: Port for cursor proxy daemon (default: 20129)');
-    lines.push('# auto_start: Auto-start daemon when CCS starts (default: false)');
+    lines.push('# auto_start: Auto-start daemon when SCC starts (default: false)');
     lines.push('# ghost_mode: Disable telemetry for privacy (default: true)');
     lines.push('# model: Default model ID (used for ANTHROPIC_MODEL)');
     lines.push('# opus_model/sonnet_model/haiku_model: Optional tier model mapping');
@@ -852,7 +852,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
       '# Global Environment Variables: Injected into all non-Claude subscription profiles'
     );
     lines.push('# These env vars disable telemetry/reporting for third-party providers.');
-    lines.push('# Configure via Dashboard (`ccs config`) > Global Env tab.');
+    lines.push('# Configure via Dashboard (`scc config`) > Global Env tab.');
     lines.push('#');
     lines.push('# Default variables:');
     lines.push('#   DISABLE_BUG_COMMAND: Disables /bug command (not supported by proxy)');
@@ -909,14 +909,14 @@ function generateYamlWithComments(config: UnifiedConfig): string {
     lines.push('# ----------------------------------------------------------------------------');
     lines.push('# Official Channels: Runtime auto-enable for Anthropic official channel plugins');
     lines.push('# Supported channels: telegram, discord, imessage');
-    lines.push('# Runtime-only: CCS injects --channels at launch for compatible Claude sessions.');
+    lines.push('# Runtime-only: SCC injects --channels at launch for compatible Claude sessions.');
     lines.push('# Bot tokens live in Claude channel env files, not in config.yaml.');
     lines.push('# Use selected: [telegram, discord, imessage] to choose channels.');
     lines.push(
       '# unattended adds --dangerously-skip-permissions only when channel auto-enable is active.'
     );
     lines.push('# Compatible sessions: native Claude default/account profiles only.');
-    lines.push('# Configure via: ccs config channels or the Settings > Channels dashboard tab.');
+    lines.push('# Configure via: scc config channels or the Settings > Channels dashboard tab.');
     lines.push('# ----------------------------------------------------------------------------');
     lines.push(
       yaml
@@ -929,7 +929,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
   // Dashboard auth section (only if configured)
   if (config.dashboard_auth?.enabled) {
     lines.push('# ----------------------------------------------------------------------------');
-    lines.push('# Dashboard Auth: Optional login protection for CCS dashboard');
+    lines.push('# Dashboard Auth: Optional login protection for SCC dashboard');
     lines.push('# Generate password hash: npx bcrypt-cli hash "your-password"');
     lines.push(
       '# ENV override: CCS_DASHBOARD_AUTH_ENABLED, CCS_DASHBOARD_USERNAME, CCS_DASHBOARD_PASSWORD_HASH'
@@ -951,11 +951,11 @@ function generateYamlWithComments(config: UnifiedConfig): string {
     lines.push('# ----------------------------------------------------------------------------');
     lines.push('# Browser Automation: Claude browser attach and Codex browser tooling');
     lines.push('# Claude attach reuses a running Chrome/Chromium session with remote debugging.');
-    lines.push('# Codex tooling controls whether CCS injects Playwright MCP overrides.');
+    lines.push('# Codex tooling controls whether SCC injects Playwright MCP overrides.');
     lines.push('#');
     lines.push('# claude.user_data_dir should point at the Chrome user-data directory for the');
     lines.push('# dedicated attach session. claude.devtools_port is the expected debugging port.');
-    lines.push('# Configure via: Settings > Browser or `ccs browser ...`.');
+    lines.push('# Configure via: Settings > Browser or `scc browser ...`.');
     lines.push('# ----------------------------------------------------------------------------');
     lines.push(
       yaml.dump({ browser: config.browser }, { indent: 2, lineWidth: -1, quotingType: '"' }).trim()
@@ -974,7 +974,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
     lines.push('# Timeout: Maximum seconds to wait for analysis (10-600)');
     lines.push('#');
     lines.push('# Supported formats: .jpg, .jpeg, .png, .gif, .webp, .heic, .bmp, .tiff, .pdf');
-    lines.push('# Configure via: ccs config image-analysis');
+    lines.push('# Configure via: scc config image-analysis');
     lines.push('# ----------------------------------------------------------------------------');
     lines.push(
       yaml

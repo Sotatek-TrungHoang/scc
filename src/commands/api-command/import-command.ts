@@ -47,7 +47,7 @@ export async function handleApiImportCommand(args: string[]): Promise<void> {
   const importPath = syntax.positionals[0];
   if (!importPath) {
     console.log(
-      fail('Import file path is required. Usage: ccs api import <file> [--name <new-name>]')
+      fail('Import file path is required. Usage: scc api import <file> [--name <new-name>]')
     );
     process.exit(1);
   }

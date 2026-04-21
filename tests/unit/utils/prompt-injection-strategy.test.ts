@@ -71,7 +71,7 @@ describe('buildInlineSteeringArg', () => {
 });
 
 describe('buildFileSteeringArg', () => {
-  it('returns file flag and writes the prompt into the isolated CCS home', () => {
+  it('returns file flag and writes the prompt into the isolated SCC home', () => {
     const result = buildFileSteeringArg({
       promptFileName: 'ccs-test-prompt.txt',
       promptContent: 'hello world',

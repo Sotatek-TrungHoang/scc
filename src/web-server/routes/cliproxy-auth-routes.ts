@@ -727,7 +727,7 @@ router.post('/:provider/start', async (req: Request, res: Response): Promise<voi
       );
       if (!tokenSnapshot) {
         res.status(409).json({
-          error: 'GitLab PAT authentication completed, but CCS could not find the saved token.',
+          error: 'GitLab PAT authentication completed, but SCC could not find the saved token.',
         });
         return;
       }
@@ -1134,7 +1134,7 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
         res.status(409).json({
           status: 'error',
           error:
-            'Authentication completed upstream, but CCS could not match it to the active add-account session. Retry the flow from the dashboard.',
+            'Authentication completed upstream, but SCC could not match it to the active add-account session. Retry the flow from the dashboard.',
         });
         return;
       }

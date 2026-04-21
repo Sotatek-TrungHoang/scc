@@ -172,7 +172,7 @@ export async function fetchRemoteAuthStatus(target?: ProxyTarget): Promise<Remot
 }
 
 /**
- * Transform CLIProxyAPI auth files to CCS AuthStatus format
+ * Transform CLIProxyAPI auth files to SCC AuthStatus format
  * @param files Array of auth files from remote API
  */
 function transformRemoteAuthFiles(files: RemoteAuthFile[]): RemoteAuthStatus[] {

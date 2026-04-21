@@ -105,7 +105,7 @@ router.get('/setup', async (req: Request, res: Response): Promise<void> => {
       removeEnvKeys: setup.removeEnvKeys,
       sharedSettings: {
         path: getClaudeSharedSettingsPath(),
-        command: `ccs persist ${rawProfile}`,
+        command: `scc persist ${rawProfile}`,
         json: renderSharedClaudeSettingsJson(setup),
       },
       ideSettings: {

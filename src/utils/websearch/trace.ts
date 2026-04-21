@@ -2,7 +2,7 @@
  * Best-effort WebSearch trace helpers.
  *
  * Writes opt-in JSONL trace records to ~/.ccs/logs/websearch-trace.jsonl so
- * CCS can explain launch intent, MCP exposure, provider selection, and likely
+ * SCC can explain launch intent, MCP exposure, provider selection, and likely
  * bypass scenarios without polluting Claude/MCP stdout.
  */
 

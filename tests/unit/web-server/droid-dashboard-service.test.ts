@@ -62,7 +62,7 @@ describe('droid-dashboard-service', () => {
   it('summarizes custom model entries with provider breakdown and ownership', () => {
     const summary = summarizeDroidCustomModels([
       {
-        displayName: 'CCS codex',
+        displayName: 'SCC codex',
         model: 'gpt-5-codex',
         baseUrl: 'http://127.0.0.1:8317/v1',
         apiKey: 'secret-token-1234',

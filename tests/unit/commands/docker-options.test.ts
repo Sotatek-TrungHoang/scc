@@ -47,6 +47,6 @@ describe('docker options', () => {
   it('rejects invalid log service filters', () => {
     const parsed = parseDockerLogsOptions(['--service', 'api'], ['--service']);
 
-    expect(parsed.errors).toEqual(['Invalid value for --service. Use: ccs or cliproxy']);
+    expect(parsed.errors).toEqual(['Invalid value for --service. Use: scc or cliproxy']);
   });
 });

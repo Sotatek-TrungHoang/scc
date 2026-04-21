@@ -10,8 +10,8 @@ import * as path from 'path';
 import * as os from 'os';
 import * as lockfile from 'proper-lockfile';
 
-const CCS_MODEL_PREFIX = 'ccs-';
-const CCS_DISPLAY_PREFIX = 'CCS ';
+const CCS_MODEL_PREFIX = 'scc-';
+const CCS_DISPLAY_PREFIX = 'SCC ';
 
 /** Lock configuration for concurrent write safety */
 const LOCK_STALE_MS = 10000;
@@ -67,7 +67,7 @@ interface DroidCustomModelEntry {
   maxOutputTokens?: number;
   extraArgs?: Record<string, unknown>;
   extra_args?: Record<string, unknown>;
-  /** Internal alias used by CCS for lookup. Stored as the model's display name prefix. */
+  /** Internal alias used by SCC for lookup. Stored as the model's display name prefix. */
   [key: string]: unknown;
 }
 
@@ -454,7 +454,7 @@ export async function upsertCcsModel(
     const entry: DroidCustomModelEntry = {
       ...(existingEntry ?? {}),
       ...modelWithoutReasoning,
-      displayName: `CCS ${profile}`,
+      displayName: `SCC ${profile}`,
     };
     if (reasoningOverride !== undefined) {
       applyReasoningOverride(entry, model.provider, reasoningOverride);
@@ -489,10 +489,10 @@ export async function upsertCcsModel(
   return (
     ref || {
       profile,
-      displayName: `CCS ${profile}`,
+      displayName: `SCC ${profile}`,
       index: 0,
-      selectorAlias: `CCS-${profile}-0`,
-      selector: `custom:CCS-${profile}-0`,
+      selectorAlias: `SCC-${profile}-0`,
+      selector: `custom:SCC-${profile}-0`,
     }
   );
 }
@@ -544,7 +544,7 @@ export async function listCcsModels(): Promise<Map<string, DroidCustomModel>> {
 }
 
 /**
- * Prune orphaned CCS entries from settings.json.
+ * Prune orphaned SCC entries from settings.json.
  * Removes ccs-* entries whose profile no longer exists in active profiles.
  */
 export async function pruneOrphanedModels(activeProfiles: string[]): Promise<number> {

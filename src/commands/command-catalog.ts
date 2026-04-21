@@ -148,14 +148,14 @@ export const ROOT_COMMAND_CATALOG: readonly RootCommandEntry[] = [
   },
   {
     name: 'update',
-    summary: 'Update CCS to the latest version',
+    summary: 'Update SCC to the latest version',
     group: 'operations',
     aliases: ['--update'],
     visibility: 'public',
   },
   {
     name: 'cleanup',
-    summary: 'Remove old CCS and CLIProxy logs',
+    summary: 'Remove old SCC and CLIProxy logs',
     group: 'operations',
     aliases: ['--cleanup'],
     visibility: 'public',
@@ -210,14 +210,14 @@ export const BUILTIN_PROVIDER_SHORTCUTS: readonly ShortcutEntry[] = CLIPROXY_PRO
 );
 
 export const ROOT_PROFILE_EXAMPLES: readonly ShortcutEntry[] = [
-  { name: 'ccs auth create work', summary: 'Create a concurrent Claude account profile' },
-  { name: 'ccs api create --preset glm', summary: 'Create a GLM-backed API profile' },
+  { name: 'scc auth create work', summary: 'Create a concurrent Claude account profile' },
+  { name: 'scc api create --preset glm', summary: 'Create a GLM-backed API profile' },
   {
-    name: 'ccs api create --preset anthropic --1m',
+    name: 'scc api create --preset anthropic --1m',
     summary: 'Create a Claude API profile with explicit [1m]',
   },
   {
-    name: 'ccs env <profile> --format claude-extension --ide vscode',
+    name: 'scc env <profile> --format claude-extension --ide vscode',
     summary: 'Export IDE extension settings',
   },
 ] as const;

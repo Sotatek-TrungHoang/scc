@@ -1,5 +1,5 @@
 /**
- * Shared test data for CCS npm tests
+ * Shared test data for SCC npm tests
  * Common test profiles, configurations, and sample data
  */
 

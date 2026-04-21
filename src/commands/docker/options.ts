@@ -99,7 +99,7 @@ export function parseDockerLogsOptions(
     if (service.missingValue || !service.value) {
       errors.push('Missing value for --service');
     } else if (service.value !== 'ccs' && service.value !== 'cliproxy') {
-      errors.push('Invalid value for --service. Use: ccs or cliproxy');
+      errors.push('Invalid value for --service. Use: scc or cliproxy');
     } else {
       parsedService = service.value;
     }

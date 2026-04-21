@@ -241,7 +241,7 @@ export function autoDetectTokens(): AutoDetectResult {
       dbPath: firstQueryFailurePath ?? existingPaths[0],
       reason: 'db_query_failed',
       error:
-        'Cursor state database was found, but CCS could not query it. The database may be locked, corrupted, or use an unexpected schema.',
+        'Cursor state database was found, but SCC could not query it. The database may be locked, corrupted, or use an unexpected schema.',
     };
   }
 
@@ -363,7 +363,7 @@ export function getCredentialsPath(): string {
 }
 
 /**
- * Save credentials to CCS config directory
+ * Save credentials to SCC config directory
  */
 export function saveCredentials(credentials: CursorCredentials): void {
   const credPath = getCredentialsPath();
@@ -382,7 +382,7 @@ export function saveCredentials(credentials: CursorCredentials): void {
 }
 
 /**
- * Load credentials from CCS config directory
+ * Load credentials from SCC config directory
  */
 export function loadCredentials(): CursorCredentials | null {
   const credPath = getCredentialsPath();

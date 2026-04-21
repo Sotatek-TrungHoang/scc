@@ -1,12 +1,12 @@
 /**
- * CCS Flag Parsing Unit Tests
+ * SCC Flag Parsing Unit Tests
  *
- * Tests flag parsing functionality for the update command in CCS tool
+ * Tests flag parsing functionality for the update command in SCC tool
  */
 
 const assert = require('assert');
 
-describe('CCS Flag Parsing', function () {
+describe('SCC Flag Parsing', function () {
   // Note: We don't import ccs.js here because it runs main() on import
   // These tests validate the flag parsing logic in isolation
 

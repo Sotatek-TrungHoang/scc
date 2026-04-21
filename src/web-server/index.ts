@@ -1,5 +1,5 @@
 /**
- * CCS Config Dashboard - Web Server
+ * SCC Config Dashboard - Web Server
  *
  * Express server with WebSocket support for real-time config management.
  * Single HTTP server handles REST API, static files, and WebSocket connections.

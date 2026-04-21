@@ -238,7 +238,7 @@ describe('migration-manager legacy kimi compatibility', () => {
     fs.rmSync(externalBackupPath, { recursive: true, force: true });
   });
 
-  it('rejects rollback from directories outside managed CCS backups', async () => {
+  it('rejects rollback from directories outside managed SCC backups', async () => {
     const externalBackupPath = fs.mkdtempSync(path.join(os.tmpdir(), 'ccs-backup-invalid-'));
 
     expect(await rollback(externalBackupPath)).toBe(false);
@@ -246,7 +246,7 @@ describe('migration-manager legacy kimi compatibility', () => {
     fs.rmSync(externalBackupPath, { recursive: true, force: true });
   });
 
-  it('restores files only from managed CCS backup directories', async () => {
+  it('restores files only from managed SCC backup directories', async () => {
     const backupPath = path.join(ccsDir, 'backup-v1-2026-03-24');
     fs.mkdirSync(backupPath, { recursive: true });
     fs.writeFileSync(path.join(backupPath, 'config.json'), JSON.stringify({ restored: true }));

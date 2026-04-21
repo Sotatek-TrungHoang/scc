@@ -225,13 +225,13 @@ export class CodexAdapter implements TargetAdapter {
     const disallowedFlags = findDisallowedCodexManagedFlags(userArgs);
     if (disallowedFlags.length > 0) {
       throw new Error(
-        `Codex target does not allow ${disallowedFlags.join(', ')} when CCS manages the runtime provider. Remove native Codex provider selection flags and retry.`
+        `Codex target does not allow ${disallowedFlags.join(', ')} when SCC manages the runtime provider. Remove native Codex provider selection flags and retry.`
       );
     }
 
     const overrides = [
       `model_provider=${formatTomlString(CODEX_RUNTIME_PROVIDER_ID)}`,
-      `model_providers.${CODEX_RUNTIME_PROVIDER_ID}.name=${formatTomlString('CCS Runtime')}`,
+      `model_providers.${CODEX_RUNTIME_PROVIDER_ID}.name=${formatTomlString('SCC Runtime')}`,
       `model_providers.${CODEX_RUNTIME_PROVIDER_ID}.base_url=${formatTomlString(creds.baseUrl)}`,
       `model_providers.${CODEX_RUNTIME_PROVIDER_ID}.env_key=${formatTomlString(CODEX_RUNTIME_ENV_KEY)}`,
       `model_providers.${CODEX_RUNTIME_PROVIDER_ID}.wire_api=${formatTomlString('responses')}`,

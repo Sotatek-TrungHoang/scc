@@ -498,7 +498,7 @@ process.exit(0);
     expect(result.stderr).not.toContain('at parseTargetFlags');
   });
 
-  it('passes ccs codex --target codex --version through to the native Codex binary', () => {
+  it('passes scc codex --target codex --version through to the native Codex binary', () => {
     if (process.platform === 'win32') return;
 
     const result = runCcs(['codex', '--target', 'codex', '--version'], {

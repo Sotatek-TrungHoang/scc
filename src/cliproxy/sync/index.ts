@@ -1,7 +1,7 @@
 /**
  * CLIProxy Sync Module
  *
- * Profile sync functionality for syncing CCS API profiles to CLIProxy config.
+ * Profile sync functionality for syncing SCC API profiles to CLIProxy config.
  */
 
 // Profile mapper

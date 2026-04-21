@@ -342,7 +342,7 @@ router.put('/:name/context', async (req: Request, res: Response): Promise<void> 
 });
 
 /**
- * DELETE /api/accounts/reset-default - Reset to CCS default
+ * DELETE /api/accounts/reset-default - Reset to SCC default
  */
 router.delete('/reset-default', (_req: Request, res: Response): void => {
   try {

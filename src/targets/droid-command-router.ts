@@ -4,7 +4,7 @@
  * Determines whether profile args should launch Droid interactive mode
  * (`droid [prompt...]`) or command mode (`droid <subcommand> ...`).
  *
- * Also normalizes CCS legacy reasoning aliases for `droid exec`:
+ * Also normalizes SCC legacy reasoning aliases for `droid exec`:
  * - --effort / --thinking -> --reasoning-effort
  */
 
@@ -94,7 +94,7 @@ function hasExecOnlyFlagsAtFront(args: string[]): boolean {
     const arg = args[i];
     if (arg === '--') return false;
 
-    // CCS legacy aliases may appear before exec-only flags; skip their values when present.
+    // SCC legacy aliases may appear before exec-only flags; skip their values when present.
     if (arg === '--effort' || arg === '--thinking') {
       const possibleValue = args[i + 1];
       if (possibleValue && !possibleValue.startsWith('-')) {

@@ -12,7 +12,7 @@ export async function handleApiCopyCommand(args: string[]): Promise<void> {
   let destination = parsedArgs.positionals[1];
 
   if (!source) {
-    console.log(fail('Source profile is required. Usage: ccs api copy <source> <destination>'));
+    console.log(fail('Source profile is required. Usage: scc api copy <source> <destination>'));
     process.exit(1);
   }
 

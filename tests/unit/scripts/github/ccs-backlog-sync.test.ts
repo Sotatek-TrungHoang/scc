@@ -8,7 +8,7 @@ import {
   validateProjectFields,
 } from '../../../../scripts/github/ccs-backlog-sync-lib.mjs';
 
-describe('ccs backlog sync helpers', () => {
+describe('scc backlog sync helpers', () => {
   it('maps closed issues to Done and clears follow-up state', () => {
     const plan = classify(
       [{ name: 'bug' }, { name: 'upstream-blocked' }],

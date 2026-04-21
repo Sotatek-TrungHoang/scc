@@ -12,7 +12,7 @@ import { initUI, header, ok, info } from '../utils/ui';
 export async function handleSyncCommand(): Promise<void> {
   await initUI();
   console.log('');
-  console.log(header('Syncing CCS Components...'));
+  console.log(header('Syncing SCC Components...'));
   console.log('');
 
   // First, copy .claude/ directory from package to ~/.ccs/.claude/

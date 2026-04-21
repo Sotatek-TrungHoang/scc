@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 
-const STEERING_PROMPT_SNIPPET = 'prefer the CCS MCP tool WebSearch instead of Bash/curl/http fetches';
+const STEERING_PROMPT_SNIPPET = 'prefer the SCC MCP tool WebSearch instead of Bash/curl/http fetches';
 
 interface RunResult {
   status: number | null;

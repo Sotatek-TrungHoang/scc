@@ -338,7 +338,7 @@ describe('websearch-transformer hook helpers', () => {
   });
 
   it('formats structured search results for hook deny output', () => {
-    const formatted = hook.formatStructuredSearchResults('ccs websearch', 'DuckDuckGo', [
+    const formatted = hook.formatStructuredSearchResults('scc websearch', 'DuckDuckGo', [
       {
         title: 'Result title',
         url: 'https://example.com',
@@ -346,9 +346,9 @@ describe('websearch-transformer hook helpers', () => {
       },
     ]);
 
-    expect(formatted).toContain('CCS local WebSearch evidence');
+    expect(formatted).toContain('SCC local WebSearch evidence');
     expect(formatted).toContain('Provider: DuckDuckGo');
-    expect(formatted).toContain('Query: "ccs websearch"');
+    expect(formatted).toContain('Query: "scc websearch"');
     expect(formatted).toContain('Result count: 1');
     expect(formatted).toContain('1. Result title');
     expect(formatted).toContain('URL: https://example.com');
@@ -360,15 +360,15 @@ describe('websearch-transformer hook helpers', () => {
     const output = hook.buildSuccessHookOutput(
       'btc price',
       'Exa',
-      'CCS local WebSearch evidence\nProvider: Exa'
+      'SCC local WebSearch evidence\nProvider: Exa'
     );
 
     expect(output.hookSpecificOutput).toEqual({
-      additionalContext: 'CCS local WebSearch evidence\nProvider: Exa',
+      additionalContext: 'SCC local WebSearch evidence\nProvider: Exa',
       hookEventName: 'PreToolUse',
       permissionDecision: 'deny',
       permissionDecisionReason:
-        'CCS already retrieved WebSearch results locally via Exa. Use the provided context instead of calling native WebSearch for "btc price".',
+        'SCC already retrieved WebSearch results locally via Exa. Use the provided context instead of calling native WebSearch for "btc price".',
     });
     expect(output).not.toHaveProperty('decision');
     expect(output).not.toHaveProperty('reason');
@@ -383,7 +383,7 @@ describe('websearch-transformer hook helpers', () => {
 
     expect(output.hookSpecificOutput.permissionDecision).toBe('deny');
     expect(output.hookSpecificOutput.permissionDecisionReason).toBe(
-      'CCS could not complete local WebSearch for "btc price". Native WebSearch is unavailable for this profile.'
+      'SCC could not complete local WebSearch for "btc price". Native WebSearch is unavailable for this profile.'
     );
     expect(output.hookSpecificOutput.additionalContext).toContain(
       'Attempted providers: Exa: Exa timed out'
@@ -403,7 +403,7 @@ describe('websearch-transformer hook helpers', () => {
     expect(output.hookSpecificOutput.hookEventName).toBe('PreToolUse');
     expect(output.hookSpecificOutput.permissionDecision).toBe('deny');
     expect(output.hookSpecificOutput.additionalContext).toContain(
-      'CCS local WebSearch evidence'
+      'SCC local WebSearch evidence'
     );
     expect(output.hookSpecificOutput.additionalContext).toContain('Provider: DuckDuckGo');
     expect(output.hookSpecificOutput.additionalContext).toContain(
@@ -516,7 +516,7 @@ global.fetch = async (url) => {
       'Native WebSearch is unavailable for this profile.'
     );
     expect(output.hookSpecificOutput.additionalContext).toContain(
-      'CCS local WebSearch failed for "btc price".'
+      'SCC local WebSearch failed for "btc price".'
     );
     expect(output.hookSpecificOutput.additionalContext).toContain(
       'Attempted providers: DuckDuckGo: DuckDuckGo returned 503'

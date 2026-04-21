@@ -165,7 +165,7 @@ describe('Variant Port Allocation', function () {
       } catch (err) {
         assert.ok(err.message.includes('100/100'), 'Should include variant count');
         assert.ok(
-          err.message.includes('ccs cliproxy remove'),
+          err.message.includes('scc cliproxy remove'),
           'Should include recovery hint'
         );
       }

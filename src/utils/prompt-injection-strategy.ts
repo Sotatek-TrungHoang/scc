@@ -6,8 +6,8 @@
  * `--append-system-prompt` and `--append-system-prompt-file` flags.
  *
  * Rules:
- *  - User passes `--append-system-prompt` → all CCS prompts use inline
- *  - User passes `--append-system-prompt-file` → all CCS prompts use file
+ *  - User passes `--append-system-prompt` → all SCC prompts use inline
+ *  - User passes `--append-system-prompt-file` → all SCC prompts use file
  *  - Neither present → default to inline (`--append-system-prompt`)
  */
 

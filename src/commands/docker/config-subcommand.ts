@@ -25,7 +25,7 @@ export async function handleConfig(args: string[]): Promise<void> {
     const config = new DockerExecutor().getConfig({ host: parsed.host });
     const rows = [
       ['Mode', config.remote ? `remote (${config.host})` : 'local'],
-      ['Local CCS Dir', config.ccsDir],
+      ['Local SCC Dir', config.ccsDir],
       ['Bundled Docker Dir', config.dockerDir],
       ['Compose File', config.composeFile],
       ['Dockerfile', config.dockerfile],

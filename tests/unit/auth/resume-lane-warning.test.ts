@@ -6,7 +6,7 @@ function stripAnsi(input: string): string {
 }
 
 describe('resume lane warning', () => {
-  it('prints guidance when the plain ccs lane differs from the account lane', async () => {
+  it('prints guidance when the plain scc lane differs from the account lane', async () => {
     const logs: string[] = [];
 
     await maybeWarnAboutResumeLaneMismatch('work', '/tmp/account-lane', ['--resume'], {
@@ -23,8 +23,8 @@ describe('resume lane warning', () => {
 
     expect(plainLogs[0]).toContain('Resume for account "work" will search that account lane');
     expect(plainLogs).toContain('[i]   Account lane: /tmp/account-lane');
-    expect(plainLogs).toContain('[i]   Plain ccs lane: native Claude lane (/tmp/native-lane)');
-    expect(plainLogs).toContain('[i]   Recover the original lane first: ccs -r');
+    expect(plainLogs).toContain('[i]   Plain scc lane: native Claude lane (/tmp/native-lane)');
+    expect(plainLogs).toContain('[i]   Recover the original lane first: scc -r');
   });
 
   it('does not log anything when resume is not requested', async () => {

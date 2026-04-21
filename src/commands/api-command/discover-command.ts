@@ -59,7 +59,7 @@ export async function handleApiDiscoverCommand(args: string[]): Promise<void> {
 
   if (!register) {
     console.log(info('To register discovered profiles:'));
-    console.log(`  ${color('ccs api discover --register', 'command')}`);
+    console.log(`  ${color('scc api discover --register', 'command')}`);
     console.log('');
     return;
   }

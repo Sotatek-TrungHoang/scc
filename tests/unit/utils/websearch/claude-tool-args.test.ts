@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { appendThirdPartyWebSearchToolArgs } from '../../../../src/utils/websearch/claude-tool-args';
 
 const STEERING_PROMPT =
-  'For web lookup or current-information requests, prefer the CCS MCP tool WebSearch instead of Bash/curl/http fetches. If the user explicitly wants shell commands, or WebSearch is unavailable or fails, you may fall back to Bash/network tools.';
+  'For web lookup or current-information requests, prefer the SCC MCP tool WebSearch instead of Bash/curl/http fetches. If the user explicitly wants shell commands, or WebSearch is unavailable or fails, you may fall back to Bash/network tools.';
 
 describe('appendThirdPartyWebSearchToolArgs', () => {
   it('appends native WebSearch suppression and inline steering prompt when no prompt flags are present', () => {
@@ -63,7 +63,7 @@ describe('appendThirdPartyWebSearchToolArgs', () => {
     ]);
   });
 
-  it('preserves user-supplied append-system-prompt values and adds the CCS steering hint once', () => {
+  it('preserves user-supplied append-system-prompt values and adds the SCC steering hint once', () => {
     expect(
       appendThirdPartyWebSearchToolArgs([
         'smoke',
@@ -158,7 +158,7 @@ describe('appendThirdPartyWebSearchToolArgs', () => {
     expect(result).not.toContain('--append-system-prompt');
   });
 
-  it('does not treat unrelated user prompt files as the managed CCS steering prompt', () => {
+  it('does not treat unrelated user prompt files as the managed SCC steering prompt', () => {
     const result = appendThirdPartyWebSearchToolArgs([
       'smoke',
       '--append-system-prompt-file',

@@ -3,7 +3,7 @@
  *
  * Manages OAuth authentication flow for CLIProxy providers (Gemini, Codex, Antigravity, Kiro, Copilot).
  * CLIProxyAPI handles OAuth internally - we just need to:
- * 1. Check if auth exists (token files in CCS auth directory)
+ * 1. Check if auth exists (token files in SCC auth directory)
  * 2. Trigger OAuth flow by spawning binary with auth flag
  * 3. Auto-detect headless environments (SSH, no DISPLAY)
  * 4. Use --no-browser flag for headless, display OAuth URL for manual auth
@@ -767,7 +767,7 @@ async function handleGitLabPatLogin(
     expectedAccountId
   );
   if (!tokenSnapshot) {
-    console.log(fail('GitLab PAT login completed, but CCS could not find the saved token file.'));
+    console.log(fail('GitLab PAT login completed, but SCC could not find the saved token file.'));
     return null;
   }
 
@@ -780,7 +780,7 @@ async function handleGitLabPatLogin(
   );
 
   if (!account) {
-    console.log(fail('Authenticated GitLab token could not be registered as a CCS account.'));
+    console.log(fail('Authenticated GitLab token could not be registered as a SCC account.'));
     return null;
   }
 
@@ -860,7 +860,7 @@ export async function triggerOAuth(
 
   if (provider === 'kiro' && resolvedKiroMethod === 'github') {
     console.log(fail('Kiro GitHub login is only available in Dashboard management OAuth flow.'));
-    console.log('    Use: ccs config -> Accounts -> Add Kiro account -> Method: GitHub OAuth');
+    console.log('    Use: scc config -> Accounts -> Add Kiro account -> Method: GitHub OAuth');
     return null;
   }
 
@@ -1006,7 +1006,7 @@ export async function triggerOAuth(
       console.log('');
       console.log(info('Paste-callback mode enabled for Kiro CLI auth.'));
       console.log(
-        '    CCS will print the authorization URL and wait for you to paste the final callback URL.'
+        '    SCC will print the authorization URL and wait for you to paste the final callback URL.'
       );
       console.log('');
     } else if (headless) {
@@ -1043,8 +1043,8 @@ export async function triggerOAuth(
   if (account && provider === 'kiro' && !noIncognito) {
     console.log('');
     console.log(info('Tip: To save your AWS login credentials for future sessions:'));
-    console.log('       Use: ccs kiro --no-incognito');
-    console.log('       Or enable "Kiro: Use normal browser" in: ccs config');
+    console.log('       Use: scc kiro --no-incognito');
+    console.log('       Or enable "Kiro: Use normal browser" in: scc config');
   }
 
   // Account safety: check for cross-provider conflicts

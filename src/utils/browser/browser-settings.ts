@@ -118,11 +118,11 @@ export function describeManagedBrowserAttachNotReady(
     options.launchCommand ??
     buildCurrentPlatformLaunchCommand(config.userDataDir, config.devtoolsPort);
   const continueWithoutTools =
-    'CCS will continue without browser tools until the attach session is ready.';
+    'SCC will continue without browser tools until the attach session is ready.';
 
   if (errorMessage.includes('Chrome reuse metadata')) {
     const summary = options.createdProfileDir
-      ? `CCS created the managed browser profile at ${config.userDataDir}, but no running attach-mode Chrome session is using it yet`
+      ? `SCC created the managed browser profile at ${config.userDataDir}, but no running attach-mode Chrome session is using it yet`
       : `No running attach-mode Chrome session is using the managed browser profile at ${config.userDataDir}`;
     const nextStep = `Start Chrome with remote debugging and the managed user-data dir. Example: ${launchCommand}`;
     return {
@@ -135,7 +135,7 @@ export function describeManagedBrowserAttachNotReady(
   }
 
   if (errorMessage.includes('Chrome DevTools endpoint')) {
-    const summary = `CCS could not reach the attach-mode DevTools endpoint for the managed browser profile at ${config.userDataDir}`;
+    const summary = `SCC could not reach the attach-mode DevTools endpoint for the managed browser profile at ${config.userDataDir}`;
     const nextStep = `Restart Chrome in attach mode and retry. Example: ${launchCommand}`;
     return {
       state: 'endpoint_unreachable',
@@ -147,7 +147,7 @@ export function describeManagedBrowserAttachNotReady(
   }
 
   if (errorMessage.includes('Chrome profile directory is invalid')) {
-    const summary = `CCS could not initialize the managed browser profile at ${config.userDataDir}`;
+    const summary = `SCC could not initialize the managed browser profile at ${config.userDataDir}`;
     const nextStep = `Confirm the path is writable or reset it to the CCS-managed default, then launch Chrome in attach mode. Example: ${launchCommand}`;
     return {
       state: 'path_missing',

@@ -1,9 +1,9 @@
 /**
- * WebSearch Manager - Manages CCS WebSearch runtime
+ * WebSearch Manager - Manages SCC WebSearch runtime
  *
  * WebSearch is a server-side tool executed by Anthropic's API.
  * Third-party providers (gemini, agy, codex, qwen) don't have access.
- * CCS exposes a first-class local WebSearch tool for those profiles and keeps
+ * SCC exposes a first-class local WebSearch tool for those profiles and keeps
  * the legacy hook runtime only as a compatibility fallback.
  *
  * Runtime Architecture:

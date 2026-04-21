@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# CCS Error Codes
+# SCC Error Codes
 # Documentation: https://docs.ccs.kaitran.ca/reference/error-codes
 
 readonly ERROR_CODE_DOCS_BASE_URL="https://docs.ccs.kaitran.ca/reference/error-codes"

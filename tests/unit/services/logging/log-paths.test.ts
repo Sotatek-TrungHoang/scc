@@ -31,13 +31,13 @@ describe('logging path helpers', () => {
     tempHome = '';
   });
 
-  it('resolves native log paths inside the scoped CCS directory', () => {
+  it('resolves native log paths inside the scoped SCC directory', () => {
     expect(getNativeLogsDir()).toBe(path.join(tempHome, '.ccs', 'logs'));
     expect(getCurrentLogPath()).toBe(path.join(tempHome, '.ccs', 'logs', 'current.jsonl'));
     expect(getLogArchiveDir()).toBe(path.join(tempHome, '.ccs', 'logs', 'archive'));
   });
 
-  it('rejects path escapes outside the CCS log root', () => {
+  it('rejects path escapes outside the SCC log root', () => {
     const logsDir = getNativeLogsDir();
     expect(isPathInsideDirectory(path.join(logsDir, 'archive', 'entry.gz'), logsDir)).toBe(true);
     expect(isPathInsideDirectory(path.join(logsDir, '..', '..', 'etc', 'passwd'), logsDir)).toBe(

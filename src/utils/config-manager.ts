@@ -57,7 +57,7 @@ export function setGlobalConfigDir(dir: string | undefined): void {
 }
 
 /**
- * Get the CCS home directory.
+ * Get the SCC home directory.
  * Precedence: SCC_HOME > CCS_HOME > os.homedir()
  * @returns Home directory path
  */
@@ -84,7 +84,7 @@ function _resolveCcsDir(): { source: string; dir: string } {
     return { source: 'scoped:CCS_HOME', dir: path.join(scopedConfig.ccsHome, '.ccs') };
   if (_globalConfigDir) return { source: '--config-dir', dir: _globalConfigDir };
 
-  // SCC env vars take priority over CCS equivalents
+  // SCC env vars take priority over SCC equivalents
   if (process.env.SCC_DIR) return { source: 'SCC_DIR', dir: path.resolve(process.env.SCC_DIR) };
   if (process.env.CCS_DIR) return { source: 'CCS_DIR', dir: path.resolve(process.env.CCS_DIR) };
   if (process.env.SCC_HOME)
@@ -93,7 +93,7 @@ function _resolveCcsDir(): { source: string; dir: string } {
     return { source: 'CCS_HOME', dir: path.join(path.resolve(process.env.CCS_HOME), '.ccs') };
 
   // SCC always uses ~/.scc — never falls back to ~/.ccs.
-  // This ensures SCC and CCS have independent config directories
+  // This ensures SCC and SCC have independent config directories
   // and don't interfere with each other on the same machine.
   return { source: 'default', dir: path.join(os.homedir(), '.scc') };
 }
@@ -108,7 +108,7 @@ export function getCcsDir(): string {
 }
 
 /**
- * Get which source determined the CCS directory (for diagnostics).
+ * Get which source determined the SCC directory (for diagnostics).
  * @returns [source_label, resolved_path] tuple
  */
 export function getCcsDirSource(): [string, string] {
@@ -156,7 +156,7 @@ export function detectCloudSyncPath(dir: string): string | null {
 }
 
 /**
- * Get CCS hooks directory (respects CCS_HOME for test isolation)
+ * Get SCC hooks directory (respects CCS_HOME for test isolation)
  * @returns Path to hooks directory
  */
 export function getCcsHooksDir(): string {

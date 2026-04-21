@@ -2,7 +2,7 @@
  * CLIProxy Help Display
  *
  * Handles:
- * - ccs cliproxy --help
+ * - scc cliproxy --help
  */
 
 import { initUI, header, subheader, color, dim } from '../../utils/ui';
@@ -19,7 +19,7 @@ export async function showHelp(): Promise<void> {
   console.log(header('CLIProxy Management'));
   console.log('');
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs cliproxy', 'command')} <command> [options]`);
+  console.log(`  ${color('scc cliproxy', 'command')} <command> [options]`);
   console.log('');
 
   const sections: [string, [string, string][]][] = [

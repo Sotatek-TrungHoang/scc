@@ -2,7 +2,7 @@
  * Usage Aggregator Service
  *
  * Handles multi-instance usage data aggregation and caching.
- * Combines data from default Claude config and all CCS instances.
+ * Combines data from default Claude config and all SCC instances.
  */
 
 import * as fs from 'fs';
@@ -27,16 +27,16 @@ import {
 } from './cliproxy-usage-syncer';
 
 // ============================================================================
-// Multi-Instance Support - Aggregate usage from CCS profiles
+// Multi-Instance Support - Aggregate usage from SCC profiles
 // ============================================================================
 
-/** Path to CCS instances directory */
+/** Path to SCC instances directory */
 function getCcsInstancesDir() {
   return path.join(getCcsDir(), 'instances');
 }
 
 /**
- * Get list of CCS instance paths that have usage data
+ * Get list of SCC instance paths that have usage data
  * Only returns instances with existing projects/ directory
  */
 function getInstancePaths(): string[] {
@@ -56,7 +56,7 @@ function getInstancePaths(): string[] {
         return fs.existsSync(projectsPath);
       });
   } catch {
-    console.error(fail('Failed to read CCS instances directory'));
+    console.error(fail('Failed to read SCC instances directory'));
     return [];
   }
 }
@@ -288,7 +288,7 @@ function persistCacheIfComplete(): void {
 
 /**
  * Load fresh data and update both memory and disk caches
- * Aggregates data from default ~/.claude/ AND all CCS instances
+ * Aggregates data from default ~/.claude/ AND all SCC instances
  */
 async function refreshFromSource(): Promise<{
   daily: DailyUsage[];
@@ -303,7 +303,7 @@ async function refreshFromSource(): Promise<{
   // Load default data (from ~/.claude/projects/ or CLAUDE_CONFIG_DIR)
   const defaultData = await loadAllUsageData();
 
-  // Load data from all CCS instances sequentially
+  // Load data from all SCC instances sequentially
   const instancePaths = getInstancePaths();
   const instanceDataResults: Array<{
     daily: DailyUsage[];
@@ -336,7 +336,7 @@ async function refreshFromSource(): Promise<{
   }
 
   if (instanceDataResults.length > 0) {
-    console.log(info(`Aggregated usage data from ${instanceDataResults.length} CCS instance(s)`));
+    console.log(info(`Aggregated usage data from ${instanceDataResults.length} SCC instance(s)`));
   }
 
   // Load CLIProxy usage data (from local snapshot cache)

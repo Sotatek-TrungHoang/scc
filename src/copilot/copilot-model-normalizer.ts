@@ -66,7 +66,7 @@ function createWarning(
     tier,
     original,
     replacement,
-    message: `Copilot ${getTierLabel(tier)} model '${original}' is no longer supported. CCS will use '${replacement}' instead.`,
+    message: `Copilot ${getTierLabel(tier)} model '${original}' is no longer supported. SCC will use '${replacement}' instead.`,
   };
 }
 

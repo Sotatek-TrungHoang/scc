@@ -6,7 +6,7 @@ mock.module('../../../src/cliproxy/binary-manager', () => ({
   ensureCLIProxyBinary: async (_verbose = false, options?: unknown) => {
     ensureBinaryCalls.push(options);
     throw new Error(
-      'CLIProxy Plus binary is not installed locally. Run "ccs cliproxy install" when you have network access.'
+      'CLIProxy Plus binary is not installed locally. Run "scc cliproxy install" when you have network access.'
     );
   },
 }));
@@ -66,7 +66,7 @@ describe('ensureCliproxyService', () => {
       alreadyRunning: false,
       port: 8317,
       error:
-        'Failed to prepare binary: CLIProxy Plus binary is not installed locally. Run "ccs cliproxy install" when you have network access.',
+        'Failed to prepare binary: CLIProxy Plus binary is not installed locally. Run "scc cliproxy install" when you have network access.',
     });
     expect(ensureBinaryCalls).toEqual([
       {

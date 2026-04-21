@@ -2,7 +2,7 @@
  * Session Tracker for CLIProxy Multi-Instance Support
  *
  * Manages reference counting for shared CLIProxy instances.
- * Multiple CCS sessions can share a single proxy on the same port.
+ * Multiple SCC sessions can share a single proxy on the same port.
  * Proxy only terminates when ALL sessions exit (count reaches 0).
  *
  * Lock file format: ~/.ccs/cliproxy/sessions.json
@@ -217,7 +217,7 @@ export function getExistingProxy(port: number): SessionLock | null {
 
 /**
  * Register a new session with the proxy.
- * Call this when starting a new CCS session that will use an existing proxy.
+ * Call this when starting a new SCC session that will use an existing proxy.
  * @param port Port the proxy is running on
  * @param proxyPid PID of the proxy process
  * @param version Optional CLIProxy version (stored when spawning new proxy)

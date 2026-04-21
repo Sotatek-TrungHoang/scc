@@ -279,7 +279,7 @@ async function buildDashboardPayload() {
     summaryState = 'needs_setup';
     title = 'Needs local runtime';
     detail =
-      'CCS could not provision the local ImageAnalysis MCP runtime yet. Profiles will fall back to native Read until provisioning succeeds.';
+      'SCC could not provision the local ImageAnalysis MCP runtime yet. Profiles will fall back to native Read until provisioning succeeds.';
   } else if (backendRows.length === 0) {
     summaryState = 'needs_setup';
     title = 'Needs provider models';

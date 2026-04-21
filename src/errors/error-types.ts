@@ -1,5 +1,5 @@
 /**
- * Custom error types for CCS CLI
+ * Custom error types for SCC CLI
  *
  * All custom errors extend CCSError which provides:
  * - Standardized exit codes
@@ -10,7 +10,7 @@
 import { ExitCode } from './exit-codes';
 
 /**
- * Base error class for all CCS errors
+ * Base error class for all SCC errors
  * Extends standard Error with exit code and recovery information
  */
 export class CCSError extends Error {

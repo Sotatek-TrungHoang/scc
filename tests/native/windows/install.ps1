@@ -70,7 +70,7 @@ function Test-Case {
 }
 
 Write-ColorOutput "========================================" "Yellow"
-Write-ColorOutput "CCS --INSTALL FUNCTIONALITY TESTING" "Yellow"
+Write-ColorOutput "SCC --INSTALL FUNCTIONALITY TESTING" "Yellow"
 Write-ColorOutput "========================================" "Yellow"
 Write-Host ""
 
@@ -96,7 +96,7 @@ Write-Host ""
 # ============================================================================
 Write-ColorOutput "===== PRE-CHECKS =====" "Yellow"
 
-Test-Case "CCS executable exists" "ccs.ps1 script found" {
+Test-Case "SCC executable exists" "ccs.ps1 script found" {
     Test-Path $CcsPath
 }
 

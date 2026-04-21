@@ -98,13 +98,13 @@ export function findProfile(args: string[], flagsWithValues: string[]): string |
 /** Show help for env command */
 function showHelp(): void {
   console.log('');
-  console.log(header('ccs env'));
+  console.log(header('scc env'));
   console.log('');
   console.log('  Export environment variables for third-party tool integration.');
   console.log('');
 
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs env', 'command')} <profile> [options]`);
+  console.log(`  ${color('scc env', 'command')} <profile> [options]`);
   console.log('');
 
   console.log(subheader('Options:'));
@@ -135,27 +135,27 @@ function showHelp(): void {
 
   console.log(subheader('Examples:'));
   console.log(
-    `  $ ${color('eval $(ccs env gemini --format openai)', 'command')}     ${dim('# For OpenCode/Cursor')}`
+    `  $ ${color('eval $(scc env gemini --format openai)', 'command')}     ${dim('# For OpenCode/Cursor')}`
   );
   console.log(
-    `  $ ${color('ccs env codex --format anthropic', 'command')}          ${dim('# Anthropic vars')}`
+    `  $ ${color('scc env codex --format anthropic', 'command')}          ${dim('# Anthropic vars')}`
   );
   console.log(
-    `  $ ${color('ccs env glm --format raw', 'command')}                  ${dim('# All vars from settings')}`
+    `  $ ${color('scc env glm --format raw', 'command')}                  ${dim('# All vars from settings')}`
   );
   console.log(
-    `  $ ${color('ccs env agy --format openai --shell fish', 'command')}  ${dim('# Fish shell syntax')}`
+    `  $ ${color('scc env agy --format openai --shell fish', 'command')}  ${dim('# Fish shell syntax')}`
   );
   console.log(
-    `  $ ${color('ccs env work --format claude-extension --ide vscode', 'command')}  ${dim('# VS Code/Cursor snippet')}`
+    `  $ ${color('scc env work --format claude-extension --ide vscode', 'command')}  ${dim('# VS Code/Cursor snippet')}`
   );
   console.log(
-    `  $ ${color('ccs env default --format claude-extension --ide windsurf', 'command')}  ${dim('# Clear/replace Windsurf env overrides')}`
+    `  $ ${color('scc env default --format claude-extension --ide windsurf', 'command')}  ${dim('# Clear/replace Windsurf env overrides')}`
   );
   console.log('');
   console.log(subheader('Notes:'));
   console.log(
-    `  ${dim('- Use ccs persist <profile> for shared ~/.claude/settings.json setup when possible.')}`
+    `  ${dim('- Use scc persist <profile> for shared ~/.claude/settings.json setup when possible.')}`
   );
   console.log(
     `  ${dim('- claude-extension output prints JSON only; replace the full environmentVariables setting.')}`
@@ -180,7 +180,7 @@ export async function handleEnvCommand(args: string[]): Promise<void> {
   const profile = findProfile(args, flagsWithValues);
   if (!profile) {
     console.error(
-      fail('Usage: ccs env <profile> [--format openai|anthropic|raw|claude-extension]')
+      fail('Usage: scc env <profile> [--format openai|anthropic|raw|claude-extension]')
     );
     process.exit(1);
   }
@@ -221,7 +221,7 @@ export async function handleEnvCommand(args: string[]): Promise<void> {
     }
   } catch (error) {
     console.error(fail((error as Error).message));
-    console.error(dim(`  Check ${getCcsDir()}/config.yaml or run ccs config for profile setup.`));
+    console.error(dim(`  Check ${getCcsDir()}/config.yaml or run scc config for profile setup.`));
     process.exit(1);
   }
 

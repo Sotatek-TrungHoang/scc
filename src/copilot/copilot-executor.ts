@@ -149,7 +149,7 @@ export async function resolveCopilotImageAnalysisEnv(
           CCS_CURRENT_PROVIDER: '',
           CCS_IMAGE_ANALYSIS_SKIP: '1',
         },
-        warning: `Image analysis via ${provider} is unavailable because CCS could not start the local CLIProxy service. This session will use native Read.`,
+        warning: `Image analysis via ${provider} is unavailable because SCC could not start the local CLIProxy service. This session will use native Read.`,
       };
     }
   }
@@ -188,7 +188,7 @@ export async function executeCopilotProfile(
   if (warnings.length > 0) {
     warnings.forEach(({ message }) => console.log(warn(message)));
     console.log(
-      warn('Run `ccs config` and save the Copilot section to persist these replacements.')
+      warn('Run `scc config` and save the Copilot section to persist these replacements.')
     );
     console.log('');
   }
@@ -210,7 +210,7 @@ export async function executeCopilotProfile(
   if (!isCopilotApiInstalled()) {
     console.error(fail('copilot-api is not installed.'));
     console.error('');
-    console.error('Install/repair by running: ccs copilot start');
+    console.error('Install/repair by running: scc copilot start');
     return 1;
   }
 
@@ -220,7 +220,7 @@ export async function executeCopilotProfile(
     console.error(fail('Not authenticated with GitHub.'));
     console.error('');
     console.error('Run: npx copilot-api auth');
-    console.error('Or:  ccs copilot auth');
+    console.error('Or:  scc copilot auth');
     return 1;
   }
 
@@ -241,12 +241,12 @@ export async function executeCopilotProfile(
       console.error(fail('copilot-api daemon is not running.'));
       console.error('');
       console.error('Start the daemon:');
-      console.error('  ccs copilot start');
+      console.error('  scc copilot start');
       console.error('Fallback manual command:');
       console.error(`  npx copilot-api start --port ${normalizedConfig.port}`);
       console.error('');
       console.error('Or enable auto_start in config:');
-      console.error('  ccs config  (then enable auto_start in Copilot section)');
+      console.error('  scc config  (then enable auto_start in Copilot section)');
       return 1;
     }
   }

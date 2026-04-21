@@ -117,7 +117,7 @@ export function buildProxyHeaders(
 /**
  * Build request headers for management API endpoints (/v0/management/*).
  * For remote targets: uses management_key, falls back to authToken.
- * For local targets: uses the effective management secret from CCS config.
+ * For local targets: uses the effective management secret from SCC config.
  *
  * @param target Resolved proxy target
  * @param additionalHeaders Extra headers to merge
@@ -132,7 +132,7 @@ export function buildManagementHeaders(
   };
 
   // Remote: use configured management key or auth token
-  // Local: use CCS management secret (default: 'ccs')
+  // Local: use SCC management secret (default: 'ccs')
   const authKey = target.isRemote
     ? (target.managementKey ?? target.authToken)
     : getEffectiveManagementSecret();

@@ -503,7 +503,7 @@ test_fish_completion() {
         cp "$PROJECT_ROOT/scripts/completion/ccs.fish" ~/.config/fish/completions/
 
         # Test if Fish can load it
-        if fish -c "complete -C'ccs '" 2>/dev/null | grep -q "auth\|doctor"; then
+        if fish -c "complete -C'scc '" 2>/dev/null | grep -q "auth\|doctor"; then
             log_success "Fish completion works"
         else
             log_fail "Fish completion NOT working"

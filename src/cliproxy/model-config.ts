@@ -141,7 +141,7 @@ export async function configureProviderModel(
   const defaultIdx = catalog.models.findIndex((m) => m.id === targetModel);
   const safeDefaultIdx = defaultIdx >= 0 ? defaultIdx : 0;
 
-  // Show header with context (gradient like ccs doctor)
+  // Show header with context (gradient like scc doctor)
   console.error('');
   console.error(header(`Configure ${catalog.displayName} Model`));
   console.error('');
@@ -191,7 +191,7 @@ export async function configureProviderModel(
     ANTHROPIC_DEFAULT_HAIKU_MODEL: selectedHaikuModel,
   };
 
-  // Merge: user env vars (preserved) + CCS controlled (override)
+  // Merge: user env vars (preserved) + SCC controlled (override)
   const mergedEnv = {
     ...existingEnv,
     ...ccsControlledEnv,
@@ -203,7 +203,7 @@ export async function configureProviderModel(
     env: mergedEnv,
   };
 
-  // Ensure CCS directory exists
+  // Ensure SCC directory exists
   const ccsDir = getCcsDir();
   if (!fs.existsSync(ccsDir)) {
     fs.mkdirSync(ccsDir, { recursive: true });
@@ -281,6 +281,6 @@ export async function showCurrentConfig(provider: CLIProxyProvider): Promise<voi
   });
 
   console.error('');
-  console.error(dim(`Run "ccs ${provider} --config" to change`));
+  console.error(dim(`Run "scc ${provider} --config" to change`));
   console.error('');
 }

@@ -54,7 +54,7 @@ describe('integration: special commands', () => {
     assert(output.includes('[OK] Uninstall complete!') || output.includes('Nothing to uninstall'));
   });
 
-  describe('ccs update command flags', () => {
+  describe('scc update command flags', () => {
     it.skip('parses --force flag without error', function() { // Skip: requires network/child process
       // Note: This will fail at update check (no network in test), but proves flag parsing works
       try {

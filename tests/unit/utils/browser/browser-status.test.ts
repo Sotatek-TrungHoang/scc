@@ -122,7 +122,7 @@ describe('browser status', () => {
       expect(status.claude.title).toBe(
         'Claude Browser Attach is waiting for a managed Chrome session.'
       );
-      expect(status.claude.detail).toContain('CCS created the managed browser profile');
+      expect(status.claude.detail).toContain('SCC created the managed browser profile');
       expect(status.claude.nextStep).toContain('--remote-debugging-port=9222');
       expect(existsSync(join(tempHome, '.ccs', 'browser', 'chrome-user-data'))).toBe(true);
     } finally {

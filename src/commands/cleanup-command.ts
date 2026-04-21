@@ -1,7 +1,7 @@
 /**
  * Cleanup Command Handler
  *
- * Removes old CCS and CLIProxy logs to free up disk space.
+ * Removes old SCC and CLIProxy logs to free up disk space.
  * Supports both main logs and error request logs with age-based filtering.
  * Logs can accumulate to several GB without user awareness.
  */
@@ -178,9 +178,9 @@ function cleanErrorLogs(
 /** Print help for cleanup command */
 function printHelp(): void {
   console.log('');
-  console.log('Usage: ccs cleanup [options]');
+  console.log('Usage: scc cleanup [options]');
   console.log('');
-  console.log('Remove old CCS and CLIProxy logs to free up disk space.');
+  console.log('Remove old SCC and CLIProxy logs to free up disk space.');
   console.log('');
   console.log('Options:');
   console.log('  --errors      Clean legacy CLIProxy error request logs (error-*.log files)');
@@ -190,12 +190,12 @@ function printHelp(): void {
   console.log('  --help, -h    Show this help message');
   console.log('');
   console.log('Examples:');
-  console.log('  ccs cleanup              Interactive CCS + CLIProxy log cleanup');
-  console.log('  ccs cleanup --errors     Clean legacy CLIProxy error logs older than 7 days');
-  console.log('  ccs cleanup --errors --days=3   Clean error logs older than 3 days');
-  console.log('  ccs cleanup --errors --dry-run  Preview error log cleanup');
-  console.log('  ccs cleanup --dry-run    Preview main log cleanup');
-  console.log('  ccs cleanup --force      Clean main logs without confirmation');
+  console.log('  scc cleanup              Interactive SCC + CLIProxy log cleanup');
+  console.log('  scc cleanup --errors     Clean legacy CLIProxy error logs older than 7 days');
+  console.log('  scc cleanup --errors --days=3   Clean error logs older than 3 days');
+  console.log('  scc cleanup --errors --dry-run  Preview error log cleanup');
+  console.log('  scc cleanup --dry-run    Preview main log cleanup');
+  console.log('  scc cleanup --force      Clean main logs without confirmation');
   console.log('');
 }
 
@@ -341,8 +341,8 @@ async function handleMainLogCleanup(options: {
   force: boolean;
 }): Promise<void> {
   const targets = [
-    { label: 'CCS Logs', dir: options.ccsLogsDir },
-    { label: 'CCS Log Archives', dir: options.ccsArchiveDir },
+    { label: 'SCC Logs', dir: options.ccsLogsDir },
+    { label: 'SCC Log Archives', dir: options.ccsArchiveDir },
     { label: 'CLIProxy Logs', dir: options.cliproxyLogsDir },
   ].map((target) => ({
     ...target,
@@ -352,7 +352,7 @@ async function handleMainLogCleanup(options: {
   const activeTargets = targets.filter((target) => target.fileCount > 0);
 
   if (activeTargets.length === 0) {
-    console.log(info('No CCS or CLIProxy logs found.'));
+    console.log(info('No SCC or CLIProxy logs found.'));
     return;
   }
 
@@ -405,7 +405,7 @@ async function handleMainLogCleanup(options: {
   // Suggest disabling logging if it was enabled
   if (deleted > 0) {
     console.log('');
-    console.log(warn('Tip: CCS logging is bounded by retention, but you can lower it further.'));
-    console.log('     Open `ccs config` and review the Logs settings.');
+    console.log(warn('Tip: SCC logging is bounded by retention, but you can lower it further.'));
+    console.log('     Open `scc config` and review the Logs settings.');
   }
 }

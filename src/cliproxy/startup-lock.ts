@@ -2,7 +2,7 @@
  * Startup Lock for CLIProxy
  *
  * File-based mutex to prevent race conditions when multiple
- * CCS processes try to start CLIProxy simultaneously.
+ * SCC processes try to start CLIProxy simultaneously.
  *
  * Uses a lock file with PID and timestamp to coordinate startup.
  * Lock is automatically released after timeout or process exit.
@@ -207,7 +207,7 @@ export async function acquireStartupLock(options?: {
   log(`Failed to acquire lock after ${retries} attempts`);
   throw new Error(
     `Failed to acquire startup lock after ${retries} attempts. ` +
-      `Another CCS process may be starting CLIProxy.`
+      `Another SCC process may be starting CLIProxy.`
   );
 }
 

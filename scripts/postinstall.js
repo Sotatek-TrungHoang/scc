@@ -143,13 +143,13 @@ function createConfigFiles() {
     }
     console.log('');
 
-    // NOTE: .claude/ directory installation moved to "ccs sync" command
-    // Users can run "ccs sync" to install CCS commands/skills to ~/.claude/
+    // NOTE: .claude/ directory installation moved to "scc sync" command
+    // Users can run "scc sync" to install CCS commands/skills to ~/.claude/
     // This gives users control over when to modify their Claude configuration
 
     // Create config.yaml if missing (primary format)
     // NOTE: gemini/codex profiles NOT included - they are added on-demand when user
-    // runs `ccs gemini` or `ccs codex` for first time (requires OAuth auth first)
+    // runs `scc gemini` or `scc codex` for first time (requires OAuth auth first)
     // NOTE: GLM/Kimi profiles are now created via UI/CLI presets, not auto-created
     const configYamlPath = path.join(ccsDir, 'config.yaml');
     const legacyConfigPath = path.join(ccsDir, 'config.json');

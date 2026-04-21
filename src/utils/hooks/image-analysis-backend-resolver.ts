@@ -335,7 +335,7 @@ function resolveNativeImageSupport(
   } else if (nativeImageCapable) {
     nativeImageReason = `${profileModel} can read images natively.`;
   } else {
-    nativeImageReason = `CCS cannot verify native image support for ${profileModel} yet.`;
+    nativeImageReason = `SCC cannot verify native image support for ${profileModel} yet.`;
   }
 
   return {
@@ -380,7 +380,7 @@ function resolveBackend(
       reason:
         nativeSupport.nativeImageCapable === true
           ? 'This profile is set to use native image reading.'
-          : `${nativeSupport.nativeImageReason ?? 'Native image reading is enabled for this profile.'} CCS will bypass the transformer for this profile.`,
+          : `${nativeSupport.nativeImageReason ?? 'Native image reading is enabled for this profile.'} SCC will bypass the transformer for this profile.`,
     };
   }
 
@@ -502,7 +502,7 @@ export function resolveImageAnalysisStatus(
   if (!config.enabled) {
     status = 'disabled';
     reason ??=
-      'This profile falls back to native Read because image analysis is turned off in CCS config.';
+      'This profile falls back to native Read because image analysis is turned off in SCC config.';
   } else if (!resolution.backendId) {
     status = 'skipped';
     reason ??= 'No supported backend could be resolved.';

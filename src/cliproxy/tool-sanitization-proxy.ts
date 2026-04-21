@@ -76,7 +76,7 @@ function isKnownCodexModelId(model: string | undefined): boolean {
     return false;
   }
 
-  // Root-routed requests can carry Codex model IDs that CCS uses outside the
+  // Root-routed requests can carry Codex model IDs that SCC uses outside the
   // small interactive catalog (for example image analysis and Cursor defaults).
   return (
     LEGACY_CODEX_MODEL_ID_REGEX.test(normalizedModel) ||

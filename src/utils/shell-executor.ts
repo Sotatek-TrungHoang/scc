@@ -152,7 +152,7 @@ export function execClaude(
     ? { ...baseEnv, ...claudeLaunchEnv, ...envVars, ...webSearchEnv }
     : { ...baseEnv, ...claudeLaunchEnv, ...webSearchEnv };
 
-  // Strip Claude Code nested session guard env var to allow CCS delegation
+  // Strip Claude Code nested session guard env var to allow SCC delegation
   // (Claude Code v2.1.39+ sets CLAUDECODE to detect nested sessions)
   const env = stripClaudeCodeEnv(mergedEnv);
 

@@ -24,7 +24,7 @@ function parseOptionValue(args: string[], key: string): string | undefined {
 function showHelp(): number {
   console.log('OpenAI-Compatible Proxy');
   console.log('');
-  console.log('Usage: ccs proxy <start|stop|status|activate> [profile] [options]');
+  console.log('Usage: scc proxy <start|stop|status|activate> [profile] [options]');
   console.log('');
   console.log('Commands:');
   console.log(
@@ -42,11 +42,11 @@ function showHelp(): number {
   console.log('  --insecure        Disable upstream TLS verification');
   console.log('');
   console.log('Examples:');
-  console.log('  ccs proxy start hf');
-  console.log('  eval "$(ccs proxy activate)"');
-  console.log('  ccs proxy activate --fish');
-  console.log('  ccs proxy status');
-  console.log('  ccs proxy stop');
+  console.log('  scc proxy start hf');
+  console.log('  eval "$(scc proxy activate)"');
+  console.log('  scc proxy activate --fish');
+  console.log('  scc proxy status');
+  console.log('  scc proxy stop');
   console.log('');
   return 0;
 }
@@ -65,7 +65,7 @@ async function handleStart(args: string[]): Promise<number> {
   const profileName = args.find((arg) => !arg.startsWith('-'));
   if (!profileName) {
     console.error(
-      fail('Usage: ccs proxy start <profile> [--port <n>] [--host <addr>] [--insecure]')
+      fail('Usage: scc proxy start <profile> [--port <n>] [--host <addr>] [--insecure]')
     );
     return 1;
   }
@@ -126,7 +126,7 @@ async function handleStatus(): Promise<number> {
 async function handleActivate(args: string[]): Promise<number> {
   const status = await getOpenAICompatProxyStatus();
   if (!status.running || !status.profileName || !status.port || !status.authToken) {
-    console.error(fail('Proxy is not running. Start it with: ccs proxy start <profile>'));
+    console.error(fail('Proxy is not running. Start it with: scc proxy start <profile>'));
     return 1;
   }
 

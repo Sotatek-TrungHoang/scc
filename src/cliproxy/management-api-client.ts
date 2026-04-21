@@ -440,7 +440,7 @@ export class ManagementApiClient {
 }
 
 /**
- * Create a ManagementApiClient from CCS config.
+ * Create a ManagementApiClient from SCC config.
  * Uses cliproxy_server.remote settings.
  */
 export function createManagementClient(

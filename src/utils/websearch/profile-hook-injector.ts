@@ -37,7 +37,7 @@ function hasUsableHookBinary(): boolean {
 }
 
 /**
- * Check if CCS WebSearch hook exists in settings
+ * Check if SCC WebSearch hook exists in settings
  */
 function hasCcsHook(settings: Record<string, unknown>): boolean {
   const hooks = settings.hooks as Record<string, unknown[]> | undefined;
@@ -49,7 +49,7 @@ function hasCcsHook(settings: Record<string, unknown>): boolean {
 }
 
 /**
- * Migrate CCS hook from global settings to profile settings (one-time)
+ * Migrate SCC hook from global settings to profile settings (one-time)
  */
 function migrateGlobalHook(): void {
   const markerPath = getMigrationMarkerPath();
@@ -62,7 +62,7 @@ function migrateGlobalHook(): void {
     if (removed && process.env.CCS_DEBUG) {
       console.error(info('Migrated WebSearch hook from global settings'));
     }
-    // Ensure CCS dir exists before creating marker
+    // Ensure SCC dir exists before creating marker
     const ccsDir = getCcsDir();
     if (!fs.existsSync(ccsDir)) {
       fs.mkdirSync(ccsDir, { recursive: true, mode: 0o700 });
@@ -100,7 +100,7 @@ export function ensureProfileHooks(profileName: string): boolean {
       return false;
     }
 
-    // Get CCS directory (respects CCS_HOME for test isolation)
+    // Get SCC directory (respects CCS_HOME for test isolation)
     const ccsDir = getCcsDir();
     const settingsPath = path.join(ccsDir, `${profileName}.settings.json`);
 
@@ -135,12 +135,12 @@ export function ensureProfileHooks(profileName: string): boolean {
     // One-time migration from global settings
     migrateGlobalHook();
 
-    // Ensure CCS dir exists before writing settings updates.
+    // Ensure SCC dir exists before writing settings updates.
     if (!fs.existsSync(ccsDir)) {
       fs.mkdirSync(ccsDir, { recursive: true, mode: 0o700 });
     }
 
-    // Check if CCS hook already present
+    // Check if SCC hook already present
     if (hasCcsHook(settings)) {
       // Clean up any duplicates that may have accumulated (Windows path bug fix)
       const hadDuplicates = deduplicateCcsHooks(settings);
@@ -175,7 +175,7 @@ export function ensureProfileHooks(profileName: string): boolean {
       settingsHooks.PreToolUse = [];
     }
 
-    // Add CCS hook
+    // Add SCC hook
     const preToolUseHooks = hookConfig.PreToolUse as unknown[];
     settingsHooks.PreToolUse.push(...preToolUseHooks);
 
@@ -203,7 +203,7 @@ export function ensureProfileHooksOrThrow(profileName: string): void {
 
   if (!ensureProfileHooks(profileName)) {
     throw new Error(
-      `WebSearch is enabled, but CCS could not prepare the profile hook for "${profileName}".`
+      `WebSearch is enabled, but SCC could not prepare the profile hook for "${profileName}".`
     );
   }
 }
@@ -241,7 +241,7 @@ function updateHookTimeoutIfNeeded(
         .replace(/\/+/g, '/'); // Collapse multiple slashes
       if (!normalizedCommand.includes('.ccs/hooks/websearch-transformer')) continue;
 
-      // Found CCS hook - check if needs update
+      // Found SCC hook - check if needs update
       if (hookArray[0].command !== expectedCommand) {
         hookArray[0].command = expectedCommand;
         needsUpdate = true;

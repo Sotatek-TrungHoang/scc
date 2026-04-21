@@ -20,7 +20,7 @@ export async function handleDefault(ctx: CommandContext, args: string[]): Promis
   if (!profileName) {
     console.log(fail('Profile name is required'));
     console.log('');
-    console.log(`Usage: ${color('ccs auth default <profile>', 'command')}`);
+    console.log(`Usage: ${color('scc auth default <profile>', 'command')}`);
     exitWithError('Profile name is required', ExitCode.PROFILE_ERROR);
   }
 
@@ -36,7 +36,7 @@ export async function handleDefault(ctx: CommandContext, args: string[]): Promis
     console.log('');
     console.log('Now you can use:');
     console.log(
-      `  ${color('ccs "your prompt"', 'command')}  ${dim(`# Uses ${profileName} profile`)}`
+      `  ${color('scc "your prompt"', 'command')}  ${dim(`# Uses ${profileName} profile`)}`
     );
     console.log('');
   } catch (error) {
@@ -60,9 +60,9 @@ export async function handleResetDefault(ctx: CommandContext): Promise<void> {
 
     console.log(ok('Default profile cleared'));
     console.log('');
-    console.log('CCS will now use the original behavior:');
+    console.log('SCC will now use the original behavior:');
     console.log(`  ${dim('# Uses your primary Claude account')}`);
-    console.log(`  ${color('ccs "your prompt"', 'command')}`);
+    console.log(`  ${color('scc "your prompt"', 'command')}`);
     console.log('');
   } catch (error) {
     console.log(fail((error as Error).message));

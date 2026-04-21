@@ -1,5 +1,5 @@
 /**
- * Standardized exit codes for CCS CLI
+ * Standardized exit codes for SCC CLI
  *
  * Exit codes follow Unix conventions:
  * - 0: Success

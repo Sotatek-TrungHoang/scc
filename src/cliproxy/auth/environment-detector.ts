@@ -111,9 +111,9 @@ export function getTimeoutTroubleshooting(
 
   if (port) {
     lines.push(`  3. Check for port conflicts: lsof -ti:${port} or ss -tlnp | grep ${port}`);
-    lines.push(`  4. Try: ccs ${provider} --auth --verbose`);
+    lines.push(`  4. Try: scc ${provider} --auth --verbose`);
   } else {
-    lines.push(`  3. Try: ccs ${provider} --auth --verbose`);
+    lines.push(`  3. Try: scc ${provider} --auth --verbose`);
   }
 
   lines.push('');

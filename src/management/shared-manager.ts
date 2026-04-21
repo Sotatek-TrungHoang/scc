@@ -508,7 +508,7 @@ class SharedManager {
           );
         } else if (currentTarget && !this.isSafeProjectsMergeSource(currentTarget, instanceName)) {
           console.log(
-            warn(`Skipping unsafe project merge source outside CCS roots: ${currentTarget}`)
+            warn(`Skipping unsafe project merge source outside SCC roots: ${currentTarget}`)
           );
         }
 
@@ -555,7 +555,7 @@ class SharedManager {
         await this.mergeDirectoryWithConflictCopies(currentTarget, projectsPath, instanceName);
       } else if (currentTarget && !this.isSafeProjectsMergeSource(currentTarget, instanceName)) {
         console.log(
-          warn(`Skipping unsafe project merge source outside CCS roots: ${currentTarget}`)
+          warn(`Skipping unsafe project merge source outside SCC roots: ${currentTarget}`)
         );
       }
 
@@ -624,7 +624,7 @@ class SharedManager {
           ) {
             console.log(
               warn(
-                `Skipping unsafe ${artifactName} merge source outside CCS roots: ${currentTarget}`
+                `Skipping unsafe ${artifactName} merge source outside SCC roots: ${currentTarget}`
               )
             );
           }
@@ -681,7 +681,7 @@ class SharedManager {
           !this.isSafeContinuityMergeSource(currentTarget, instanceName, artifactName)
         ) {
           console.log(
-            warn(`Skipping unsafe ${artifactName} merge source outside CCS roots: ${currentTarget}`)
+            warn(`Skipping unsafe ${artifactName} merge source outside SCC roots: ${currentTarget}`)
           );
         }
 
@@ -804,7 +804,7 @@ class SharedManager {
    * instead of instance-specific ~/.ccs/instances/<name>/ paths.
    *
    * This ensures installed_plugins.json is consistent regardless of
-   * which CCS instance installed the plugin.
+   * which SCC instance installed the plugin.
    */
   normalizePluginRegistryPaths(configDir?: string): void {
     this.normalizePluginMetadataFiles(

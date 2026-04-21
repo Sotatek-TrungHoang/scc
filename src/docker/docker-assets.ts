@@ -9,8 +9,8 @@ export const DOCKER_DEFAULT_DASHBOARD_PORT = 3000;
 export const DOCKER_DEFAULT_PROXY_PORT = 8317;
 
 export const DOCKER_LOG_FILES = {
-  ccs: '/var/log/ccs/ccs-dashboard.log',
-  cliproxy: '/var/log/ccs/cliproxy.log',
+  ccs: '/var/log/scc/scc-dashboard.log',
+  cliproxy: '/var/log/scc/cliproxy.log',
 } as const;
 
 export interface DockerAssetPaths {
@@ -32,7 +32,7 @@ function ensureBundledAsset(assetPath: string): void {
     require.resolve(assetPath);
   } catch {
     throw new Error(
-      `Missing bundled Docker asset: ${assetPath}\nReinstall CCS or use a package build that includes docker/ assets.`
+      `Missing bundled Docker asset: ${assetPath}\nReinstall SCC or use a package build that includes docker/ assets.`
     );
   }
 }
@@ -44,7 +44,7 @@ function warnAboutVersionFallback(error: unknown): void {
   hasWarnedAboutVersionFallback = true;
   const detail = error instanceof Error ? error.message : String(error);
   console.error(
-    `[!] Failed to determine the installed CCS version from package metadata; falling back to latest.\n${detail}`
+    `[!] Failed to determine the installed SCC version from package metadata; falling back to latest.\n${detail}`
   );
 }
 

@@ -68,7 +68,7 @@ export async function refreshToken(
   switch (ownership) {
     case 'cliproxy':
       // CLIProxyAPIPlus handles refresh for these providers automatically.
-      // No action needed from CCS — report success with delegated flag.
+      // No action needed from SCC — report success with delegated flag.
       return { success: true, delegated: true };
     case 'ccs':
       return {

@@ -2,7 +2,7 @@
 
 Tab completion for CCS commands, subcommands, profiles, and flags.
 
-The completion scripts are thin adapters over the hidden `ccs __complete` backend so
+The completion scripts are thin adapters over the hidden `scc __complete` backend so
 all supported shells stay aligned with the same command graph.
 
 **Supported Shells:** Bash, Zsh, Fish, PowerShell
@@ -11,7 +11,7 @@ all supported shells stay aligned with the same command graph.
 
 - Complete profile names (both settings-based and account-based)
 - Complete root commands, help topics, provider shortcuts, and command flags
-- Complete `ccs auth` and `ccs api` lifecycle subcommands
+- Complete `scc auth` and `scc api` lifecycle subcommands
 - Context-aware: suggests relevant options based on current command
 
 ## Quick Install (Recommended)
@@ -201,7 +201,7 @@ copy of the command graph. That means:
    ```
 2. Test completion manually:
    ```fish
-   complete -C'ccs '
+   complete -C'scc '
    ```
 3. Verify the backend directly:
    ```fish
@@ -214,7 +214,7 @@ copy of the command graph. That means:
 - Zsh uses a custom `_ccs` completion function
 - Fish uses `complete -a` with backend command substitution
 - PowerShell uses `Register-ArgumentCompleter`
-- All four shells now delegate suggestion logic to `ccs __complete`
+- All four shells now delegate suggestion logic to `scc __complete`
 
 ## Contributing
 

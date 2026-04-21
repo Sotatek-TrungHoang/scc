@@ -101,7 +101,7 @@ export class ShellCompletionInstaller {
       throw new Error('Completion file not found. Please reinstall CCS.');
     }
 
-    const marker = '# CCS shell completion';
+    const marker = '# SCC shell completion';
     const sourceCmd = `source "${completionPath}"`;
     const block = `\n${marker}\n${sourceCmd}\n`;
 
@@ -150,7 +150,7 @@ export class ShellCompletionInstaller {
     const destFile = path.join(zshCompDir, '_ccs');
     fs.copyFileSync(completionPath, destFile);
 
-    const marker = '# CCS shell completion';
+    const marker = '# SCC shell completion';
     const setupCmds = ['fpath=(~/.zsh/completion $fpath)', 'autoload -Uz compinit && compinit'];
     const block = `\n${marker}\n${setupCmds.join('\n')}\n`;
 
@@ -224,7 +224,7 @@ export class ShellCompletionInstaller {
       throw new Error('Completion file not found. Please reinstall CCS.');
     }
 
-    const marker = '# CCS shell completion';
+    const marker = '# SCC shell completion';
     const sourceCmd = `. "${completionPath.replace(/\\/g, '\\\\')}"`;
     const block = `\n${marker}\n${sourceCmd}\n`;
 

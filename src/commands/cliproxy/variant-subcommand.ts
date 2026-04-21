@@ -2,8 +2,8 @@
  * CLIProxy Variant Management
  *
  * Handles:
- * - ccs cliproxy create [name]
- * - ccs cliproxy remove <name>
+ * - scc cliproxy create [name]
+ * - scc cliproxy remove <name>
  */
 
 import * as path from 'path';
@@ -181,7 +181,7 @@ async function selectTierConfig(
       default: true,
     });
     if (!shouldAuth) {
-      console.log(info(`Skipping auth. Run: ${color(`ccs ${provider} --auth`, 'command')}`));
+      console.log(info(`Skipping auth. Run: ${color(`scc ${provider} --auth`, 'command')}`));
       return null;
     }
     const newAccount = await triggerOAuth(provider as CLIProxyProvider, {
@@ -335,7 +335,7 @@ export async function handleCreate(
     console.log(header('Usage'));
     if (resolvedTarget === 'droid') {
       console.log(
-        `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
+        `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
       );
       console.log(
         `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit droid alias')}`
@@ -344,17 +344,17 @@ export async function handleCreate(
         `  ${color(`ccsd ${name} "your prompt"`, 'command')} ${dim('# legacy shortcut')}`
       );
       console.log(
-        `  ${color(`ccs ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
+        `  ${color(`scc ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
       );
     } else {
       console.log(
-        `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
+        `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
       );
       console.log(
         `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit one-off droid alias')}`
       );
       console.log(
-        `  ${color(`ccs ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
+        `  ${color(`scc ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
       );
     }
     console.log('');
@@ -393,7 +393,7 @@ export async function handleCreate(
       if (!shouldAuth) {
         console.log('');
         console.log(info('Run authentication first:'));
-        console.log(`  ${color(`ccs ${provider} --auth`, 'command')}`);
+        console.log(`  ${color(`scc ${provider} --auth`, 'command')}`);
         process.exit(0);
       }
       console.log('');
@@ -516,29 +516,29 @@ export async function handleCreate(
   console.log(header('Usage'));
   if (resolvedTarget === 'droid') {
     console.log(
-      `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
+      `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
     );
     console.log(
       `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit droid alias')}`
     );
     console.log(`  ${color(`ccsd ${name} "your prompt"`, 'command')} ${dim('# legacy shortcut')}`);
     console.log(
-      `  ${color(`ccs ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
+      `  ${color(`scc ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
     );
   } else {
     console.log(
-      `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
+      `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
     );
     console.log(
       `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit one-off droid alias')}`
     );
     console.log(
-      `  ${color(`ccs ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
+      `  ${color(`scc ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
     );
   }
   console.log('');
   console.log(dim('To change model later:'));
-  console.log(`  ${color(`ccs ${name} --config`, 'command')}`);
+  console.log(`  ${color(`scc ${name} --config`, 'command')}`);
   console.log('');
 }
 
@@ -773,7 +773,7 @@ export async function handleEdit(
     console.log(header('Usage'));
     if (resolvedTarget === 'droid') {
       console.log(
-        `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
+        `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
       );
       console.log(
         `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit droid alias')}`
@@ -782,17 +782,17 @@ export async function handleEdit(
         `  ${color(`ccsd ${name} "your prompt"`, 'command')} ${dim('# legacy shortcut')}`
       );
       console.log(
-        `  ${color(`ccs ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
+        `  ${color(`scc ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
       );
     } else {
       console.log(
-        `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
+        `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
       );
       console.log(
         `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit one-off droid alias')}`
       );
       console.log(
-        `  ${color(`ccs ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
+        `  ${color(`scc ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
       );
     }
     console.log('');

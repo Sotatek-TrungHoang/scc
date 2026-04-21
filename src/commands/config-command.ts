@@ -3,7 +3,7 @@
  *
  * Launches web-based configuration dashboard.
  * Ensures CLIProxy service is running for dashboard features.
- * Usage: ccs config [--port PORT] [--host HOST] [--dev]
+ * Usage: scc config [--port PORT] [--host HOST] [--dev]
  */
 
 import getPort from 'get-port';
@@ -132,7 +132,7 @@ export async function handleConfigCommand(
     port: options.port || null,
   });
 
-  console.log(deps.header('CCS Config Dashboard'));
+  console.log(deps.header('SCC Config Dashboard'));
   console.log('');
 
   // Ensure CLIProxy service is running for dashboard features
@@ -214,7 +214,7 @@ export async function handleConfigCommand(
         deps.warn('Dashboard may be reachable from other devices that can connect to this machine.')
       );
       if (!authConfig.enabled) {
-        console.log(deps.info('Protect it before sharing: ccs config auth setup'));
+        console.log(deps.info('Protect it before sharing: scc config auth setup'));
       }
       if (isWildcardHost(urls.bindHost) && !urls.networkUrls?.length) {
         console.log(deps.info('Use your machine IP or hostname from the other device.'));

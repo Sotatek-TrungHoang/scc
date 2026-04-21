@@ -1,4 +1,4 @@
-# CCS Interactive Prompt Utilities (PowerShell 5.1+ compatible)
+# SCC Interactive Prompt Utilities (PowerShell 5.1+ compatible)
 # NO external dependencies
 
 $ErrorActionPreference = "Stop"

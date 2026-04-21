@@ -5,7 +5,7 @@ import {
 } from '../../../../src/utils/websearch/hook-utils';
 
 describe('isCcsWebSearchHook', () => {
-  test('Returns true for CCS hook with forward slashes (Unix path)', () => {
+  test('Returns true for SCC hook with forward slashes (Unix path)', () => {
     const hook = {
       matcher: 'WebSearch',
       hooks: [
@@ -17,7 +17,7 @@ describe('isCcsWebSearchHook', () => {
     expect(isCcsWebSearchHook(hook)).toBe(true);
   });
 
-  test('Returns true for CCS hook with backslashes (Windows path)', () => {
+  test('Returns true for SCC hook with backslashes (Windows path)', () => {
     const hook = {
       matcher: 'WebSearch',
       hooks: [
@@ -65,7 +65,7 @@ describe('isCcsWebSearchHook', () => {
     expect(isCcsWebSearchHook(hook)).toBe(false);
   });
 
-  test('Returns false for WebSearch with non-CCS hook command', () => {
+  test('Returns false for WebSearch with non-SCC hook command', () => {
     const hook = {
       matcher: 'WebSearch',
       hooks: [
@@ -114,7 +114,7 @@ describe('isCcsWebSearchHook', () => {
 });
 
 describe('deduplicateCcsHooks', () => {
-  test('No-op when 0 CCS hooks (returns false)', () => {
+  test('No-op when 0 SCC hooks (returns false)', () => {
     const settings = {
       hooks: {
         PreToolUse: [
@@ -130,7 +130,7 @@ describe('deduplicateCcsHooks', () => {
     expect(settings.hooks.PreToolUse).toHaveLength(1);
   });
 
-  test('No-op when 1 CCS hook (returns false)', () => {
+  test('No-op when 1 SCC hook (returns false)', () => {
     const settings = {
       hooks: {
         PreToolUse: [
@@ -150,7 +150,7 @@ describe('deduplicateCcsHooks', () => {
     expect(settings.hooks.PreToolUse).toHaveLength(1);
   });
 
-  test('Removes duplicates when 2+ CCS hooks (returns true, keeps first)', () => {
+  test('Removes duplicates when 2+ SCC hooks (returns true, keeps first)', () => {
     const settings = {
       hooks: {
         PreToolUse: [
@@ -194,7 +194,7 @@ describe('deduplicateCcsHooks', () => {
     });
   });
 
-  test('Preserves non-CCS hooks in array', () => {
+  test('Preserves non-SCC hooks in array', () => {
     const nonCcsHook = {
       matcher: 'SomeOtherMatcher',
       hooks: [{ command: 'other-command' }],
@@ -242,7 +242,7 @@ describe('deduplicateCcsHooks', () => {
     expect(result).toBe(false);
   });
 
-  test('Handles multiple non-CCS hooks with duplicates', () => {
+  test('Handles multiple non-SCC hooks with duplicates', () => {
     const settings = {
       hooks: {
         PreToolUse: [
@@ -276,7 +276,7 @@ describe('deduplicateCcsHooks', () => {
     const result = deduplicateCcsHooks(settings);
     expect(result).toBe(true);
     expect(settings.hooks.PreToolUse).toHaveLength(3);
-    // First and third should be non-CCS hooks, second should be the first CCS hook
+    // First and third should be non-SCC hooks, second should be the first SCC hook
     expect(settings.hooks.PreToolUse[0].matcher).toBe('OtherMatcher1');
     expect(settings.hooks.PreToolUse[1].matcher).toBe('WebSearch');
     expect(settings.hooks.PreToolUse[2].matcher).toBe('OtherMatcher2');
@@ -293,7 +293,7 @@ describe('deduplicateCcsHooks', () => {
     expect(settings.hooks.PreToolUse).toHaveLength(0);
   });
 
-  test('Stress test: 15 duplicate CCS WebSearch hooks', () => {
+  test('Stress test: 15 duplicate SCC WebSearch hooks', () => {
     const ccsHook = {
       matcher: 'WebSearch',
       hooks: [

@@ -185,7 +185,7 @@ describe('browser routes', () => {
       devtoolsPort: 9333,
     });
     expect(payload.browser.status.claude.state).toBe('browser_not_running');
-    expect(payload.browser.status.claude.detail).toContain('CCS created the managed browser profile');
+    expect(payload.browser.status.claude.detail).toContain('SCC created the managed browser profile');
     expect(existsSync(join(tempHome, '.ccs', 'browser', 'chrome-user-data'))).toBe(true);
 
     const config = loadOrCreateUnifiedConfig();

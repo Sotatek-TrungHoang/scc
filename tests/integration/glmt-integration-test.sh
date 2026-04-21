@@ -46,13 +46,13 @@ done
 echo
 echo "Test 2: Root help no longer advertises ccs glmt"
 if command -v ccs >/dev/null 2>&1; then
-  if ccs --help | grep -q "ccs glmt"; then
+  if ccs --help | grep -q "scc glmt"; then
     test_fail "Root help still advertises ccs glmt"
   else
     test_pass "Root help hides ccs glmt"
   fi
 else
-  test_info "ccs binary not found in PATH; skipping live help probe"
+  test_info "scc binary not found in PATH; skipping live help probe"
 fi
 
 echo

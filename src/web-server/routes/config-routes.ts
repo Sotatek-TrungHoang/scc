@@ -765,7 +765,7 @@ router.post('/rollback', async (req: Request, res: Response): Promise<void> => {
     const managedBackupPath = resolveManagedBackupPath(backupPath);
     if (!managedBackupPath) {
       res.status(400).json({
-        error: 'Invalid backupPath. Must reference a managed CCS migration backup directory.',
+        error: 'Invalid backupPath. Must reference a managed SCC migration backup directory.',
       });
       return;
     }

@@ -1,5 +1,5 @@
 /**
- * Update Checker - Check for new CCS versions from npm registry or GitHub
+ * Update Checker - Check for new SCC versions from npm registry or GitHub
  */
 
 import * as fs from 'fs';
@@ -230,7 +230,7 @@ export function writeCache(cache: UpdateCache): void {
 
 /**
  * Check for updates (async, non-blocking)
- * @param currentVersion - Current CCS version
+ * @param currentVersion - Current SCC version
  * @param force - Force check even if within interval
  * @param installMethod - Installation method ('npm' or 'direct')
  * @param targetTag - Target npm tag ('latest' or 'dev')
@@ -364,7 +364,7 @@ export async function showUpdateNotification(updateInfo: {
   const content = [
     `Update available: ${updateInfo.current} -> ${updateInfo.latest}`,
     '',
-    `Run ${color('ccs update', 'command')} to update`,
+    `Run ${color('scc update', 'command')} to update`,
   ].join('\n');
 
   console.log('');

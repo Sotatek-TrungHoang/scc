@@ -2,7 +2,7 @@
  * CLIProxy Command Dispatcher
  *
  * Routes cliproxy subcommands to their respective handlers.
- * This is the main entry point for all `ccs cliproxy` commands.
+ * This is the main entry point for all `scc cliproxy` commands.
  */
 
 import { CLIProxyBackend } from '../../cliproxy/types';
@@ -227,8 +227,8 @@ export async function handleCliproxyCommand(args: string[]): Promise<void> {
     let version = remainingArgs[installIdx + 1];
     if (!version || version.startsWith('-')) {
       console.error('Missing version argument for --install');
-      console.error('    Usage: ccs cliproxy --install <version>');
-      console.error('    Example: ccs cliproxy --install 6.6.80-0');
+      console.error('    Usage: scc cliproxy --install <version>');
+      console.error('    Example: scc cliproxy --install 6.6.80-0');
       process.exit(1);
     }
     // Strip leading 'v' prefix and whitespace (user may type " v6.6.80-0 ")

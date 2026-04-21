@@ -229,7 +229,7 @@ export class DockerExecutor {
 
   update(options: DockerCommandTarget): void {
     const script =
-      'npm install -g scc-ai-proxy@latest --force && ccs cliproxy --latest && supervisorctl -c /etc/supervisord.conf restart ccs-dashboard cliproxy';
+      'npm install -g scc-ai-proxy@latest --force && scc cliproxy --latest && supervisorctl -c /etc/supervisord.conf restart scc-dashboard cliproxy';
     this.ensureSuccess(
       this.runDocker(
         ['exec', DOCKER_CONTAINER_NAME, 'sh', '-lc', script],
@@ -245,12 +245,12 @@ export class DockerExecutor {
     const files = options.service
       ? [DOCKER_LOG_FILES[options.service]]
       : [DOCKER_LOG_FILES.ccs, DOCKER_LOG_FILES.cliproxy];
-    const touch = `mkdir -p /var/log/ccs && touch ${files.map((file) => quotePosix(file)).join(' ')}`;
+    const touch = `mkdir -p /var/log/scc && touch ${files.map((file) => quotePosix(file)).join(' ')}`;
     const command = options.follow
       ? `${touch} && tail -n 100 -F ${files.map((file) => quotePosix(file)).join(' ')}`
       : options.service
         ? `${touch} && tail -n 100 ${quotePosix(files[0])}`
-        : `${touch} && printf '== ccs ==\\n' && tail -n 100 ${quotePosix(
+        : `${touch} && printf '== scc ==\\n' && tail -n 100 ${quotePosix(
             DOCKER_LOG_FILES.ccs
           )} && printf '\\n== cliproxy ==\\n' && tail -n 100 ${quotePosix(DOCKER_LOG_FILES.cliproxy)}`;
 
@@ -370,7 +370,7 @@ export class DockerExecutor {
     const detail = (result.stderr || result.stdout).trim();
     const hint =
       options.host && /No such file|no configuration file|can't cd|not found/i.test(detail)
-        ? `\nRun \`ccs docker up --host ${options.host}\` first.`
+        ? `\nRun \`scc docker up --host ${options.host}\` first.`
         : '';
     throw new Error(`${label} failed.${detail ? `\n${detail}` : ''}${hint}`);
   }

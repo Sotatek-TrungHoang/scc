@@ -67,7 +67,7 @@ describe('appendThirdPartyImageAnalysisToolArgs', () => {
     expect(fileFlags.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('does not treat unrelated user prompt files as the managed CCS steering prompt', () => {
+  it('does not treat unrelated user prompt files as the managed SCC steering prompt', () => {
     const result = appendThirdPartyImageAnalysisToolArgs([
       '-p',
       'describe',

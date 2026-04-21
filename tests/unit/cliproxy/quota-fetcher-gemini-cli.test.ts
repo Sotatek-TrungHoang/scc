@@ -510,7 +510,7 @@ describe('Gemini CLI Quota Fetcher', () => {
       expect(result.errorCode).toBe('UNAUTHENTICATED');
       expect(result.needsReauth).toBe(true);
       expect(result.retryable).toBe(false);
-      expect(result.actionHint).toContain('ccs gemini --auth');
+      expect(result.actionHint).toContain('scc gemini --auth');
       expect(result.error).toBe('Session expired');
     });
 

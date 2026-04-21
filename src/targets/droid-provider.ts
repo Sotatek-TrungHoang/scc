@@ -6,7 +6,7 @@
  * - openai
  * - generic-chat-completion-api
  *
- * CCS stores provider hints in profile settings as CCS_DROID_PROVIDER and
+ * SCC stores provider hints in profile settings as CCS_DROID_PROVIDER and
  * resolves a best-effort provider from base URL/model when the hint is absent.
  */
 
@@ -148,7 +148,7 @@ export interface DroidProviderResolveInput {
  * 1) explicit provider hint (CCS_DROID_PROVIDER)
  * 2) base URL inference
  * 3) model inference
- * 4) anthropic (backward-compatible default for legacy CCS profiles)
+ * 4) anthropic (backward-compatible default for legacy SCC profiles)
  */
 export function resolveDroidProvider(input: DroidProviderResolveInput): DroidProvider {
   const explicit = normalizeDroidProvider(input.provider);

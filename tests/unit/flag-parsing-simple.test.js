@@ -1,13 +1,13 @@
 /**
- * CCS Flag Parsing Unit Tests (Simple Version)
+ * SCC Flag Parsing Unit Tests (Simple Version)
  *
- * Tests flag parsing functionality for the update command in CCS tool
+ * Tests flag parsing functionality for the update command in SCC tool
  * without requiring dynamic imports
  */
 
 const assert = require('assert');
 
-describe('CCS Flag Parsing', function () {
+describe('SCC Flag Parsing', function () {
   describe('Update Command Flag Extraction', function () {
     it('should handle update command with no flags', function () {
       // Test that flags are correctly extracted when no flags are present

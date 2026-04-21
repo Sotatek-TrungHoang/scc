@@ -1,7 +1,7 @@
 /**
  * Persist Command Tests
  *
- * Tests for the `ccs persist` CLI command including:
+ * Tests for the `scc persist` CLI command including:
  * - Argument parsing
  * - API key masking
  * - Settings merge logic
@@ -94,7 +94,7 @@ describe('Persist Command', () => {
 
       if (!result.parseError && unknownFlags.length > 0) {
         const unknownList = unknownFlags.map((flag) => `"${flag}"`).join(', ');
-        result.parseError = `Unknown option(s): ${unknownList}. Run 'ccs persist --help' for usage.`;
+        result.parseError = `Unknown option(s): ${unknownList}. Run 'scc persist --help' for usage.`;
       }
 
       if (!result.parseError && result.listBackups && result.restore) {
@@ -107,7 +107,7 @@ describe('Persist Command', () => {
         (result.permissionMode || result.dangerouslySkipPermissions)
       ) {
         result.parseError =
-          'Permission flags are not valid with backup operations. Use them only with ccs persist <profile>.';
+          'Permission flags are not valid with backup operations. Use them only with scc persist <profile>.';
       }
 
       return result;
@@ -655,9 +655,9 @@ describe('Persist Command', () => {
     it('account profile error message mentions CLAUDE_CONFIG_DIR', () => {
       const errorMessage =
         'Account profiles use CLAUDE_CONFIG_DIR isolation, not env vars.\n' +
-        "Use 'ccs profileName' to run with this profile instead.";
+        "Use 'scc profileName' to run with this profile instead.";
       assert(errorMessage.includes('CLAUDE_CONFIG_DIR'));
-      assert(errorMessage.includes('ccs profileName'));
+      assert(errorMessage.includes('scc profileName'));
     });
 
     it('no env vars error message includes profile name placeholder', () => {

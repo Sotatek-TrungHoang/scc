@@ -53,7 +53,7 @@ function getPublicAutoDetectError(result: ReturnType<typeof autoDetectTokens>): 
     case 'sqlite_unavailable':
       return 'Cursor state database was found, but sqlite3 is not available in PATH.';
     case 'db_query_failed':
-      return 'Cursor state database was found, but CCS could not query it.';
+      return 'Cursor state database was found, but SCC could not query it.';
     default:
       return result.error ?? 'Token not found';
   }

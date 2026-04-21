@@ -373,6 +373,6 @@ export function ensureWebSearchMcpOrThrow(): void {
   }
 
   if (!ensureWebSearchMcp()) {
-    throw new Error('WebSearch is enabled, but CCS could not prepare the local WebSearch tool.');
+    throw new Error('WebSearch is enabled, but SCC could not prepare the local WebSearch tool.');
   }
 }

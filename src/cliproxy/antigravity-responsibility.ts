@@ -3,8 +3,8 @@
  *
  * Enforces explicit user acknowledgement for Antigravity OAuth usage.
  * This is used by:
- * - CLI OAuth flow (`ccs agy --auth`)
- * - CLI runtime flow (`ccs agy`)
+ * - CLI OAuth flow (`scc agy --auth`)
+ * - CLI runtime flow (`scc agy`)
  * - Dashboard auth endpoints (server-side payload validation)
  */
 
@@ -120,7 +120,7 @@ function printResponsibilityHeader(context: AgyRiskContext): void {
   const contextLine =
     context === 'oauth'
       ? 'You are starting Antigravity OAuth account authorization.'
-      : 'You are starting a live Antigravity CLI session (ccs agy).';
+      : 'You are starting a live Antigravity CLI session (scc agy).';
 
   console.error('');
   console.error('╔══════════════════════════════════════════════════════════════════════╗');
@@ -212,7 +212,7 @@ export async function ensureCliAntigravityResponsibility(
     const step3 = await askYesNoStep(
       rl,
       'Step 3/4',
-      'I accept that CCS provides no responsibility coverage for account loss, bans, or suspension.'
+      'I accept that SCC provides no responsibility coverage for account loss, bans, or suspension.'
     );
     if (!step3) return false;
 

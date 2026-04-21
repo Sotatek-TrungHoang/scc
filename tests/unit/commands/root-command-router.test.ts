@@ -89,8 +89,8 @@ describe('root-command-router', () => {
     await expect(tryHandleRootCommand(['update', '--help'])).resolves.toBe(true);
 
     expect(calls).toEqual([]);
-    expect(logLines.join('\n')).toContain('Usage: ccs update [options]');
-    expect(logLines.join('\n')).toContain('ccs update --beta');
+    expect(logLines.join('\n')).toContain('Usage: scc update [options]');
+    expect(logLines.join('\n')).toContain('scc update --beta');
   });
 
   it('passes remaining args through to nested command handlers', async () => {

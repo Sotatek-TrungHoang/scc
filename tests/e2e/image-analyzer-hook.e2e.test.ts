@@ -743,7 +743,7 @@ describe('Image Analyzer Hook', () => {
       );
 
       // Should output debug info to stderr
-      expect(result.stderr).toContain('[CCS Hook]');
+      expect(result.stderr).toContain('[SCC Hook]');
       expect(result.stderr).toContain('Starting image analysis');
     });
 

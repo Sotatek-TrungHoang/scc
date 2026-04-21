@@ -447,7 +447,7 @@ function uploadTokenToRemoteAsync(tokenPath: string, verbose: boolean): void {
           .then((success) => {
             if (!success) {
               console.error(
-                '\n[!] Remote upload failed - token saved locally only. Run "ccs tokens upload" to retry.'
+                '\n[!] Remote upload failed - token saved locally only. Run "scc tokens upload" to retry.'
               );
             }
           })
@@ -456,7 +456,7 @@ function uploadTokenToRemoteAsync(tokenPath: string, verbose: boolean): void {
             const message = err instanceof Error ? err.message : String(err);
             console.error(`[token-manager] Unexpected upload error: ${message}`);
             console.error(
-              '[!] Token saved locally. Run "ccs tokens upload" to sync to remote server.'
+              '[!] Token saved locally. Run "scc tokens upload" to sync to remote server.'
             );
           });
       }
@@ -487,8 +487,8 @@ export function displayAuthStatus(): void {
   }
 
   console.log('');
-  console.log('To authenticate: ccs <provider> --auth');
-  console.log('To logout:       ccs <provider> --logout');
+  console.log('To authenticate: scc <provider> --auth');
+  console.log('To logout:       scc <provider> --logout');
 }
 
 /**
@@ -496,10 +496,10 @@ export function displayAuthStatus(): void {
  * This prevents UND_ERR_SOCKET errors caused by expired tokens during API calls.
  *
  * Refresh responsibility:
- * - gemini: CCS refreshes directly via Google OAuth
+ * - gemini: SCC refreshes directly via Google OAuth
  * - codex, agy, kiro, ghcp, qwen, iflow: CLIProxyAPIPlus handles refresh
  *   automatically in background (e.g. kiro refreshes every 1 min).
- *   CCS only checks if token file exists (authentication state).
+ *   SCC only checks if token file exists (authentication state).
  * - claude: not yet implemented
  *
  * @param provider The CLIProxy provider
@@ -518,6 +518,6 @@ export async function ensureTokenValid(
     };
   }
 
-  // Runtime-managed providers refresh upstream. CCS only verifies auth material exists locally.
+  // Runtime-managed providers refresh upstream. SCC only verifies auth material exists locally.
   return { valid: isAuthenticated(provider), refreshed: false };
 }

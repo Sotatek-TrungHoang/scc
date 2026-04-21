@@ -107,7 +107,7 @@ describe('config command dashboard startup', () => {
     await expect(handleConfigCommand(['help'], createTestDeps())).rejects.toThrow('process.exit(0)');
 
     expect(startServerCalls).toHaveLength(0);
-    expect(logLines.join('\n')).toContain('Usage: ccs config [command] [options]');
+    expect(logLines.join('\n')).toContain('Usage: scc config [command] [options]');
   });
 
   it('routes auth subcommands before dashboard startup', async () => {
@@ -149,7 +149,7 @@ describe('config command dashboard startup', () => {
     expect(rendered).toContain(
       'Dashboard may be reachable from other devices that can connect to this machine.'
     );
-    expect(rendered).toContain('Protect it before sharing: ccs config auth setup');
+    expect(rendered).toContain('Protect it before sharing: scc config auth setup');
     expect(errorLines).toHaveLength(0);
   });
 
@@ -167,7 +167,7 @@ describe('config command dashboard startup', () => {
     expect(rendered).toContain(
       'Dashboard may be reachable from other devices that can connect to this machine.'
     );
-    expect(rendered).toContain('Protect it before sharing: ccs config auth setup');
+    expect(rendered).toContain('Protect it before sharing: scc config auth setup');
     expect(errorLines).toHaveLength(0);
   });
 
@@ -179,14 +179,14 @@ describe('config command dashboard startup', () => {
         alreadyRunning: false,
         port: 8317,
         error:
-          'Failed to prepare binary: CLIProxy Plus binary is not installed locally. Run "ccs cliproxy install" when you have network access.',
+          'Failed to prepare binary: CLIProxy Plus binary is not installed locally. Run "scc cliproxy install" when you have network access.',
       }),
     });
 
     expect(startServerCalls).toHaveLength(1);
     const rendered = logLines.join('\n');
     expect(rendered).toContain(
-      'CLIProxy not available: Failed to prepare binary: CLIProxy Plus binary is not installed locally. Run "ccs cliproxy install" when you have network access.'
+      'CLIProxy not available: Failed to prepare binary: CLIProxy Plus binary is not installed locally. Run "scc cliproxy install" when you have network access.'
     );
     expect(rendered).toContain('Dashboard will work but Control Panel/Stats may be limited');
   });

@@ -1,7 +1,7 @@
 /**
  * Copilot CLI Command
  *
- * Handles `ccs copilot <subcommand>` commands.
+ * Handles `scc copilot <subcommand>` commands.
  */
 
 import {
@@ -64,7 +64,7 @@ function loadCopilotConfigWithWarnings() {
 function printCopilotWarnings(messages: string[]): void {
   if (messages.length === 0) return;
   messages.forEach((message) => console.log(warn(message)));
-  console.log(warn('Run `ccs config` and save the Copilot section to persist these replacements.'));
+  console.log(warn('Run `scc config` and save the Copilot section to persist these replacements.'));
   console.log('');
 }
 
@@ -74,7 +74,7 @@ function printCopilotWarnings(messages: string[]): void {
 function handleHelp(): number {
   console.log('GitHub Copilot Integration');
   console.log('');
-  console.log('Usage: ccs copilot <subcommand>');
+  console.log('Usage: scc copilot <subcommand>');
   console.log('');
   console.log('Subcommands:');
   console.log('  auth      Start GitHub OAuth authentication');
@@ -88,17 +88,17 @@ function handleHelp(): number {
   console.log('  help      Show this help message');
   console.log('');
   console.log('Quick start:');
-  console.log('  1. ccs copilot auth     # Authenticate with GitHub');
-  console.log('  2. ccs copilot enable   # Enable integration');
-  console.log('  3. ccs copilot start    # Start daemon');
-  console.log('  4. ccs copilot usage    # Check quota usage');
+  console.log('  1. scc copilot auth     # Authenticate with GitHub');
+  console.log('  2. scc copilot enable   # Enable integration');
+  console.log('  3. scc copilot start    # Start daemon');
+  console.log('  4. scc copilot usage    # Check quota usage');
   console.log('');
   console.log('Flag aliases:');
   console.log(
-    '  ccs copilot --auth | --status | --models | --usage | --start | --stop | --enable | --disable'
+    '  scc copilot --auth | --status | --models | --usage | --start | --stop | --enable | --disable'
   );
   console.log('');
-  console.log('Or use the web UI: ccs config → Copilot tab');
+  console.log('Or use the web UI: scc config → Copilot tab');
   console.log('');
   return 0;
 }
@@ -121,10 +121,10 @@ async function handleAuth(): Promise<number> {
     console.log(ok('Authentication successful!'));
     console.log('');
     console.log('Next steps:');
-    console.log('  1. Enable copilot: ccs copilot enable');
-    console.log('  2. Start daemon:   ccs copilot start');
+    console.log('  1. Enable copilot: scc copilot enable');
+    console.log('  2. Start daemon:   scc copilot start');
     console.log('     (fallback:      npx copilot-api start)');
-    console.log('  3. Use copilot:    ccs copilot');
+    console.log('  3. Use copilot:    scc copilot');
     return 0;
   } else {
     console.error('');
@@ -178,13 +178,13 @@ async function handleStatus(): Promise<number> {
   if (!copilotConfig.enabled || !status.auth.authenticated || !status.daemon.running) {
     console.log('Next steps:');
     if (!copilotConfig.enabled) {
-      console.log('  - Enable:      ccs copilot enable');
+      console.log('  - Enable:      scc copilot enable');
     }
     if (!status.auth.authenticated) {
-      console.log('  - Auth:        ccs copilot auth');
+      console.log('  - Auth:        scc copilot auth');
     }
     if (!status.daemon.running) {
-      console.log('  - Start:       ccs copilot start');
+      console.log('  - Start:       scc copilot start');
     }
   }
 
@@ -222,10 +222,10 @@ async function handleModels(): Promise<number> {
     console.log('Live Copilot limits were unavailable. Start the daemon and rerun this command.');
   }
   console.log(
-    'CCS can switch Copilot models, but it cannot raise GitHub Copilot prompt/context caps.'
+    'SCC can switch Copilot models, but it cannot raise GitHub Copilot prompt/context caps.'
   );
   console.log('');
-  console.log('To change model: ccs config (Copilot section)');
+  console.log('To change model: scc config (Copilot section)');
 
   return 0;
 }
@@ -293,7 +293,7 @@ async function handleUsage(): Promise<number> {
   if (!status.daemon.running) {
     console.error(fail('copilot-api daemon is not running.'));
     console.error('');
-    console.error('Start daemon first: ccs copilot start');
+    console.error('Start daemon first: scc copilot start');
     return 1;
   }
 
@@ -301,7 +301,7 @@ async function handleUsage(): Promise<number> {
   if (!usage) {
     console.error(fail('Failed to fetch Copilot usage.'));
     console.error('');
-    console.error('Try restarting daemon: ccs copilot stop && ccs copilot start');
+    console.error('Try restarting daemon: scc copilot stop && scc copilot start');
     return 1;
   }
 
@@ -372,9 +372,9 @@ async function handleEnable(): Promise<number> {
   console.log(ok('Copilot integration enabled'));
   console.log('');
   console.log('Next steps:');
-  console.log('  1. Authenticate: ccs copilot auth');
-  console.log('  2. Start daemon: ccs copilot start');
-  console.log('  3. Use:          ccs copilot');
+  console.log('  1. Authenticate: scc copilot auth');
+  console.log('  2. Start daemon: scc copilot start');
+  console.log('  3. Use:          scc copilot');
 
   return 0;
 }

@@ -1,7 +1,7 @@
 /**
  * System Health Checks
  *
- * Checks for Claude CLI, CCS directory, and permissions.
+ * Checks for Claude CLI, SCC directory, and permissions.
  */
 
 import * as fs from 'fs';
@@ -55,13 +55,13 @@ export async function checkClaudeCli(): Promise<HealthCheck> {
 }
 
 /**
- * Check CCS directory existence
+ * Check SCC directory existence
  */
 export function checkCcsDirectory(ccsDir: string): HealthCheck {
   if (fs.existsSync(ccsDir)) {
     return {
       id: 'ccs-dir',
-      name: 'CCS Directory',
+      name: 'SCC Directory',
       status: 'ok',
       message: 'Exists',
       details: '~/.ccs/',
@@ -70,7 +70,7 @@ export function checkCcsDirectory(ccsDir: string): HealthCheck {
 
   return {
     id: 'ccs-dir',
-    name: 'CCS Directory',
+    name: 'SCC Directory',
     status: 'error',
     message: 'Not found',
     details: ccsDir,
@@ -80,7 +80,7 @@ export function checkCcsDirectory(ccsDir: string): HealthCheck {
 }
 
 /**
- * Check permissions on CCS directory
+ * Check permissions on SCC directory
  */
 export function checkPermissions(ccsDir: string): HealthCheck {
   const testFile = `${ccsDir}/.permission-test`;

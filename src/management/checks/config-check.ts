@@ -12,7 +12,7 @@ import { getClaudeConfigDir } from '../../utils/claude-config-path';
 const ora = createSpinner();
 
 /**
- * Check CCS config files exist and are valid
+ * Check SCC config files exist and are valid
  * - Prefers config.yaml (v2) over config.json (legacy)
  * - Settings files are optional (only checked if profile exists)
  */

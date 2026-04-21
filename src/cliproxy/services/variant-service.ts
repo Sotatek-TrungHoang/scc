@@ -371,7 +371,7 @@ export function createCompositeVariant(
 ): VariantOperationResult {
   if (!isUnifiedMode()) {
     throw new Error(
-      'Composite variants require unified config (config.yaml). Run "ccs migrate" first.'
+      'Composite variants require unified config (config.yaml). Run "scc migrate" first.'
     );
   }
 

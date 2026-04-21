@@ -12,7 +12,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/shared/helpers.sh"
 
 # Print test header
-print_test_header "CCS COMPREHENSIVE TEST SUITE"
+print_test_header "SCC COMPREHENSIVE TEST SUITE"
 
 echo ""
 echo -e "${CYAN}This master test suite runs:${NC}"

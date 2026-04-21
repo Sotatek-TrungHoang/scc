@@ -56,8 +56,8 @@ function showPresetDeprecationNotice(presetId?: string): void {
   }
 
   console.log(warn('Preset "glmt" is deprecated and now maps to the direct "glm" preset.'));
-  console.log(dim('  Z.AI models already expose thinking natively, so CCS no longer needs GLMT.'));
-  console.log(dim('  Update scripts/docs to: ccs api create --preset glm'));
+  console.log(dim('  Z.AI models already expose thinking natively, so SCC no longer needs GLMT.'));
+  console.log(dim('  Update scripts/docs to: scc api create --preset glm'));
   console.log('');
 }
 
@@ -381,7 +381,7 @@ export async function handleApiCreateCommand(args: string[]): Promise<void> {
       )
     );
     console.log(
-      dim('  CCS will create a routed API profile. Provider credentials stay managed by CLIProxy.')
+      dim('  SCC will create a routed API profile. Provider credentials stay managed by CLIProxy.')
     );
     console.log('');
     console.log(info('Creating API profile...'));
@@ -418,7 +418,7 @@ export async function handleApiCreateCommand(args: string[]): Promise<void> {
     console.log(header('Usage'));
     if (target === 'droid') {
       console.log(
-        `  ${color(`ccs ${result.name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
+        `  ${color(`scc ${result.name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
       );
       console.log(
         `  ${color(`ccs-droid ${result.name} "your prompt"`, 'command')} ${dim('# explicit droid alias')}`
@@ -427,17 +427,17 @@ export async function handleApiCreateCommand(args: string[]): Promise<void> {
         `  ${color(`ccsd ${result.name} "your prompt"`, 'command')} ${dim('# legacy shortcut')}`
       );
     } else {
-      console.log(`  ${color(`ccs ${result.name} "your prompt"`, 'command')}`);
+      console.log(`  ${color(`scc ${result.name} "your prompt"`, 'command')}`);
       console.log(
         `  ${color(`ccs-droid ${result.name} "your prompt"`, 'command')} ${dim('# explicit one-off droid alias')}`
       );
       console.log(
-        `  ${color(`ccs ${result.name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
+        `  ${color(`scc ${result.name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
       );
     }
     if (cliproxyProvider === 'codex') {
       console.log(
-        `  ${color(`ccs ${result.name} --target codex "your prompt"`, 'command')} ${dim('# native Codex runtime')}`
+        `  ${color(`scc ${result.name} --target codex "your prompt"`, 'command')} ${dim('# native Codex runtime')}`
       );
       console.log(
         `  ${color(`ccs-codex ${result.name} "your prompt"`, 'command')} ${dim('# explicit Codex alias')}`
@@ -447,7 +447,7 @@ export async function handleApiCreateCommand(args: string[]): Promise<void> {
       );
     }
     console.log('');
-    console.log(dim('Manage provider accounts, keys, and models in: ccs cliproxy'));
+    console.log(dim('Manage provider accounts, keys, and models in: scc cliproxy'));
     return;
   }
 
@@ -541,8 +541,8 @@ export async function handleApiCreateCommand(args: string[]): Promise<void> {
     console.log(
       dim(
         shouldEnableClaudeLongContext
-          ? 'CCS saved [1m] on compatible Claude mappings. Provider-side extra-usage requirements can still reject long-context requests.'
-          : 'Claude mappings were saved with standard context. Use --1m later if you want CCS to write [1m] explicitly.'
+          ? 'SCC saved [1m] on compatible Claude mappings. Provider-side extra-usage requirements can still reject long-context requests.'
+          : 'Claude mappings were saved with standard context. Use --1m later if you want SCC to write [1m] explicitly.'
       )
     );
   }
@@ -550,24 +550,24 @@ export async function handleApiCreateCommand(args: string[]): Promise<void> {
   console.log(header('Usage'));
   if (target === 'droid') {
     console.log(
-      `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
+      `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses droid by default')}`
     );
     console.log(
       `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit droid alias')}`
     );
     console.log(`  ${color(`ccsd ${name} "your prompt"`, 'command')} ${dim('# legacy shortcut')}`);
     console.log(
-      `  ${color(`ccs ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
+      `  ${color(`scc ${name} --target claude "your prompt"`, 'command')} ${dim('# override to Claude')}`
     );
   } else {
     console.log(
-      `  ${color(`ccs ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
+      `  ${color(`scc ${name} "your prompt"`, 'command')} ${dim('# uses claude by default')}`
     );
     console.log(
       `  ${color(`ccs-droid ${name} "your prompt"`, 'command')} ${dim('# explicit one-off droid alias')}`
     );
     console.log(
-      `  ${color(`ccs ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
+      `  ${color(`scc ${name} --target droid "your prompt"`, 'command')} ${dim('# target flag alternative')}`
     );
   }
   console.log('');

@@ -184,11 +184,11 @@ function normalizeLegacyCursorArgs(args: string[]): string[] {
 
 function printCursorLegacySubcommandDeprecation(subcommand: string): void {
   console.error(
-    info(`\`ccs cursor ${subcommand}\` is deprecated for the legacy Cursor IDE bridge.`)
+    info(`\`scc cursor ${subcommand}\` is deprecated for the legacy Cursor IDE bridge.`)
   );
   console.error(
     info(
-      `Use \`ccs legacy cursor ${subcommand}\` for the old bridge, or \`ccs cursor --auth|--accounts|--config\` for the CLIProxy provider.`
+      `Use \`scc legacy cursor ${subcommand}\` for the old bridge, or \`scc cursor --auth|--accounts|--config\` for the CLIProxy provider.`
     )
   );
   console.error('');
@@ -434,7 +434,7 @@ async function main(): Promise<void> {
     // Security warning: cloud sync paths expose OAuth tokens
     const cloudService = detectCloudSyncPath(configDirValue);
     if (!isCompletionCommand && cloudService) {
-      console.error(warn(`CCS directory is under ${cloudService}.`));
+      console.error(warn(`SCC directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
       console.error('    Consider: SCC_DIR=/path/outside/cloud scc ...');
     }
@@ -445,7 +445,7 @@ async function main(): Promise<void> {
     // Also warn for CCS_DIR env var pointing to cloud sync
     const cloudService = detectCloudSyncPath(process.env.CCS_DIR);
     if (!isCompletionCommand && cloudService) {
-      console.error(warn(`CCS directory is under ${cloudService}.`));
+      console.error(warn(`SCC directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
       console.error('    Consider: SCC_DIR=/path/outside/cloud scc ...');
     }
@@ -453,7 +453,7 @@ async function main(): Promise<void> {
     // Also warn for CCS_HOME env var pointing to cloud sync
     const cloudService = detectCloudSyncPath(process.env.CCS_HOME);
     if (!isCompletionCommand && cloudService) {
-      console.error(warn(`CCS directory is under ${cloudService}.`));
+      console.error(warn(`SCC directory is under ${cloudService}.`));
       console.error('    OAuth tokens in cliproxy/auth/ will be synced to cloud.');
       console.error('    Consider: SCC_DIR=/path/outside/cloud scc ...');
     }
@@ -568,8 +568,8 @@ async function main(): Promise<void> {
     }
   }
 
-  // Compatibility shim: old `ccs cursor <subcommand>` still forwards to the legacy bridge
-  // for one migration window, but bare/positional `ccs cursor` now belongs to CLIProxy.
+  // Compatibility shim: old `scc cursor <subcommand>` still forwards to the legacy bridge
+  // for one migration window, but bare/positional `scc cursor` now belongs to CLIProxy.
   if (firstArg === 'cursor' && args.length > 1) {
     const { handleCursorCommand } = await import('./commands/cursor-command');
     const cursorToken = args[1];
@@ -587,8 +587,8 @@ async function main(): Promise<void> {
   const { isFirstTimeInstall } = await import('./commands/setup-command');
   if (process.stdout.isTTY && !process.env['CI'] && isFirstTimeInstall()) {
     console.log('');
-    console.log(info('First-time install detected. Run `ccs setup` for guided configuration.'));
-    console.log('    Or use `ccs config` for the web dashboard.');
+    console.log(info('First-time install detected. Run `scc setup` for guided configuration.'));
+    console.log('    Or use `scc config` for the web dashboard.');
     console.log('');
   }
 
@@ -704,7 +704,7 @@ async function main(): Promise<void> {
                 `${targetAdapter.displayName} default mode requires ANTHROPIC_BASE_URL and ANTHROPIC_AUTH_TOKEN`
               )
             );
-            console.error(info('Use a settings-based profile instead: ccs glm --target droid'));
+            console.error(info('Use a settings-based profile instead: scc glm --target droid'));
             process.exit(1);
           }
         }
@@ -897,7 +897,7 @@ async function main(): Promise<void> {
             )
           );
           console.error(
-            info(`Run with Claude target: ccs ${profileInfo.name} --target claude ...`)
+            info(`Run with Claude target: scc ${profileInfo.name} --target claude ...`)
           );
           process.exitCode = 1;
           return;
@@ -913,13 +913,13 @@ async function main(): Promise<void> {
             console.error(
               fail(`Missing OAuth auth for composite tier provider: ${missingProvider}`)
             );
-            console.error(info(`Authenticate first: ccs ${missingProvider} --auth`));
+            console.error(info(`Authenticate first: scc ${missingProvider} --auth`));
             process.exitCode = 1;
             return;
           }
         } else if (!isAuthenticated(provider)) {
           console.error(fail(`No OAuth authentication found for provider: ${provider}`));
-          console.error(info(`Authenticate first: ccs ${provider} --auth`));
+          console.error(info(`Authenticate first: scc ${provider} --auth`));
           process.exitCode = 1;
           return;
         }
@@ -968,7 +968,7 @@ async function main(): Promise<void> {
             )
           );
           console.error(
-            info('Reconfigure with: ccs config > CLIProxy, or run ccs <provider> --config')
+            info('Reconfigure with: scc config > CLIProxy, or run scc <provider> --config')
           );
           process.exitCode = 1;
           return;
@@ -1119,7 +1119,7 @@ async function main(): Promise<void> {
         !syncBrowserMcpToConfigDir(inheritedClaudeConfigDir)
       ) {
         throw new Error(
-          'Browser MCP is enabled, but CCS could not sync the browser MCP config into the inherited Claude instance.'
+          'Browser MCP is enabled, but SCC could not sync the browser MCP config into the inherited Claude instance.'
         );
       }
       const expandedSettingsPath =
@@ -1301,7 +1301,7 @@ async function main(): Promise<void> {
           if (!ensureServiceResult.started) {
             console.error(
               warn(
-                `Image analysis via ${imageAnalysisProvider} is unavailable because CCS could not start the local CLIProxy service. This session will use native Read.`
+                `Image analysis via ${imageAnalysisProvider} is unavailable because SCC could not start the local CLIProxy service. This session will use native Read.`
               )
             );
             imageAnalysisEnv = {
@@ -1556,7 +1556,7 @@ async function main(): Promise<void> {
             !syncBrowserMcpToConfigDir(defaultContinuityInheritance.claudeConfigDir)
           ) {
             throw new Error(
-              'Browser MCP is enabled, but CCS could not sync the browser MCP config into the inherited Claude instance.'
+              'Browser MCP is enabled, but SCC could not sync the browser MCP config into the inherited Claude instance.'
             );
           }
         }
@@ -1593,7 +1593,7 @@ async function main(): Promise<void> {
               `${adapter.displayName} default mode requires ANTHROPIC_BASE_URL and ANTHROPIC_AUTH_TOKEN`
             )
           );
-          console.error(info('Use a settings-based profile instead: ccs glm --target droid'));
+          console.error(info('Use a settings-based profile instead: scc glm --target droid'));
           process.exit(1);
         }
         await adapter.prepareCredentials(creds);

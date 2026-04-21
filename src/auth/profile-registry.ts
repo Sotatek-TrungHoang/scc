@@ -178,7 +178,7 @@ export class ProfileRegistry {
     });
 
     // Note: No longer auto-set as default
-    // Users must explicitly run: ccs auth default <profile>
+    // Users must explicitly run: scc auth default <profile>
     // Default always stays on implicit 'default' profile (uses ~/.claude/)
 
     this._write(data);
@@ -280,7 +280,7 @@ export class ProfileRegistry {
   }
 
   /**
-   * Clear default profile (restore original CCS behavior)
+   * Clear default profile (restore original SCC behavior)
    */
   clearDefaultProfile(): void {
     const data = this._read();
@@ -373,7 +373,7 @@ export class ProfileRegistry {
   }
 
   /**
-   * Clear default profile in unified config (restore original CCS behavior)
+   * Clear default profile in unified config (restore original SCC behavior)
    */
   clearDefaultUnified(): void {
     mutateUnifiedConfig((config) => {

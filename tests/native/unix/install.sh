@@ -94,11 +94,11 @@ echo ""
 # ============================================================================
 echo -e "${YELLOW}===== PRE-CHECKS =====${NC}"
 
-test_case "CCS executable exists" "ccs script found at $CCS_PATH" bash -c "
+test_case "SCC executable exists" "scc script found at $CCS_PATH" bash -c "
     [[ -f '$CCS_PATH' ]]
 "
 
-test_case "CCS executable is executable" "ccs has execute permissions" bash -c "
+test_case "SCC executable is executable" "scc has execute permissions" bash -c "
     [[ -x '$CCS_PATH' ]]
 "
 
@@ -345,7 +345,7 @@ test_case "Error: Shows helpful error message" "Error message explains the issue
     mv '$CCS_ROOT/.claude' '$CCS_ROOT/.claude.backup'
     output=\$(HOME='$TEST_HOME' '$CCS_PATH' --install 2>&1 || true)
     mv '$CCS_ROOT/.claude.backup' '$CCS_ROOT/.claude'
-    [[ \$output =~ 'CCS repository directory' ]]
+    [[ \$output =~ 'SCC repository directory' ]]
 "
 
 test_case "Error: Uses error indicator ✗" "Error messages have ✗ indicator" bash -c "

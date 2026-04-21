@@ -174,7 +174,7 @@ describe('web-server claude-extension-routes', () => {
     expect(payload.host.disableLoginPromptKey).toBe('claudeCode.disableLoginPrompt');
     expect(payload.ideSettings.json).toContain('"claudeCode.disableLoginPrompt": true');
     expect(payload.ideSettings.json).toContain('"ANTHROPIC_API_KEY"');
-    expect(payload.sharedSettings.command).toBe('ccs persist glm');
+    expect(payload.sharedSettings.command).toBe('scc persist glm');
     expect(payload.sharedSettings.json).toContain('"env"');
   });
 
@@ -251,7 +251,7 @@ describe('web-server claude-extension-routes', () => {
     expect(payload.host.settingsKey).toBe('claude-code.environmentVariables');
     expect(payload.ideSettings.json).toContain('"claude-code.environmentVariables"');
     expect(payload.ideSettings.json).toContain('"CLAUDE_CONFIG_DIR"');
-    expect(payload.sharedSettings.command).toBe('ccs persist default');
+    expect(payload.sharedSettings.command).toBe('scc persist default');
   });
 
   it('creates a binding and applies managed settings to shared + IDE targets', async () => {

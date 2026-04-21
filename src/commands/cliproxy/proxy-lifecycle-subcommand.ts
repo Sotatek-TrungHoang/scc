@@ -2,10 +2,10 @@
  * CLIProxy Lifecycle Management
  *
  * Handles:
- * - ccs cliproxy start
- * - ccs cliproxy restart
- * - ccs cliproxy status
- * - ccs cliproxy stop
+ * - scc cliproxy start
+ * - scc cliproxy restart
+ * - scc cliproxy status
+ * - scc cliproxy stop
  */
 
 import { initUI, header, color, dim, ok, warn, info } from '../../utils/ui';
@@ -29,7 +29,7 @@ export async function handleStart(verbose = false): Promise<void> {
     } else {
       console.log(ok(`CLIProxy started on port ${result.port}`));
     }
-    console.log(dim('To stop: ccs cliproxy stop'));
+    console.log(dim('To stop: scc cliproxy stop'));
   } else {
     console.log(warn(result.error || 'Failed to start CLIProxy'));
   }
@@ -82,7 +82,7 @@ export async function handleProxyStatus(): Promise<void> {
       console.log(`  Started:    ${new Date(status.startedAt).toLocaleString()}`);
     }
     console.log('');
-    console.log(dim('To stop: ccs cliproxy stop'));
+    console.log(dim('To stop: scc cliproxy stop'));
   } else {
     // Fallback: detect untracked/orphaned proxy process (e.g. detached session without lock file).
     const detected = await detectRunningProxy(port);
@@ -95,11 +95,11 @@ export async function handleProxyStatus(): Promise<void> {
         console.log(dim('  Note: Detected running proxy without local session lock'));
       }
       console.log('');
-      console.log(dim('To stop: ccs cliproxy stop'));
+      console.log(dim('To stop: scc cliproxy stop'));
     } else {
       console.log(`  Status:     ${color('Not running', 'warning')}`);
       console.log('');
-      console.log(dim('CLIProxy starts automatically when you run ccs gemini, codex, etc.'));
+      console.log(dim('CLIProxy starts automatically when you run scc gemini, codex, etc.'));
     }
   }
   console.log('');

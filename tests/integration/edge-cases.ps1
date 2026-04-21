@@ -8,7 +8,7 @@ $ErrorActionPreference = "Continue"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 Write-Host "========================================" -ForegroundColor Yellow
-Write-Host "CCS COMPREHENSIVE TEST SUITE" -ForegroundColor Yellow
+Write-Host "SCC COMPREHENSIVE TEST SUITE" -ForegroundColor Yellow
 Write-Host "========================================" -ForegroundColor Yellow
 Write-Host ""
 
@@ -168,7 +168,7 @@ if ($OverallTotal -gt 0) {
         Write-Host "ALL TESTS PASSED!" -ForegroundColor Green
         Write-Host "========================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "CCS is ready for production use!" -ForegroundColor Green
+        Write-Host "SCC is ready for production use!" -ForegroundColor Green
         exit 0
     } else {
         Write-Host "========================================" -ForegroundColor Yellow

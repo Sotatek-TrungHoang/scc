@@ -164,7 +164,7 @@ describe('web-server account-routes context normalization', () => {
     expect(work?.continuity_inferred).toBe(true);
   });
 
-  it('reports the plain ccs lane as native when no account default or inheritance exists', async () => {
+  it('reports the plain scc lane as native when no account default or inheritance exists', async () => {
     const ccsDir = path.join(tempHome, '.ccs');
     fs.mkdirSync(ccsDir, { recursive: true });
 
@@ -195,7 +195,7 @@ describe('web-server account-routes context normalization', () => {
     expect(payload.plain_ccs_lane?.account_name).toBeNull();
   });
 
-  it('reports the plain ccs lane as an account when default profile is an auth account', async () => {
+  it('reports the plain scc lane as an account when default profile is an auth account', async () => {
     const ccsDir = path.join(tempHome, '.ccs');
     fs.mkdirSync(ccsDir, { recursive: true });
 

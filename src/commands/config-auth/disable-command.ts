@@ -24,7 +24,7 @@ export async function handleDisable(): Promise<void> {
   if (!config.enabled) {
     console.log(info('Dashboard authentication is already disabled.'));
     console.log('');
-    console.log(dim('    To enable: ccs config auth setup'));
+    console.log(dim('    To enable: scc config auth setup'));
     console.log('');
     return;
   }
@@ -65,6 +65,6 @@ export async function handleDisable(): Promise<void> {
   console.log('');
   console.log(ok('Dashboard authentication disabled'));
   console.log('');
-  console.log(info('Credentials preserved - re-enable with: ccs config auth setup'));
+  console.log(info('Credentials preserved - re-enable with: scc config auth setup'));
   console.log('');
 }

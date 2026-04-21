@@ -1,7 +1,7 @@
 /**
  * CLIProxy Sync Command Handler
  *
- * Handles `ccs cliproxy sync` command for syncing API profiles to local CLIProxy config.
+ * Handles `scc cliproxy sync` command for syncing API profiles to local CLIProxy config.
  */
 
 import { syncToLocalConfig, generateSyncPreview, getLocalSyncStatus } from '../cliproxy/sync';
@@ -23,7 +23,7 @@ export function parseSyncArgs(args: string[]): SyncArgs {
 }
 
 /**
- * Handle `ccs cliproxy sync` command.
+ * Handle `scc cliproxy sync` command.
  */
 export async function handleSync(args: string[]): Promise<void> {
   await initUI();
@@ -39,7 +39,7 @@ export async function handleSync(args: string[]): Promise<void> {
     console.log(fail('CLIProxy config not found'));
     console.log('');
     console.log('Run to generate config:');
-    console.log(`  ${color('ccs doctor --fix', 'command')}`);
+    console.log(`  ${color('scc doctor --fix', 'command')}`);
     console.log('');
     process.exit(1);
   }
@@ -51,7 +51,7 @@ export async function handleSync(args: string[]): Promise<void> {
     console.log(warn('No API profiles configured to sync'));
     console.log('');
     console.log('Configure API profiles with:');
-    console.log(`  ${color('ccs api create', 'command')}`);
+    console.log(`  ${color('scc api create', 'command')}`);
     console.log('');
     return;
   }
@@ -83,7 +83,7 @@ export async function handleSync(args: string[]): Promise<void> {
     console.log(`  ${dim(status.configPath)}`);
     console.log('');
     console.log('Run without --dry-run to apply changes:');
-    console.log(`  ${color('ccs cliproxy sync', 'command')}`);
+    console.log(`  ${color('scc cliproxy sync', 'command')}`);
     console.log('');
     return;
   }
@@ -112,6 +112,6 @@ export async function handleSync(args: string[]): Promise<void> {
   console.log('');
 
   console.log(info('Restart CLIProxy to apply changes:'));
-  console.log(`  ${color('ccs cliproxy stop && ccs gemini', 'command')}`);
+  console.log(`  ${color('scc cliproxy stop && scc gemini', 'command')}`);
   console.log('');
 }

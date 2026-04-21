@@ -1,5 +1,5 @@
 /**
- * Unified Config Types for CCS v2
+ * Unified Config Types for SCC v2
  *
  * This file defines the new unified YAML configuration format that consolidates:
  * - config.json (API profiles)
@@ -398,7 +398,7 @@ export type CopilotAccountType = 'individual' | 'business' | 'enterprise';
  * !! DISCLAIMER - USE AT YOUR OWN RISK !!
  * This uses an UNOFFICIAL reverse-engineered API.
  * Excessive usage may trigger GitHub account restrictions.
- * CCS provides NO WARRANTY and accepts NO RESPONSIBILITY for any consequences.
+ * SCC provides NO WARRANTY and accepts NO RESPONSIBILITY for any consequences.
  */
 export interface CopilotConfig {
   /** Enable Copilot integration (default: false) - must be explicitly enabled */
@@ -430,7 +430,7 @@ export interface CursorConfig {
   enabled: boolean;
   /** Port for cursor proxy daemon (default: 20129) */
   port: number;
-  /** Auto-start daemon when CCS starts (default: false) */
+  /** Auto-start daemon when SCC starts (default: false) */
   auto_start: boolean;
   /** Enable ghost mode to disable telemetry (default: true) */
   ghost_mode: boolean;
@@ -513,7 +513,7 @@ export interface OpenAICompatProxyConfig {
 
 /**
  * CLIProxy server configuration section.
- * Controls whether CCS uses local or remote CLIProxyAPI instance.
+ * Controls whether SCC uses local or remote CLIProxyAPI instance.
  */
 export interface CliproxyServerConfig {
   /** Remote proxy settings */
@@ -787,7 +787,7 @@ export const DEFAULT_OFFICIAL_CHANNELS_CONFIG: OfficialChannelsConfig = {
 
 /**
  * Dashboard authentication configuration.
- * Optional login protection for CCS dashboard.
+ * Optional login protection for SCC dashboard.
  * Disabled by default for backward compatibility.
  */
 export interface DashboardAuthConfig {

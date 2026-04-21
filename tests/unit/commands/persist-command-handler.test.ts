@@ -73,7 +73,7 @@ function stubProcessExit(): void {
 beforeEach(async () => {
   tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'ccs-persist-handler-test-'));
   originalClaudeConfigDir = process.env.CLAUDE_CONFIG_DIR;
-  // Clear CLAUDE_CONFIG_DIR so scoped CCS_HOME takes effect (leaks from host CCS session)
+  // Clear CLAUDE_CONFIG_DIR so scoped CCS_HOME takes effect (leaks from host SCC session)
   delete process.env.CLAUDE_CONFIG_DIR;
   originalProcessExit = process.exit;
   originalFsOpen = fs.promises.open;

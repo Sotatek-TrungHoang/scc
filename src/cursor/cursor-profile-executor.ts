@@ -80,7 +80,7 @@ export async function resolveCursorImageAnalysisEnv(
           CCS_CURRENT_PROVIDER: '',
           CCS_IMAGE_ANALYSIS_SKIP: '1',
         },
-        warning: `Image analysis via ${provider} is unavailable because CCS could not start the local CLIProxy service. This session will use native Read.`,
+        warning: `Image analysis via ${provider} is unavailable because SCC could not start the local CLIProxy service. This session will use native Read.`,
       };
     }
   }
@@ -97,7 +97,7 @@ export async function executeCursorProfile(
   if (!config.enabled) {
     console.error(fail('Cursor integration is not enabled.'));
     console.error('');
-    console.error('Enable it first: ccs legacy cursor enable');
+    console.error('Enable it first: scc legacy cursor enable');
     return 1;
   }
 
@@ -105,13 +105,13 @@ export async function executeCursorProfile(
   if (!authStatus.authenticated) {
     console.error(fail('Cursor credentials not found.'));
     console.error('');
-    console.error('Authenticate first: ccs legacy cursor auth');
+    console.error('Authenticate first: scc legacy cursor auth');
     return 1;
   }
   if (authStatus.expired) {
     console.error(fail('Cursor credentials have expired.'));
     console.error('');
-    console.error('Refresh them with: ccs legacy cursor auth');
+    console.error('Refresh them with: scc legacy cursor auth');
     return 1;
   }
 
@@ -133,7 +133,7 @@ export async function executeCursorProfile(
       console.error(fail('Cursor daemon is not running.'));
       console.error('');
       console.error('Start the daemon:');
-      console.error('  ccs legacy cursor start');
+      console.error('  scc legacy cursor start');
       console.error('Or enable auto_start in the Cursor config section.');
       return 1;
     }

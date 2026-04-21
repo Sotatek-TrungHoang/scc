@@ -117,8 +117,8 @@ export function ensureHookConfig(): boolean {
       if (webSearchHookIndex !== -1) {
         // Hook exists - first clean up any duplicates
         // INVARIANT: webSearchHookIndex remains valid after deduplication because:
-        // - findIndex() returns the FIRST matching CCS hook
-        // - deduplicateCcsHooks() keeps the FIRST CCS hook and removes subsequent duplicates
+        // - findIndex() returns the FIRST matching SCC hook
+        // - deduplicateCcsHooks() keeps the FIRST SCC hook and removes subsequent duplicates
         // This means the index always points to the preserved hook.
         const hadDuplicates = deduplicateCcsHooks(settings);
 
@@ -168,7 +168,7 @@ export function ensureHookConfig(): boolean {
       settingsHooks.PreToolUse = [];
     }
 
-    // Remove any existing CCS hooks first to prevent duplicates
+    // Remove any existing SCC hooks first to prevent duplicates
     settingsHooks.PreToolUse = settingsHooks.PreToolUse.filter((h: unknown) => {
       const hook = h as Record<string, unknown>;
       return !isCcsWebSearchHook(hook);
@@ -201,7 +201,7 @@ export function ensureHookConfig(): boolean {
 }
 
 /**
- * Remove CCS WebSearch hook from ~/.claude/settings.json
+ * Remove SCC WebSearch hook from ~/.claude/settings.json
  * Only removes hooks matching: matcher='WebSearch' AND command contains '.ccs/hooks/websearch-transformer'
  * Preserves user-defined WebSearch hooks
  */
@@ -237,7 +237,7 @@ export function removeHookConfig(): boolean {
       const normalizedCommand = command
         .replace(/\\/g, '/') // Windows backslashes
         .replace(/\/+/g, '/'); // Collapse multiple slashes
-      return !normalizedCommand.includes('.ccs/hooks/websearch-transformer'); // Remove if CCS hook
+      return !normalizedCommand.includes('.ccs/hooks/websearch-transformer'); // Remove if SCC hook
     });
 
     if (hooks.PreToolUse.length === originalLength) {

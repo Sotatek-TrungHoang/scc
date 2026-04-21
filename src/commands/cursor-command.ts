@@ -1,7 +1,7 @@
 /**
  * Cursor CLI Command
  *
- * Handles `ccs cursor [subcommand]` commands.
+ * Handles `scc cursor [subcommand]` commands.
  */
 
 import {
@@ -26,8 +26,8 @@ import {
 } from './cursor-command-display';
 import { ok, fail, info } from '../utils/ui';
 
-const LEGACY_CURSOR_COMMAND = 'ccs legacy cursor';
-const CLIPROXY_CURSOR_COMMAND = 'ccs cursor';
+const LEGACY_CURSOR_COMMAND = 'scc legacy cursor';
+const CLIPROXY_CURSOR_COMMAND = 'scc cursor';
 
 function printLegacyCursorDeprecationNotice(): void {
   console.log(
@@ -112,7 +112,7 @@ function printAutoDetectFailure(result: {
   if (result.reason === 'sqlite_unavailable') {
     console.log('');
     console.log('Recommended next steps:');
-    console.log('  1. Install sqlite3 so CCS can read Cursor state automatically');
+    console.log('  1. Install sqlite3 so SCC can read Cursor state automatically');
     console.log('  2. Or use manual import immediately');
   } else if (result.reason === 'db_query_failed') {
     console.log('');

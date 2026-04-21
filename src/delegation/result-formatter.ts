@@ -341,9 +341,9 @@ class ResultFormatter {
     // Suggestions
     output += ui.header('SUGGESTIONS') + '\n';
     output += `  Continue session:\n`;
-    output += `    ${ui.color(`ccs ${profile}:continue "finish the task"`, 'command')}\n\n`;
+    output += `    ${ui.color(`scc ${profile}:continue "finish the task"`, 'command')}\n\n`;
     output += `  Increase timeout:\n`;
-    output += `    ${ui.color(`ccs ${profile} --timeout ${Math.round((duration * 2) / 1000)}`, 'command')}\n\n`;
+    output += `    ${ui.color(`scc ${profile} --timeout ${Math.round((duration * 2) / 1000)}`, 'command')}\n\n`;
     output += `  Break into smaller tasks\n\n`;
 
     // Session info

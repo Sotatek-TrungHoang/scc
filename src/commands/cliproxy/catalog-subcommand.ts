@@ -84,7 +84,7 @@ export async function handleCatalogStatus(verbose: boolean): Promise<void> {
 
   console.log('');
   if (!cacheAge) {
-    console.log(dim('  Run "ccs cliproxy catalog refresh" to sync from CLIProxy'));
+    console.log(dim('  Run "scc cliproxy catalog refresh" to sync from CLIProxy'));
   }
   console.log('');
 }

@@ -49,7 +49,7 @@ export async function checkOrJoinProxy(
   let sessionId: string | undefined;
   let shouldSpawn = false;
 
-  // Use startup lock to coordinate with other CCS processes
+  // Use startup lock to coordinate with other SCC processes
   await withStartupLock(async () => {
     // Detect running proxy using multiple methods (HTTP, session-lock, port-process)
     let proxyStatus = await detectRunningProxy(port);

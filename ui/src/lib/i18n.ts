@@ -63,7 +63,7 @@ const resources = {
         darkMode: 'Dark',
         noDefaultCredentials: 'No default credentials ship with CCS.',
         credentialsHint:
-          'Credentials are created with `ccs config auth setup` on the CCS host. Docker deployments must run that command inside the container.',
+          'Credentials are created with `scc config auth setup` on the CCS host. Docker deployments must run that command inside the container.',
         remoteSetupTitle: 'Remote access needs auth setup',
         remoteSetupDescription:
           'This dashboard was opened from a non-local address, but dashboard auth is not enabled for this CCS instance yet.',
@@ -81,7 +81,7 @@ const resources = {
         dockerStepDescription: 'Docker deployment? Run the setup inside the running container:',
         localStepTitle: 'If this is your machine',
         localStepDescription:
-          'Open the localhost URL printed by `ccs config` instead of the LAN or Tailscale address.',
+          'Open the localhost URL printed by `scc config` instead of the LAN or Tailscale address.',
         showPassword: 'Show password',
         hidePassword: 'Hide password',
       },
@@ -1482,7 +1482,7 @@ const resources = {
       // Domain 1: Navigation / Layout / Shared
       // ========================================
       heroSection: {
-        title: 'CCS Config',
+        title: 'SCC Config',
         subtitle: 'Claude Code Switch Dashboard',
       },
       hubFooter: {
@@ -1496,7 +1496,7 @@ const resources = {
       },
       ccsLogo: {
         alt: 'CCS Logo',
-        text: 'CCS Config',
+        text: 'SCC Config',
       },
       claudekitBadge: {
         title: 'Powered by ClaudeKit Framework',
@@ -1551,7 +1551,7 @@ const resources = {
         remoteReadonlyAuthDisabledShort:
           'Remote dashboard is read-only until dashboard auth is re-enabled for this CCS instance.',
         remoteReadonlySetupLong:
-          'Remote dashboard access is read-only until you run ccs config auth setup for this CCS instance. Docker deployments must run it inside the container.',
+          'Remote dashboard access is read-only until you run scc config auth setup for this CCS instance. Docker deployments must run it inside the container.',
         remoteReadonlySetupShort:
           'Remote dashboard is read-only until auth is configured for this CCS instance.',
         localLong: 'This dashboard runs locally. All data stays on your machine.',
@@ -2593,7 +2593,7 @@ const resources = {
         darkMode: '深色',
         noDefaultCredentials: 'CCS 不提供默认用户名或密码。',
         credentialsHint:
-          '凭据需要在 CCS 主机上通过 `ccs config auth setup` 创建；Docker 部署必须在容器内运行该命令。',
+          '凭据需要在 CCS 主机上通过 `scc config auth setup` 创建；Docker 部署必须在容器内运行该命令。',
         remoteSetupTitle: '远程访问需要完成认证设置',
         remoteSetupDescription: '当前通过非本机地址打开控制台，但此 CCS 实例尚未启用控制台认证。',
         incompleteSetupDescription:
@@ -2606,7 +2606,7 @@ const resources = {
         dockerStepDescription: '如果是 Docker 部署，请在正在运行的容器内执行：',
         localStepTitle: '如果这就是你的机器',
         localStepDescription:
-          '请使用 `ccs config` 输出的 localhost 地址，而不是局域网或 Tailscale 地址。',
+          '请使用 `scc config` 输出的 localhost 地址，而不是局域网或 Tailscale 地址。',
         showPassword: '显示密码',
         hidePassword: '隐藏密码',
       },
@@ -3932,7 +3932,7 @@ const resources = {
         noMarkdown: '暂无 Markdown 内容。',
       },
       heroSection: {
-        title: 'CCS Config',
+        title: 'SCC Config',
         subtitle: 'Claude Code Switch Dashboard',
       },
       hubFooter: {
@@ -3946,7 +3946,7 @@ const resources = {
       },
       ccsLogo: {
         alt: 'CCS Logo',
-        text: 'CCS Config',
+        text: 'SCC Config',
       },
       claudekitBadge: {
         title: 'Powered by ClaudeKit Framework',
@@ -4000,7 +4000,7 @@ const resources = {
           '远程控制台当前为只读，因为此 CCS 实例未启用控制台认证。请在 CCS 主机上重新启用；Docker 部署需要在运行中的容器内完成。',
         remoteReadonlyAuthDisabledShort: '远程控制台为只读，直到此 CCS 实例重新启用控制台认证。',
         remoteReadonlySetupLong:
-          '远程控制台为只读，直到为此 CCS 实例运行 ccs config auth setup。Docker 部署必须在容器内运行该命令。',
+          '远程控制台为只读，直到为此 CCS 实例运行 scc config auth setup。Docker 部署必须在容器内运行该命令。',
         remoteReadonlySetupShort: '远程控制台为只读，直到为此 CCS 实例完成认证配置。',
         localLong: '本控制台在本地运行，所有数据保留在本机。',
         localShort: '本地控制台 - 数据保留在本机。',
@@ -5003,7 +5003,7 @@ const resources = {
         darkMode: 'Tối',
         noDefaultCredentials: 'CCS không có sẵn tài khoản hay mật khẩu mặc định.',
         credentialsHint:
-          'Thông tin đăng nhập được tạo bằng `ccs config auth setup` trên máy CCS host. Với Docker, phải chạy lệnh đó bên trong container.',
+          'Thông tin đăng nhập được tạo bằng `scc config auth setup` trên máy CCS host. Với Docker, phải chạy lệnh đó bên trong container.',
         remoteSetupTitle: 'Truy cập từ xa cần thiết lập xác thực',
         remoteSetupDescription:
           'Bảng điều khiển này đang được mở từ một địa chỉ không phải localhost, nhưng phiên bản CCS này chưa bật dashboard auth.',
@@ -5021,7 +5021,7 @@ const resources = {
         dockerStepDescription: 'Nếu dùng Docker, hãy chạy lệnh này bên trong container đang chạy:',
         localStepTitle: 'Nếu đây là máy của bạn',
         localStepDescription:
-          'Hãy mở URL localhost mà `ccs config` in ra, thay vì địa chỉ LAN hoặc Tailscale.',
+          'Hãy mở URL localhost mà `scc config` in ra, thay vì địa chỉ LAN hoặc Tailscale.',
         showPassword: 'Hiện mật khẩu',
         hidePassword: 'Ẩn mật khẩu',
       },
@@ -6438,7 +6438,7 @@ const resources = {
         noMarkdown: 'Không có nội dung Markdown khả dụng.',
       },
       heroSection: {
-        title: 'CCS Config',
+        title: 'SCC Config',
         subtitle: 'Bảng điều khiển Claude Code Switch',
       },
       hubFooter: {
@@ -6452,7 +6452,7 @@ const resources = {
       },
       ccsLogo: {
         alt: 'Logo CCS',
-        text: 'CCS Config',
+        text: 'SCC Config',
       },
       claudekitBadge: {
         title: 'Được vận hành bởi ClaudeKit Framework',
@@ -6507,7 +6507,7 @@ const resources = {
         remoteReadonlyAuthDisabledShort:
           'Dashboard từ xa chỉ đọc cho đến khi dashboard auth được bật lại cho phiên bản CCS này.',
         remoteReadonlySetupLong:
-          'Dashboard từ xa chỉ đọc cho đến khi bạn chạy ccs config auth setup cho phiên bản CCS này. Với Docker, hãy chạy lệnh đó bên trong container.',
+          'Dashboard từ xa chỉ đọc cho đến khi bạn chạy scc config auth setup cho phiên bản CCS này. Với Docker, hãy chạy lệnh đó bên trong container.',
         remoteReadonlySetupShort:
           'Dashboard từ xa chỉ đọc cho đến khi auth được cấu hình cho phiên bản CCS này.',
         localLong: 'Dashboard này chạy cục bộ. Toàn bộ dữ liệu nằm trên máy của bạn.',
@@ -7527,7 +7527,7 @@ const resources = {
         darkMode: 'ダーク',
         noDefaultCredentials: 'CCS にデフォルトの認証情報はありません。',
         credentialsHint:
-          '認証情報は CCS ホスト上で `ccs config auth setup` を実行して作成します。Docker では、そのコマンドをコンテナ内で実行する必要があります。',
+          '認証情報は CCS ホスト上で `scc config auth setup` を実行して作成します。Docker では、そのコマンドをコンテナ内で実行する必要があります。',
         remoteSetupTitle: 'リモートアクセスには認証設定が必要です',
         remoteSetupDescription:
           'このダッシュボードはローカル以外のアドレスから開かれていますが、この CCS インスタンスではダッシュボード認証がまだ有効になっていません。',
@@ -7544,7 +7544,7 @@ const resources = {
         dockerStepDescription: 'Docker の場合は、実行中のコンテナ内で次を実行してください:',
         localStepTitle: 'もしこのマシンを使っているなら',
         localStepDescription:
-          '`ccs config` が表示する localhost の URL を使い、LAN や Tailscale のアドレスは避けてください。',
+          '`scc config` が表示する localhost の URL を使い、LAN や Tailscale のアドレスは避けてください。',
         showPassword: 'パスワードを表示',
         hidePassword: 'パスワードを隠す',
       },
@@ -9053,7 +9053,7 @@ const resources = {
       },
       ccsLogo: {
         alt: 'CCS ロゴ',
-        text: 'CCS Config',
+        text: 'SCC Config',
       },
       claudeExtensionPage: {
         title: 'Claude Extension',
@@ -9376,7 +9376,7 @@ const resources = {
         subtitle: 'システムヘルスの監視。',
       },
       heroSection: {
-        title: 'CCS Config',
+        title: 'SCC Config',
         subtitle: 'Claude Code Switch Dashboard',
       },
       homePageV2: {
@@ -9443,7 +9443,7 @@ const resources = {
         remoteReadonlyAuthDisabledShort:
           'この CCS インスタンスでダッシュボード認証が再有効化されるまで、リモートダッシュボードは読み取り専用です。',
         remoteReadonlySetupLong:
-          'この CCS インスタンスで ccs config auth setup を実行するまで、リモートダッシュボードは読み取り専用です。Docker では、そのコマンドをコンテナ内で実行してください。',
+          'この CCS インスタンスで scc config auth setup を実行するまで、リモートダッシュボードは読み取り専用です。Docker では、そのコマンドをコンテナ内で実行してください。',
         remoteReadonlySetupShort:
           'この CCS インスタンスの認証が設定されるまで、リモートダッシュボードは読み取り専用です。',
         localLong:

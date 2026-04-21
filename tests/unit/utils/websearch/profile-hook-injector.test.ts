@@ -116,7 +116,7 @@ describe('ensureProfileHooks', () => {
     const installedHook = fs.readFileSync(hookPath, 'utf8');
 
     expect(installedHook).not.toBe('// stale hook');
-    expect(installedHook).toContain('CCS WebSearch Hook');
+    expect(installedHook).toContain('SCC WebSearch Hook');
   });
 
   it('repairs an unreadable existing hook binary instead of failing the profile setup', () => {
@@ -137,7 +137,7 @@ describe('ensureProfileHooks', () => {
 
       expect(ensured).toBe(true);
       expect(installedHook).not.toBe('// unreadable stale hook');
-      expect(installedHook).toContain('CCS WebSearch Hook');
+      expect(installedHook).toContain('SCC WebSearch Hook');
       expect(settings.hooks.PreToolUse[0].hooks[0].command).toBe(`node "${hookPath}"`);
     } finally {
       if (fs.existsSync(hookPath)) {

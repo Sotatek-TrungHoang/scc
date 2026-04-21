@@ -658,7 +658,7 @@ describe('web-server config-routes account context validation', () => {
     fs.rmSync(externalBackup, { recursive: true, force: true });
   });
 
-  it('rejects rollback paths outside managed CCS backups', async () => {
+  it('rejects rollback paths outside managed SCC backups', async () => {
     const externalBackup = fs.mkdtempSync(path.join(os.tmpdir(), 'ccs-external-backup-'));
 
     const response = await postJson(baseUrl, '/api/config/rollback', {
@@ -667,7 +667,7 @@ describe('web-server config-routes account context validation', () => {
 
     expect(response.status).toBe(400);
     expect(await response.json()).toEqual({
-      error: 'Invalid backupPath. Must reference a managed CCS migration backup directory.',
+      error: 'Invalid backupPath. Must reference a managed SCC migration backup directory.',
     });
 
     fs.rmSync(externalBackup, { recursive: true, force: true });

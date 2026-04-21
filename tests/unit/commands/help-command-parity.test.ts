@@ -39,7 +39,7 @@ describe('help command parity', () => {
 
   test('root help no longer markets deprecated glmt directly', async () => {
     const rendered = await renderLines((writeLine) => handleHelpCommand(writeLine));
-    expect(rendered.includes('ccs glmt')).toBe(false);
+    expect(rendered.includes('scc glmt')).toBe(false);
   });
 
   test('providers topic lists built-in OAuth provider shortcuts', async () => {
@@ -73,29 +73,29 @@ describe('help command parity', () => {
   test('browser topic explains Claude attach versus Codex browser tools', async () => {
     const rendered = await renderLines((writeLine) => handleHelpRoute(['browser'], writeLine));
 
-    expect(rendered.includes('CCS Browser Help')).toBe(true);
+    expect(rendered.includes('SCC Browser Help')).toBe(true);
     expect(rendered.includes('Claude Browser Attach reuses a local Chrome session')).toBe(true);
     expect(rendered.includes('Codex Browser Tools inject managed Playwright MCP overrides')).toBe(
       true
     );
-    expect(rendered.includes('ccs browser status')).toBe(true);
-    expect(rendered.includes('ccs browser doctor')).toBe(true);
+    expect(rendered.includes('scc browser status')).toBe(true);
+    expect(rendered.includes('scc browser doctor')).toBe(true);
   });
 
   test('completion topic documents install and verification paths', async () => {
     const rendered = await renderLines((writeLine) => handleHelpRoute(['completion'], writeLine));
 
-    expect(rendered.includes('ccs --shell-completion')).toBe(true);
-    expect(rendered.includes('ccs help <TAB>')).toBe(true);
+    expect(rendered.includes('scc --shell-completion')).toBe(true);
+    expect(rendered.includes('scc help <TAB>')).toBe(true);
     expect(rendered.includes('--force')).toBe(true);
   });
 
   test('api topic delegates to command-specific help', async () => {
     const rendered = await renderLines((writeLine) => handleHelpRoute(['api'], writeLine));
 
-    expect(rendered.includes('CCS API Management')).toBe(true);
-    expect(rendered.includes('ccs api create --preset anthropic --1m')).toBe(true);
-    expect(rendered.includes('ccs api discover --register')).toBe(true);
+    expect(rendered.includes('SCC API Management')).toBe(true);
+    expect(rendered.includes('scc api create --preset anthropic --1m')).toBe(true);
+    expect(rendered.includes('scc api discover --register')).toBe(true);
   });
 
   test('unknown help target shows an actionable fallback', async () => {

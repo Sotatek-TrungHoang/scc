@@ -2,7 +2,7 @@
  * CLIProxy OAuth Authentication Operations
  *
  * Handles:
- * - ccs cliproxy list
+ * - scc cliproxy list
  * - OAuth status display
  * - Built-in profile authentication status
  */
@@ -31,8 +31,8 @@ export async function handleList(): Promise<void> {
     );
   }
   console.log('');
-  console.log(dim('  To authenticate: ccs <provider> --auth'));
-  console.log(dim('  To logout:       ccs <provider> --logout'));
+  console.log(dim('  To authenticate: scc <provider> --auth'));
+  console.log(dim('  To logout:       scc <provider> --logout'));
   console.log('');
 
   // Custom variants
@@ -59,6 +59,6 @@ export async function handleList(): Promise<void> {
   }
 
   console.log(dim('To create a custom variant:'));
-  console.log(`  ${color('ccs cliproxy create', 'command')}`);
+  console.log(`  ${color('scc cliproxy create', 'command')}`);
   console.log('');
 }

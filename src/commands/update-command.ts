@@ -1,7 +1,7 @@
 /**
  * Update Command Handler
  *
- * Handles `ccs update` command - checks for updates and installs latest version.
+ * Handles `scc update` command - checks for updates and installs latest version.
  * Uses npm/yarn/pnpm/bun package managers exclusively.
  */
 
@@ -158,7 +158,7 @@ export async function handleUpdateCommand(
   if (beta) {
     deps.log(warn('Installing from @dev channel (unstable)'));
     deps.log(warn('Not recommended for production use'));
-    deps.log(info('Use `ccs update` (without --beta) to return to stable'));
+    deps.log(info('Use `scc update` (without --beta) to return to stable'));
     deps.log('');
   }
 
@@ -229,7 +229,7 @@ async function verifyCurrentInstallVersion(
   const installedVersion = nextState.version;
   if (!installedVersion) {
     deps.log('');
-    deps.log(fail('Update finished, but CCS could not verify the current installation version.'));
+    deps.log(fail('Update finished, but SCC could not verify the current installation version.'));
     deps.log('');
     deps.log('Current install remains ambiguous. Re-run manually:');
     deps.log(color(`  ${deps.formatManualUpdateCommand(targetTag, currentInstall)}`, 'command'));
@@ -296,7 +296,7 @@ async function verifyCurrentInstallVersion(
     deps.log('');
     deps.log(
       warn(
-        `Reinstall completed, but CCS could not prove that the current installation changed from ${previousState.version}. Verify the current binary manually if this reinstall was meant to repair a same-version install.`
+        `Reinstall completed, but SCC could not prove that the current installation changed from ${previousState.version}. Verify the current binary manually if this reinstall was meant to repair a same-version install.`
       )
     );
   }
@@ -445,8 +445,8 @@ async function performNpmUpdate(
       deps.log('');
       deps.log(ok(`${isReinstall ? 'Reinstall' : 'Update'} successful!`));
       deps.log('');
-      deps.log(`Run ${color('ccs --version', 'command')} to verify`);
-      deps.log(info(`Tip: Use ${color('ccs config', 'command')} for web-based configuration`));
+      deps.log(`Run ${color('scc --version', 'command')} to verify`);
+      deps.log(info(`Tip: Use ${color('scc config', 'command')} for web-based configuration`));
       deps.log('');
     } else {
       deps.log('');

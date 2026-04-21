@@ -129,7 +129,7 @@ function Get-CcsPath {
         }
     }
 
-    throw "CCS script not found. Checked: $($PossiblePaths -join ', ')"
+    throw "SCC script not found. Checked: $($PossiblePaths -join ', ')"
 }
 
 function Test-ClaudeDetection {
@@ -648,7 +648,7 @@ function Test-Category6-Integration {
 
         $Output = & $CcsPath --version 2>&1 | Out-String
 
-        $ShowsVersion = $Output -match "CCS \(Claude Code Switch\) version"
+        $ShowsVersion = $Output -match "SCC \(Claude Code Switch\) version"
 
         if ($ShowsVersion) {
             $Duration = ((Get-Date) - $TestStart).TotalMilliseconds

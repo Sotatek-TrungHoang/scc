@@ -816,7 +816,7 @@ function buildGeminiCliHttpFailureResult(
       httpStatus: 401,
       errorCode: parsed.errorCode || 'reauth_required',
       errorDetail: parsed.errorDetail,
-      actionHint: 'Run ccs gemini --auth to reconnect this account.',
+      actionHint: 'Run scc gemini --auth to reconnect this account.',
       needsReauth: true,
       retryable: false,
     });
@@ -954,7 +954,7 @@ async function fetchWithAuthData(
     return buildGeminiCliFailureResult(accountId, null, {
       error,
       errorCode: 'missing_project_id',
-      actionHint: 'Run ccs gemini --auth to reconnect this account and recover the project ID.',
+      actionHint: 'Run scc gemini --auth to reconnect this account and recover the project ID.',
       retryable: false,
     });
   }
@@ -1074,7 +1074,7 @@ export async function fetchGeminiCliQuota(
     return buildGeminiCliFailureResult(accountId, null, {
       error,
       errorCode: 'auth_file_missing',
-      actionHint: 'Run ccs gemini --auth to reconnect this account.',
+      actionHint: 'Run scc gemini --auth to reconnect this account.',
       retryable: false,
     });
   }

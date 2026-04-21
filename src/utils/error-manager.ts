@@ -40,7 +40,7 @@ export class ErrorManager {
     console.error(
       errorBox(
         'Claude CLI not found\n\n' +
-          'CCS requires Claude CLI to be installed\n' +
+          'SCC requires Claude CLI to be installed\n' +
           'and available in PATH.',
         'ERROR'
       )
@@ -220,7 +220,7 @@ export class ErrorManager {
     console.error('');
 
     console.error(header('FOR HEADLESS/SSH ENVIRONMENTS'));
-    console.error(`  ${color(`ccs ${provider} --auth --headless`, 'command')}`);
+    console.error(`  ${color(`scc ${provider} --auth --headless`, 'command')}`);
     console.error('');
     console.error(dim('This displays manual authentication steps.'));
     console.error('');
@@ -296,7 +296,7 @@ export class ErrorManager {
     console.error('');
 
     console.error(header('TO AUTHENTICATE'));
-    console.error(`  ${color(`ccs ${provider} --auth`, 'command')}`);
+    console.error(`  ${color(`scc ${provider} --auth`, 'command')}`);
     console.error('');
     console.error(dim('This will open a browser for OAuth login.'));
     console.error(dim('After login, you can use the profile normally.'));

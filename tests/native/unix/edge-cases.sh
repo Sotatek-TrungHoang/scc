@@ -251,7 +251,7 @@ test_case "Simulate: verbose mode" "Real usage: ccs --verbose works" bash -c "
 echo ""
 echo -e "${YELLOW}===== SECTION 9: BASH-SPECIFIC EDGE CASES =====${NC}"
 
-test_case "Script is executable" "ccs script has execute permissions" bash -c "
+test_case "Script is executable" "scc script has execute permissions" bash -c "
     [[ -x '$CCS_PATH' ]]
 "
 
@@ -259,11 +259,11 @@ test_case "Shebang is correct" "Script has proper shebang" bash -c "
     head -1 '$CCS_PATH' | grep -q '#!/usr/bin/env bash'
 "
 
-test_case "Symlink exists in PATH" "ccs symlink exists" bash -c "
+test_case "Symlink exists in PATH" "scc symlink exists" bash -c "
     [[ -L ~/.local/bin/ccs ]] || [[ -f ~/.local/bin/ccs ]]
 "
 
-test_case "Version without ./ prefix" "Can run 'ccs --version' from PATH" bash -c "
+test_case "Version without ./ prefix" "Can run 'scc --version' from PATH" bash -c "
     # Check if ccs is in PATH
     output=\$(ccs --version 2>&1 || true)
     [[ \$output =~ 2\\.1\\.1|CCS ]] || [[ \$output =~ 'command not found' ]]

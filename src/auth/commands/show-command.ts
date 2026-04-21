@@ -22,7 +22,7 @@ export async function handleShow(ctx: CommandContext, args: string[]): Promise<v
   if (!profileName) {
     console.log(fail('Profile name is required'));
     console.log('');
-    console.log(`Usage: ${color('ccs auth show <profile> [--json]', 'command')}`);
+    console.log(`Usage: ${color('scc auth show <profile> [--json]', 'command')}`);
     exitWithError('Profile name is required', ExitCode.PROFILE_ERROR);
   }
 

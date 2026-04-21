@@ -71,10 +71,10 @@ export async function handleList(ctx: CommandContext, args: string[]): Promise<v
       console.log(warn('No account profiles found'));
       console.log('');
       console.log('To create your first profile:');
-      console.log(`  ${color('ccs auth create <profile>', 'command')}`);
+      console.log(`  ${color('scc auth create <profile>', 'command')}`);
       console.log('');
       console.log('Example:');
-      console.log(`  ${color('ccs auth create work', 'command')}`);
+      console.log(`  ${color('scc auth create work', 'command')}`);
       console.log('');
       return;
     }

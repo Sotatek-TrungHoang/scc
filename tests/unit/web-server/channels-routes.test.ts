@@ -174,8 +174,8 @@ describe('web-server channels-routes', () => {
           appendedArgs: ['--channels', 'plugin:discord@claude-plugins-official'],
         })
       );
-      expect(payload.status?.supportMessage).toContain('ccs glm');
-      expect(payload.status?.accountStatusCaveat).toContain('current CCS process');
+      expect(payload.status?.supportMessage).toContain('scc glm');
+      expect(payload.status?.accountStatusCaveat).toContain('current SCC process');
       expect(payload.status?.channels).toEqual(
         expect.arrayContaining([
           expect.objectContaining({
@@ -184,7 +184,7 @@ describe('web-server channels-routes', () => {
             tokenAvailable: true,
             tokenSource: 'process_env',
             setup: expect.objectContaining({
-              label: 'Ready from current CCS process env',
+              label: 'Ready from current SCC process env',
             }),
           }),
         ])

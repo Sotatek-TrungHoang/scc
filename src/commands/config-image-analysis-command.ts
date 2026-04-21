@@ -2,7 +2,7 @@
  * Config Image Analysis Command Handler
  *
  * Manages image_analysis section of config.yaml via CLI.
- * Usage: ccs config image-analysis [options]
+ * Usage: scc config image-analysis [options]
  */
 
 import { initUI, header, ok, info, warn, fail, subheader, color, dim } from '../utils/ui';
@@ -110,14 +110,14 @@ function parseArgs(args: string[]): ImageAnalysisCommandOptions {
 
 function showHelp(): void {
   console.log('');
-  console.log(header('ccs config image-analysis'));
+  console.log(header('scc config image-analysis'));
   console.log('');
   console.log('  Configure image analysis for CLIProxy providers.');
   console.log('  Images/PDFs are analyzed via vision models instead of direct Read.');
   console.log('');
 
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs config image-analysis', 'command')} [options]`);
+  console.log(`  ${color('scc config image-analysis', 'command')} [options]`);
   console.log('');
 
   console.log(subheader('Options:'));
@@ -147,22 +147,22 @@ function showHelp(): void {
 
   console.log(subheader('Examples:'));
   console.log(
-    `  $ ${color('ccs config image-analysis', 'command')}               ${dim('# Show status')}`
+    `  $ ${color('scc config image-analysis', 'command')}               ${dim('# Show status')}`
   );
   console.log(
-    `  $ ${color('ccs config image-analysis --enable', 'command')}      ${dim('# Enable feature')}`
+    `  $ ${color('scc config image-analysis --enable', 'command')}      ${dim('# Enable feature')}`
   );
   console.log(
-    `  $ ${color('ccs config image-analysis --timeout 120', 'command')} ${dim('# Set 2min timeout')}`
+    `  $ ${color('scc config image-analysis --timeout 120', 'command')} ${dim('# Set 2min timeout')}`
   );
   console.log(
-    `  $ ${color('ccs config image-analysis --set-model agy gemini-2.5-pro', 'command')}`
+    `  $ ${color('scc config image-analysis --set-model agy gemini-2.5-pro', 'command')}`
   );
   console.log('');
 
   console.log(subheader('How it works:'));
   console.log(`  1. When Claude's Read tool targets an image/PDF file`);
-  console.log(`  2. CCS hook intercepts and sends to CLIProxy vision API`);
+  console.log(`  2. SCC hook intercepts and sends to CLIProxy vision API`);
   console.log(`  3. Vision model analyzes and returns text description`);
   console.log(`  4. Claude receives description instead of raw image data`);
   console.log('');
@@ -222,7 +222,7 @@ function showStatus(): void {
 
   // Troubleshooting hint if disabled
   if (!config.enabled) {
-    console.log(info('To enable: ccs config image-analysis --enable'));
+    console.log(info('To enable: scc config image-analysis --enable'));
     console.log('');
   }
 }

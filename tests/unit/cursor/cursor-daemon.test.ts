@@ -322,7 +322,7 @@ describe('handleCursorCommand', () => {
       expect(exitCode).toBe(0);
       expect(errors).toHaveLength(0);
       expect(logs.some((line) => line.includes('Legacy Cursor Compatibility'))).toBe(true);
-      expect(logs.some((line) => line.includes('Usage: ccs legacy cursor <subcommand>'))).toBe(
+      expect(logs.some((line) => line.includes('Usage: scc legacy cursor <subcommand>'))).toBe(
         true
       );
     } finally {
@@ -425,7 +425,7 @@ describe('renderCursorStatus', () => {
         true
       );
       expect(logs.some((line) => line.includes('Next steps:'))).toBe(true);
-      expect(logs.some((line) => line.includes('  - Help:        ccs legacy cursor help'))).toBe(
+      expect(logs.some((line) => line.includes('  - Help:        scc legacy cursor help'))).toBe(
         true
       );
     } finally {
@@ -433,7 +433,7 @@ describe('renderCursorStatus', () => {
     }
   });
 
-  it('falls back to ~/.scc in status output when no CCS override is active', () => {
+  it('falls back to ~/.scc in status output when no SCC override is active', () => {
     const originalLog = console.log;
     const originalCcsHomeValue = process.env.CCS_HOME;
     const logs: string[] = [];
@@ -487,23 +487,23 @@ describe('renderCursorHelp', () => {
       const exitCode = renderCursorHelp();
 
       expect(exitCode).toBe(0);
-      expect(logs.some((line) => line.includes('Usage: ccs legacy cursor <subcommand>'))).toBe(
+      expect(logs.some((line) => line.includes('Usage: scc legacy cursor <subcommand>'))).toBe(
         true
       );
       expect(logs.some((line) => line.includes('Legacy Cursor Compatibility'))).toBe(true);
       expect(
         logs.some((line) =>
-          line.includes('Deprecated: `ccs cursor` now belongs to the CLIProxy Cursor provider.')
+          line.includes('Deprecated: `scc cursor` now belongs to the CLIProxy Cursor provider.')
         )
       ).toBe(true);
       expect(logs.some((line) => line.includes('probe     Run a live authenticated runtime probe'))).toBe(
         true
       );
       expect(
-        logs.some((line) => line.includes('ccs cursor --auth'))
+        logs.some((line) => line.includes('scc cursor --auth'))
       ).toBe(true);
       expect(
-        logs.some((line) => line.includes('ccs legacy cursor [claude args]'))
+        logs.some((line) => line.includes('scc legacy cursor [claude args]'))
       ).toBe(true);
     } finally {
       console.log = originalLog;

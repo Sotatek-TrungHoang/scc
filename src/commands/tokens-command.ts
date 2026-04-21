@@ -4,13 +4,13 @@
  * Manage CLIProxyAPI auth tokens (API key and management secret).
  *
  * Usage:
- *   ccs tokens                       Show current tokens (masked)
- *   ccs tokens --show                Show tokens unmasked
- *   ccs tokens --api-key <key>       Set global API key
- *   ccs tokens --secret <key>        Set management secret
- *   ccs tokens --regenerate-secret   Auto-generate new management secret
- *   ccs tokens --reset               Reset to defaults
- *   ccs tokens --variant <name> --api-key <key>  Set per-variant API key
+ *   scc tokens                       Show current tokens (masked)
+ *   scc tokens --show                Show tokens unmasked
+ *   scc tokens --api-key <key>       Set global API key
+ *   scc tokens --secret <key>        Set management secret
+ *   scc tokens --regenerate-secret   Auto-generate new management secret
+ *   scc tokens --reset               Reset to defaults
+ *   scc tokens --variant <name> --api-key <key>  Set per-variant API key
  */
 
 import { initUI, ok, info, fail, warn, color, dim, header, subheader } from '../utils/ui';
@@ -58,10 +58,10 @@ async function showAuthStatus(showUnmasked: boolean): Promise<void> {
   }
 
   console.log(subheader('Usage'));
-  console.log(`  ${dim('Set API key:')}       ccs tokens --api-key <key>`);
-  console.log(`  ${dim('Set secret:')}        ccs tokens --secret <key>`);
-  console.log(`  ${dim('Generate secret:')}   ccs tokens --regenerate-secret`);
-  console.log(`  ${dim('Reset to defaults:')} ccs tokens --reset`);
+  console.log(`  ${dim('Set API key:')}       scc tokens --api-key <key>`);
+  console.log(`  ${dim('Set secret:')}        scc tokens --secret <key>`);
+  console.log(`  ${dim('Generate secret:')}   scc tokens --regenerate-secret`);
+  console.log(`  ${dim('Reset to defaults:')} scc tokens --reset`);
   console.log('');
 }
 
@@ -85,10 +85,10 @@ export async function handleTokensCommand(args: string[]): Promise<number> {
   const variantValue = variantIndex !== -1 ? args[variantIndex + 1] : undefined;
 
   if (helpFlag) {
-    console.log(header('CCS Tokens Management'));
+    console.log(header('SCC Tokens Management'));
     console.log('');
     console.log(subheader('Usage'));
-    console.log(`  ${color('ccs tokens', 'command')} [options]`);
+    console.log(`  ${color('scc tokens', 'command')} [options]`);
     console.log('');
     console.log(subheader('Options'));
     console.log(`  ${color('(no args)', 'command')}              Show masked tokens`);
@@ -104,16 +104,16 @@ export async function handleTokensCommand(args: string[]): Promise<number> {
     console.log('');
     console.log(subheader('Examples'));
     console.log(`  ${dim('# View current tokens')}`);
-    console.log(`  ccs tokens`);
+    console.log(`  scc tokens`);
     console.log('');
     console.log(`  ${dim('# Set custom API key')}`);
-    console.log(`  ccs tokens --api-key my-custom-key-123`);
+    console.log(`  scc tokens --api-key my-custom-key-123`);
     console.log('');
     console.log(`  ${dim('# Generate secure management secret')}`);
-    console.log(`  ccs tokens --regenerate-secret`);
+    console.log(`  scc tokens --regenerate-secret`);
     console.log('');
     console.log(`  ${dim('# Set per-variant API key')}`);
-    console.log(`  ccs tokens --variant my-gemini --api-key variant-key-456`);
+    console.log(`  scc tokens --variant my-gemini --api-key variant-key-456`);
     console.log('');
     return 0;
   }
@@ -179,7 +179,7 @@ export async function handleTokensCommand(args: string[]): Promise<number> {
   if (updated) {
     regenerateConfig();
     console.log(info('CLIProxy config regenerated'));
-    console.log(warn('Restart CLIProxy to apply: ccs cliproxy restart'));
+    console.log(warn('Restart CLIProxy to apply: scc cliproxy restart'));
     return 0;
   }
 

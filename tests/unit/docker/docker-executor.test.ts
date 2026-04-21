@@ -110,9 +110,9 @@ describe('docker executor', () => {
     expect(calls[0].args[0]).toBe('exec');
     expect(calls[0].args[1]).toBe('scc-cliproxy');
     expect(calls[0].args[4]).toContain('npm install -g scc-ai-proxy@latest --force');
-    expect(calls[0].args[4]).toContain('ccs cliproxy --latest');
+    expect(calls[0].args[4]).toContain('scc cliproxy --latest');
     expect(calls[0].args[4]).toContain(
-      'supervisorctl -c /etc/supervisord.conf restart ccs-dashboard cliproxy'
+      'supervisorctl -c /etc/supervisord.conf restart scc-dashboard cliproxy'
     );
   });
 

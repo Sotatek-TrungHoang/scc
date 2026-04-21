@@ -116,7 +116,7 @@ function parseArgs(args: string[]): PersistCommandArgs {
   );
   if (!result.parseError && unknownFlags.length > 0) {
     const unknownList = unknownFlags.map((flag) => `"${flag}"`).join(', ');
-    result.parseError = `Unknown option(s): ${unknownList}. Run 'ccs persist --help' for usage.`;
+    result.parseError = `Unknown option(s): ${unknownList}. Run 'scc persist --help' for usage.`;
   }
 
   if (!result.parseError && result.listBackups && result.restore) {
@@ -129,7 +129,7 @@ function parseArgs(args: string[]): PersistCommandArgs {
     (result.permissionMode || result.dangerouslySkipPermissions)
   ) {
     result.parseError =
-      'Permission flags are not valid with backup operations. Use them only with ccs persist <profile>.';
+      'Permission flags are not valid with backup operations. Use them only with scc persist <profile>.';
   }
 
   for (const arg of permissionModeOption.remainingArgs) {
@@ -545,7 +545,7 @@ async function handleListBackups(): Promise<void> {
     console.log(`  ${color(b.timestamp, 'command')}  ${dim(dateStr)}${marker}`);
   });
   console.log('');
-  console.log(dim('To restore: ccs persist --restore [timestamp]'));
+  console.log(dim('To restore: scc persist --restore [timestamp]'));
 }
 
 /** Handle --restore [timestamp] flag */
@@ -646,12 +646,12 @@ async function handleRestore(timestamp: string | boolean, yes: boolean): Promise
 /** Show help for persist command */
 async function showHelp(): Promise<void> {
   await initUI();
-  console.log(header('CCS Persist Command'));
+  console.log(header('SCC Persist Command'));
   console.log('');
   console.log(subheader('Usage'));
-  console.log(`  ${color('ccs persist', 'command')} <profile> [options]`);
-  console.log(`  ${color('ccs persist', 'command')} --list-backups`);
-  console.log(`  ${color('ccs persist', 'command')} --restore [timestamp]`);
+  console.log(`  ${color('scc persist', 'command')} <profile> [options]`);
+  console.log(`  ${color('scc persist', 'command')} --list-backups`);
+  console.log(`  ${color('scc persist', 'command')} --restore [timestamp]`);
   console.log('');
   console.log(subheader('Description'));
   console.log("  Writes a profile's Claude setup directly to");
@@ -691,31 +691,31 @@ async function showHelp(): Promise<void> {
   console.log('');
   console.log(subheader('Examples'));
   console.log(`  ${dim('# Persist GLM profile')}`);
-  console.log(`  ${color('ccs persist glm', 'command')}`);
+  console.log(`  ${color('scc persist glm', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Persist with auto-confirmation')}`);
-  console.log(`  ${color('ccs persist gemini --yes', 'command')}`);
+  console.log(`  ${color('scc persist gemini --yes', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Persist with default permission mode')}`);
-  console.log(`  ${color('ccs persist glm --permission-mode acceptEdits', 'command')}`);
+  console.log(`  ${color('scc persist glm --permission-mode acceptEdits', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Persist with auto-approve enabled')}`);
-  console.log(`  ${color('ccs persist codex --dangerously-skip-permissions', 'command')}`);
+  console.log(`  ${color('scc persist codex --dangerously-skip-permissions', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Persist an account profile for IDE/native Claude use')}`);
-  console.log(`  ${color('ccs persist work --yes', 'command')}`);
+  console.log(`  ${color('scc persist work --yes', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Reset to native Claude defaults (clear CCS-managed overrides)')}`);
-  console.log(`  ${color('ccs persist default --yes', 'command')}`);
+  console.log(`  ${color('scc persist default --yes', 'command')}`);
   console.log('');
   console.log(`  ${dim('# List all backups')}`);
-  console.log(`  ${color('ccs persist --list-backups', 'command')}`);
+  console.log(`  ${color('scc persist --list-backups', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Restore latest backup')}`);
-  console.log(`  ${color('ccs persist --restore', 'command')}`);
+  console.log(`  ${color('scc persist --restore', 'command')}`);
   console.log('');
   console.log(`  ${dim('# Restore specific backup')}`);
-  console.log(`  ${color('ccs persist --restore 20260110_205324', 'command')}`);
+  console.log(`  ${color('scc persist --restore 20260110_205324', 'command')}`);
   console.log('');
   console.log(subheader('Notes'));
   console.log('  [i] CLIProxy profiles require the proxy to be running.');
@@ -724,7 +724,7 @@ async function showHelp(): Promise<void> {
     '  [i] Account/default flows remove stale ANTHROPIC_* overrides before applying new setup.'
   );
   console.log(
-    '  [i] For IDE-local settings.json snippets, use: ccs env <profile> --format claude-extension'
+    '  [i] For IDE-local settings.json snippets, use: scc env <profile> --format claude-extension'
   );
   console.log(
     `  [i] Backups are saved as ${getClaudeSettingsDisplayPath()}.backup.YYYYMMDD_HHMMSS`
@@ -759,10 +759,10 @@ export async function handlePersistCommand(args: string[]): Promise<void> {
     console.log(fail('Profile name is required'));
     console.log('');
     console.log('Usage:');
-    console.log(`  ${color('ccs persist <profile>', 'command')}`);
+    console.log(`  ${color('scc persist <profile>', 'command')}`);
     console.log('');
     console.log('Run for help:');
-    console.log(`  ${color('ccs persist --help', 'command')}`);
+    console.log(`  ${color('scc persist --help', 'command')}`);
     process.exit(1);
   }
   // Detect profile
@@ -936,7 +936,7 @@ export async function handlePersistCommand(args: string[]): Promise<void> {
       console.log('');
       console.log(info(`A backup was created before this error:`));
       console.log(`    ${formatDisplayPath(createdBackupPath)}`);
-      console.log(dim('    To restore: ccs persist --restore'));
+      console.log(dim('    To restore: scc persist --restore'));
     }
     process.exit(1);
   }

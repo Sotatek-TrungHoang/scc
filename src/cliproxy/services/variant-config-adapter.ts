@@ -69,7 +69,7 @@ export function getNextAvailablePort(): number {
   const variantCount = Object.keys(variants).length;
   throw new Error(
     `Port limit reached (${variantCount}/${VARIANT_PORT_MAX_OFFSET} variants). ` +
-      `Delete unused variants with 'ccs cliproxy remove <name>' to free ports.`
+      `Delete unused variants with 'scc cliproxy remove <name>' to free ports.`
   );
 }
 

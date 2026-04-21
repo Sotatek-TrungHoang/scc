@@ -1,7 +1,7 @@
 /**
  * Config Image Analysis Command Tests
  *
- * Unit tests for ccs config image-analysis subcommand.
+ * Unit tests for scc config image-analysis subcommand.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';

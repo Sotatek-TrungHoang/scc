@@ -72,7 +72,7 @@ function saveAutoPaused(data: AutoPausedFile): void {
 /**
  * Check if a process is alive. NOTE: PIDs can be recycled by the OS.
  * If a stale PID is reused by an unrelated process, cleanup is deferred until that process exits.
- * This is acceptable — next CCS launch will self-heal via cleanupStaleAutoPauses().
+ * This is acceptable — next SCC launch will self-heal via cleanupStaleAutoPauses().
  */
 function isPidAlive(pid: number): boolean {
   try {
@@ -166,9 +166,9 @@ export function warnCrossProviderDuplicates(provider: CLIProxyProvider): boolean
   console.error('');
   console.error(warn('Account safety: cross-provider duplicate detected'));
   console.error(
-    '    Same Google account across "ccs gemini" + "ccs agy" is a known suspension/ban risk (ref: #509).'
+    '    Same Google account across "scc gemini" + "scc agy" is a known suspension/ban risk (ref: #509).'
   );
-  console.error('    This risk applies to both CLI sessions and accounts added from "ccs config".');
+  console.error('    This risk applies to both CLI sessions and accounts added from "scc config".');
   console.error(
     '    If provider requests start returning 403/Forbidden, treat it as a possible account disable/ban.'
   );
@@ -176,7 +176,7 @@ export function warnCrossProviderDuplicates(provider: CLIProxyProvider): boolean
     '    If you want to keep Google AI access on this account, do not continue this shared-account setup.'
   );
   console.error(
-    '    CCS is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
+    '    SCC is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
   );
   console.error(`    Details: ${ISSUE_509_URL}`);
   console.error('');
@@ -187,7 +187,7 @@ export function warnCrossProviderDuplicates(provider: CLIProxyProvider): boolean
 
   console.error('');
   console.error('    Immediate action: pause duplicate account and use separate Google accounts.');
-  console.error('    Fix command: "ccs cliproxy pause <account> --provider <provider>"');
+  console.error('    Fix command: "scc cliproxy pause <account> --provider <provider>"');
   console.error('');
 
   return true;
@@ -206,17 +206,17 @@ export function warnNewAccountConflict(
     `    ${maskEmail(email)} is also registered under: ${conflictingProviders.join(', ')}`
   );
   console.error(
-    '    Reusing one Google account between "ccs gemini" and "ccs agy" can trigger bans.'
+    '    Reusing one Google account between "scc gemini" and "scc agy" can trigger bans.'
   );
   console.error(
-    '    This applies to both CLI auth and "ccs config" dashboard auth for these providers.'
+    '    This applies to both CLI auth and "scc config" dashboard auth for these providers.'
   );
   console.error('    403/Forbidden responses can be an early sign of account disablement.');
   console.error(
     '    If you want to keep Google AI access, do not continue with this shared-account setup.'
   );
   console.error(
-    '    CCS is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
+    '    SCC is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
   );
   console.error('    Consider pausing the duplicate or using a different account.');
   console.error(`    Details: ${ISSUE_509_URL}`);
@@ -238,7 +238,7 @@ export function warnOAuthBanRisk(provider: CLIProxyProvider): void {
   console.error('');
   console.error(warn('Account safety warning (#509 - read before continuing)'));
   console.error(
-    '    Known risk: one Google account shared by "ccs gemini" + "ccs agy" can be disabled/banned.'
+    '    Known risk: one Google account shared by "scc gemini" + "scc agy" can be disabled/banned.'
   );
   if (isAgy) {
     console.error(
@@ -246,13 +246,13 @@ export function warnOAuthBanRisk(provider: CLIProxyProvider): void {
     );
   }
   console.error(
-    '    This risk applies whether auth was done from CLI or from "ccs config" dashboard.'
+    '    This risk applies whether auth was done from CLI or from "scc config" dashboard.'
   );
   console.error(
     '    If you want to keep Google AI access, do not continue with this shared-account setup.'
   );
   console.error(
-    '    CCS is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
+    '    SCC is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
   );
   console.error(`    Details: ${ISSUE_509_URL}`);
   console.error('');
@@ -284,7 +284,7 @@ export function warnPossible403Ban(provider: CLIProxyProvider, errorMessage: str
     '    If you want to keep Google AI access, stop using this account/provider pairing immediately.'
   );
   console.error(
-    '    CCS is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
+    '    SCC is provided as-is and cannot take responsibility for suspension/ban/access-loss decisions.'
   );
   console.error(`    Details: ${ISSUE_509_URL}`);
   console.error(`    Error: "${truncate(errorMessage, 160)}"`);
@@ -458,7 +458,7 @@ export function handleBanDetection(
   console.error(`    "${truncate(errorMessage, 120)}"`);
   console.error('');
   console.error(info('Auto-pausing this account to prevent further issues.'));
-  console.error(`    Resume later: ccs ${provider} --resume ${accountId}`);
+  console.error(`    Resume later: scc ${provider} --resume ${accountId}`);
   console.error('');
 
   return pauseAccount(provider, accountId);

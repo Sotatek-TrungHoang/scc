@@ -81,14 +81,14 @@ async function resolveAuthReadiness(
       authDisplayName,
       authReason: authenticated
         ? null
-        : `${authDisplayName} auth is missing. Run "ccs ${authProvider} --auth" to enable image analysis.`,
+        : `${authDisplayName} auth is missing. Run "scc ${authProvider} --auth" to enable image analysis.`,
     };
   } catch (error) {
     return {
       authReadiness: 'unknown',
       authProvider,
       authDisplayName,
-      authReason: `CCS could not verify ${authDisplayName} auth readiness: ${(error as Error).message}`,
+      authReason: `SCC could not verify ${authDisplayName} auth readiness: ${(error as Error).message}`,
     };
   }
 }
@@ -128,7 +128,7 @@ async function resolveProxyReadiness(
     proxyReadiness: reachable ? 'ready' : 'stopped',
     proxyReason: reachable
       ? 'Local CLIProxy service is reachable.'
-      : 'Local CLIProxy service is idle. CCS will start it automatically when image analysis is needed.',
+      : 'Local CLIProxy service is idle. SCC will start it automatically when image analysis is needed.',
   };
 }
 

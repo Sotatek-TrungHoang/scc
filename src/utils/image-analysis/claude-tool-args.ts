@@ -18,7 +18,7 @@ import {
 const IMAGE_ANALYSIS_STEERING_PROMPT = {
   name: 'ccs-prompt-image-analysis-tool',
   content:
-    'For local image or PDF files, prefer the CCS MCP tool ImageAnalysis instead of Read. Use Read for text, code, and other plain files. If the user asks a specific question about the visual, pass that question as the focus field when useful. If ImageAnalysis is unavailable or fails, you may fall back to Read.',
+    'For local image or PDF files, prefer the SCC MCP tool ImageAnalysis instead of Read. Use Read for text, code, and other plain files. If the user asks a specific question about the visual, pass that question as the focus field when useful. If ImageAnalysis is unavailable or fails, you may fall back to Read.',
 };
 
 function ensureImageAnalysisSteeringPrompt(args: string[]): string[] {

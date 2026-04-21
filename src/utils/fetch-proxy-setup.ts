@@ -2,7 +2,7 @@
  * Global Fetch Proxy Setup
  *
  * Configures undici's global dispatcher to respect standard proxy environment
- * variables without routing CCS loopback traffic back through the proxy.
+ * variables without routing SCC loopback traffic back through the proxy.
  */
 
 import { Agent, Dispatcher, ProxyAgent, fetch as undiciFetch, setGlobalDispatcher } from 'undici';

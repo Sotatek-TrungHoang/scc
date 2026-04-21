@@ -1,7 +1,7 @@
 /**
  * Preset Mock Responses
  *
- * Common response fixtures for CCS CLI tests.
+ * Common response fixtures for SCC CLI tests.
  * Import these instead of duplicating response shapes.
  */
 

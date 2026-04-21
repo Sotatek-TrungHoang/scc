@@ -48,7 +48,7 @@ describe('npm postinstall', () => {
 
     // GLM/Kimi profiles are NO LONGER auto-created during install.
     // Legacy glmt.settings.json files may still exist from older setups.
-    // Users create supported API profiles via UI presets or CLI: ccs api create --preset glm
+    // Users create supported API profiles via UI presets or CLI: scc api create --preset glm
     assert(!testEnv.fileExists('glm.settings.json'), 'glm.settings.json should NOT be auto-created');
     assert(!testEnv.fileExists('glmt.settings.json'), 'glmt.settings.json should NOT be auto-created');
     assert(!testEnv.fileExists('kimi.settings.json'), 'kimi.settings.json should NOT be auto-created');

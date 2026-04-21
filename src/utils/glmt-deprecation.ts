@@ -61,15 +61,15 @@ export function normalizeDeprecatedGlmtEnv(env: Record<string, string>): GlmtNor
 export function buildGlmtCompatibilityWarnings(migrated: boolean): string[] {
   const warnings = [
     'GLMT is deprecated and kept only as a compatibility path.',
-    'Use ccs glm for Z.AI API profiles.',
-    'Use ccs km for reasoning-first Kimi API profiles.',
+    'Use scc glm for Z.AI API profiles.',
+    'Use scc km for reasoning-first Kimi API profiles.',
   ];
 
   if (migrated) {
     warnings.splice(
       1,
       0,
-      'CCS normalized legacy GLMT proxy settings to the direct GLM endpoint for this run.'
+      'SCC normalized legacy GLMT proxy settings to the direct GLM endpoint for this run.'
     );
   }
 

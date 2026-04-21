@@ -1,7 +1,7 @@
 /**
  * Mock Infrastructure
  *
- * Centralized test mocking utilities for CCS CLI.
+ * Centralized test mocking utilities for SCC CLI.
  * Replaces real HTTP/HTTPS servers with instant mock responses.
  *
  * @example

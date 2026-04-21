@@ -1,7 +1,7 @@
 /**
  * Local Config Sync
  *
- * Syncs CCS API profiles to the local CLIProxy config.yaml.
+ * Syncs SCC API profiles to the local CLIProxy config.yaml.
  * Uses section-based replacement to preserve comments and formatting.
  */
 
@@ -26,7 +26,7 @@ export function syncToLocalConfig(): {
   const configPath = getCliproxyConfigPath();
 
   try {
-    // Generate payload from CCS profiles
+    // Generate payload from SCC profiles
     const payload = generateSyncPayload();
 
     if (payload.length === 0) {
@@ -43,7 +43,7 @@ export function syncToLocalConfig(): {
         success: false,
         syncedCount: 0,
         configPath,
-        error: 'CLIProxy config not found. Run ccs doctor to generate.',
+        error: 'CLIProxy config not found. Run scc doctor to generate.',
       };
     }
 
@@ -56,7 +56,7 @@ export function syncToLocalConfig(): {
           success: false,
           syncedCount: 0,
           configPath,
-          error: 'CLIProxy config deleted during sync. Run ccs doctor to regenerate.',
+          error: 'CLIProxy config deleted during sync. Run scc doctor to regenerate.',
         };
       }
       throw error;

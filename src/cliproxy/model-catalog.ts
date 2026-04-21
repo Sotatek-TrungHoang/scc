@@ -1,7 +1,7 @@
 /**
  * Model Catalog - Available models for CLI Proxy providers
  *
- * Ships with CCS to provide users with interactive model selection.
+ * Ships with SCC to provide users with interactive model selection.
  * Models are mapped to their internal names used by the proxy backend.
  */
 

@@ -109,7 +109,7 @@ export class DelegationHandler {
 
     if (!lastSession) {
       console.error(fail(`No previous session found for ${baseProfile}`));
-      console.error(`    Start a new session first with: ccs ${baseProfile} -p "task"`);
+      console.error(`    Start a new session first with: scc ${baseProfile} -p "task"`);
       process.exit(1);
     }
 
@@ -185,7 +185,7 @@ export class DelegationHandler {
 
     if (index === -1 || index === args.length - 1) {
       console.error(fail('Missing prompt after -p flag'));
-      console.error('    Usage: ccs glm -p "task description"');
+      console.error('    Usage: scc glm -p "task description"');
       process.exit(1);
     }
 
@@ -319,8 +319,8 @@ export class DelegationHandler {
   _validateProfile(profile: string): void {
     if (!profile) {
       console.error(fail('No profile specified'));
-      console.error('    Usage: ccs <profile> -p "task"');
-      console.error('    Examples: ccs glm -p "task", ccs km -p "task"');
+      console.error('    Usage: scc <profile> -p "task"');
+      console.error('    Examples: scc glm -p "task", scc km -p "task"');
       process.exit(1);
     }
 
@@ -330,7 +330,7 @@ export class DelegationHandler {
       console.error(fail(`Profile '${profile}' is not configured for delegation`));
       console.error(`    ${validation.error}`);
       console.error('');
-      console.error('    Run: ccs doctor');
+      console.error('    Run: scc doctor');
       console.error(`    Or configure: ${getCcsDir()}/${profile}.settings.json`);
       process.exit(1);
     }

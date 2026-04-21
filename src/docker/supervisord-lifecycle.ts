@@ -1,5 +1,5 @@
 /**
- * Supervisord lifecycle helpers for Docker deployments (`ccs docker up`).
+ * Supervisord lifecycle helpers for Docker deployments (`scc docker up`).
  *
  * In Docker, supervisord owns the CLIProxy process lifecycle. Direct
  * stop+start via session-tracker / service-manager creates orphaned

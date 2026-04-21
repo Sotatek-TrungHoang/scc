@@ -3,7 +3,7 @@
  *
  * Manages OAuth authentication for CLIProxy providers (Gemini, Codex, Antigravity).
  * CLIProxyAPI handles OAuth internally - we just need to:
- * 1. Check if auth exists (token files in CCS auth directory)
+ * 1. Check if auth exists (token files in SCC auth directory)
  * 2. Trigger OAuth flow by spawning binary with auth flag
  * 3. Auto-detect headless environments (SSH, no DISPLAY)
  * 4. Use --no-browser flag for headless, display OAuth URL for manual auth

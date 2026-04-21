@@ -80,19 +80,19 @@ describe('generateCopilotEnv', () => {
         authProvider: 'ghcp',
         authDisplayName: 'GitHub Copilot (OAuth)',
         authReason:
-          'GitHub Copilot (OAuth) auth is missing. Run "ccs ghcp --auth" to enable image analysis.',
+          'GitHub Copilot (OAuth) auth is missing. Run "scc ghcp --auth" to enable image analysis.',
         proxyReadiness: 'stopped',
         proxyReason:
-          'Local CLIProxy service is idle. CCS will start it automatically when image analysis is needed.',
+          'Local CLIProxy service is idle. SCC will start it automatically when image analysis is needed.',
         effectiveRuntimeMode: 'native-read',
         effectiveRuntimeReason:
-          'GitHub Copilot (OAuth) auth is missing. Run "ccs ghcp --auth" to enable image analysis.',
+          'GitHub Copilot (OAuth) auth is missing. Run "scc ghcp --auth" to enable image analysis.',
       }),
     });
 
     expect(result.env.CCS_CURRENT_PROVIDER).toBe('');
     expect(result.env.CCS_IMAGE_ANALYSIS_SKIP).toBe('1');
-    expect(result.warning).toContain('ccs ghcp --auth');
+    expect(result.warning).toContain('scc ghcp --auth');
   });
 
   it('starts local CLIProxy on demand when copilot image analysis is launchable', async () => {
@@ -124,7 +124,7 @@ describe('generateCopilotEnv', () => {
         authReason: null,
         proxyReadiness: 'stopped',
         proxyReason:
-          'Local CLIProxy service is idle. CCS will start it automatically when image analysis is needed.',
+          'Local CLIProxy service is idle. SCC will start it automatically when image analysis is needed.',
         effectiveRuntimeMode: 'cliproxy-image-analysis',
         effectiveRuntimeReason: null,
       }),

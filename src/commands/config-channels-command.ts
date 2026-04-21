@@ -128,16 +128,16 @@ export function parseChannelsCommandArgs(args: string[]): ChannelsCommandOptions
 
 function showHelp(): void {
   console.log('');
-  console.log(header('ccs config channels'));
+  console.log(header('scc config channels'));
   console.log('');
   console.log(`  ${getOfficialChannelsSectionDescription()}`);
   console.log(`  ${dim(getOfficialChannelsDocsSummary())}`);
   console.log(
-    `  ${dim('Fastest path: run `ccs config`, open Settings -> Channels, turn on the channel, save the token if needed, then run `ccs`.')}`
+    `  ${dim('Fastest path: run `scc config`, open Settings -> Channels, turn on the channel, save the token if needed, then run `ccs`.')}`
   );
   console.log('');
   console.log(subheader('Usage:'));
-  console.log(`  ${color('ccs config channels', 'command')} [options]`);
+  console.log(`  ${color('scc config channels', 'command')} [options]`);
   console.log('');
   console.log(subheader('Options:'));
   console.log(`  ${color('--set <csv|all>', 'command')}      ${getOfficialChannelsSetHelp()}`);
@@ -160,22 +160,22 @@ function showHelp(): void {
   console.log('');
   console.log(subheader('Examples:'));
   console.log(
-    `  $ ${color('ccs config', 'command')}                                    ${dim('# Dashboard -> Settings -> Channels (fastest path)')}`
+    `  $ ${color('scc config', 'command')}                                    ${dim('# Dashboard -> Settings -> Channels (fastest path)')}`
   );
   console.log(
-    `  $ ${color('ccs config channels', 'command')}                           ${dim('# Show status')}`
+    `  $ ${color('scc config channels', 'command')}                           ${dim('# Show status')}`
   );
   console.log(
-    `  $ ${color('ccs config channels --set telegram,discord', 'command')}  ${dim('# Enable Telegram + Discord')}`
+    `  $ ${color('scc config channels --set telegram,discord', 'command')}  ${dim('# Enable Telegram + Discord')}`
   );
   console.log(
-    `  $ ${color('ccs config channels --set all', 'command')}               ${dim('# Enable all official channels')}`
+    `  $ ${color('scc config channels --set all', 'command')}               ${dim('# Enable all official channels')}`
   );
   console.log(
-    `  $ ${color('ccs config channels --set-token telegram=123:abc', 'command')} ${dim('# Save TELEGRAM_BOT_TOKEN')}`
+    `  $ ${color('scc config channels --set-token telegram=123:abc', 'command')} ${dim('# Save TELEGRAM_BOT_TOKEN')}`
   );
   console.log(
-    `  $ ${color('ccs config channels --clear-token discord', 'command')}   ${dim('# Clear one token')}`
+    `  $ ${color('scc config channels --clear-token discord', 'command')}   ${dim('# Clear one token')}`
   );
   console.log(`  ${dim(getOfficialChannelsSupportMessage())}`);
   console.log('');
@@ -259,7 +259,7 @@ function showStatus(): void {
   console.log(`  Launch:       ${info(launchPreview.title)}`);
   console.log(`  ${dim(launchPreview.detail)}`);
   if (launchPreview.appendedArgs.length > 0) {
-    console.log(`  ${dim(`ccs adds: ${launchPreview.appendedArgs.join(' ')}`)}`);
+    console.log(`  ${dim(`scc adds: ${launchPreview.appendedArgs.join(' ')}`)}`);
   }
   if (launchPreview.skippedMessages.length > 0) {
     console.log(`  ${dim(`Skipped: ${launchPreview.skippedMessages.join(' | ')}`)}`);
@@ -317,13 +317,13 @@ function showStatus(): void {
       if (channel.tokenStatus.source === 'saved_env') {
         console.log(`      ${dim(`${envKey}: saved in Claude channel state`)}`);
         if (channel.tokenStatus.processEnvAvailable) {
-          console.log(`      ${dim(`${envKey}: also available from current CCS process env`)}`);
+          console.log(`      ${dim(`${envKey}: also available from current SCC process env`)}`);
         }
         if (channel.tokenStatus.tokenPath) {
           console.log(`      ${dim(channel.tokenStatus.tokenPath)}`);
         }
       } else if (channel.tokenStatus.source === 'process_env') {
-        console.log(`      ${dim(`${envKey}: available from current CCS process env`)}`);
+        console.log(`      ${dim(`${envKey}: available from current SCC process env`)}`);
       } else {
         console.log(`      ${dim(`${envKey}: missing`)}`);
         if (channel.tokenStatus.tokenPath) {

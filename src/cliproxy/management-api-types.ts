@@ -2,7 +2,7 @@
  * Management API Types for CLIProxyAPI
  *
  * Type definitions matching CLIProxyAPI Go structs for Management API CRUD operations.
- * Used for syncing CCS API profiles to remote CLIProxy instance.
+ * Used for syncing SCC API profiles to remote CLIProxy instance.
  */
 
 /**

@@ -127,10 +127,10 @@ export class ClaudeDirInstaller {
       const msg = `Failed to copy .claude/ directory: ${error.message}`;
       if (spinner) {
         spinner.fail(warn(msg));
-        console.warn('    CCS items may not be available');
+        console.warn('    SCC items may not be available');
       } else {
         console.warn(warn(msg));
-        console.warn('    CCS items may not be available');
+        console.warn('    SCC items may not be available');
       }
       return false;
     }

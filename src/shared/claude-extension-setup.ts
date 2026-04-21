@@ -93,7 +93,7 @@ function describeProfile(profileName: string, result: ProfileDetectionResult): s
     if (isDeprecatedGlmtProfileName(profileName)) {
       return 'Deprecated GLMT compatibility profile normalized to the direct GLM API.';
     }
-    return 'API profile backed by a CCS settings file.';
+    return 'API profile backed by a SCC settings file.';
   }
   if (result.type === 'account')
     return 'Claude account instance isolated through CLAUDE_CONFIG_DIR.';

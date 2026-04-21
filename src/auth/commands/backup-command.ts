@@ -41,7 +41,7 @@ export async function handleBackup(ctx: CommandContext, args: string[]): Promise
   if (!profileName) {
     console.log(fail('Profile name is required'));
     console.log('');
-    console.log(`Usage: ${color('ccs auth backup <profile|default> [--json]', 'command')}`);
+    console.log(`Usage: ${color('scc auth backup <profile|default> [--json]', 'command')}`);
     exitWithError('Profile name is required', ExitCode.PROFILE_ERROR);
   }
 

@@ -4,10 +4,10 @@
  * CLI command to migrate from v1 (JSON) to v2 (YAML) config format.
  *
  * Usage:
- *   ccs migrate           - Run migration
- *   ccs migrate --dry-run - Preview migration without changes
- *   ccs migrate --rollback <path> - Restore from backup
- *   ccs migrate --list-backups    - List available backups
+ *   scc migrate           - Run migration
+ *   scc migrate --dry-run - Preview migration without changes
+ *   scc migrate --rollback <path> - Restore from backup
+ *   scc migrate --list-backups    - List available backups
  */
 
 import {
@@ -35,7 +35,7 @@ export async function handleMigrateCommand(args: string[]): Promise<void> {
 
     if (!backupPath) {
       console.error(fail('Error: --rollback requires backup path'));
-      console.log(info('Usage: ccs migrate --rollback <backup-path>'));
+      console.log(info('Usage: scc migrate --rollback <backup-path>'));
       console.log(info('Use --list-backups to see available backups'));
       process.exit(1);
     }
@@ -88,7 +88,7 @@ export async function handleMigrateCommand(args: string[]): Promise<void> {
     if (dryRun) {
       console.log(dim('  Run without --dry-run to apply changes'));
     } else {
-      console.log(`  Rollback: ccs migrate --rollback ${result.backupPath}`);
+      console.log(`  Rollback: scc migrate --rollback ${result.backupPath}`);
     }
     console.log('');
   } else {
@@ -133,14 +133,14 @@ function listBackups(): void {
     console.log(`    ${index + 1}. ${backup}`);
   });
   console.log('');
-  console.log(info('To rollback: ccs migrate --rollback <backup-path>'));
+  console.log(info('To rollback: scc migrate --rollback <backup-path>'));
 }
 
 /**
  * Print help for migrate command.
  */
 export function printMigrateHelp(): void {
-  console.log('Usage: ccs migrate [options]');
+  console.log('Usage: scc migrate [options]');
   console.log('');
   console.log('Migrate from legacy JSON config to unified YAML format.');
   console.log('');
@@ -151,8 +151,8 @@ export function printMigrateHelp(): void {
   console.log('  --help           Show this help message');
   console.log('');
   console.log('Examples:');
-  console.log('  ccs migrate                      # Run migration');
-  console.log('  ccs migrate --dry-run            # Preview changes');
-  console.log('  ccs migrate --list-backups       # List backups');
-  console.log('  ccs migrate --rollback ~/.ccs/backup-v1-2025-01-15');
+  console.log('  scc migrate                      # Run migration');
+  console.log('  scc migrate --dry-run            # Preview changes');
+  console.log('  scc migrate --list-backups       # List backups');
+  console.log('  scc migrate --rollback ~/.ccs/backup-v1-2025-01-15');
 }

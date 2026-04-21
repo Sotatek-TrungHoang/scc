@@ -159,7 +159,7 @@ describe.skip('Update Command Beta Channel Implementation (Phase 3)', function (
         assert(notRecommended, 'should show not recommended warning');
 
         const returnStable = consoleOutput.find(output =>
-          output[0] && output[0].includes('[!] Use `ccs update` (without --beta) to return to stable')
+          output[0] && output[0].includes('[!] Use `scc update` (without --beta) to return to stable')
         );
         assert(returnStable, 'should show return to stable instruction');
       } finally {
