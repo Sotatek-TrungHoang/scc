@@ -497,7 +497,7 @@ describe('official channels runtime planning', () => {
 
     expect(preview).toMatchObject({
       state: 'ready',
-      title: 'CCS will auto-add Telegram, Discord',
+      title: 'SCC will auto-add Telegram, Discord',
       command: 'ccs',
       permissionBypassIncluded: true,
       appendedArgs: [
@@ -539,7 +539,7 @@ describe('official channels runtime planning', () => {
 
     expect(preview).toMatchObject({
       state: 'partial',
-      title: 'CCS will auto-add Discord',
+      title: 'SCC will auto-add Discord',
       command: 'ccs',
       appendedArgs: ['--channels', OFFICIAL_CHANNELS.discord.pluginSpec],
       skippedMessages: ['Telegram auto-enable skipped because TELEGRAM_BOT_TOKEN is not configured.'],
