@@ -364,33 +364,33 @@ async function performNpmUpdate(
   switch (packageManager) {
     case 'npm':
       updateCommand = 'npm';
-      updateArgs = ['install', '-g', `@kaitranntt/ccs@${targetTag}`];
+      updateArgs = ['install', '-g', `scc-ai-proxy@${targetTag}`];
       cacheCommand = 'npm';
       cacheArgs = ['cache', 'clean', '--force'];
       break;
     case 'yarn':
       updateCommand = 'yarn';
-      updateArgs = ['global', 'add', `@kaitranntt/ccs@${targetTag}`];
+      updateArgs = ['global', 'add', `scc-ai-proxy@${targetTag}`];
       cacheCommand = 'yarn';
       cacheArgs = ['cache', 'clean'];
       break;
     case 'pnpm':
       updateCommand = 'pnpm';
-      updateArgs = ['add', '-g', `@kaitranntt/ccs@${targetTag}`];
+      updateArgs = ['add', '-g', `scc-ai-proxy@${targetTag}`];
       cacheCommand = 'pnpm';
       cacheArgs = ['store', 'prune'];
       break;
     case 'bun':
       updateCommand = 'bun';
-      updateArgs = ['add', '-g', `@kaitranntt/ccs@${targetTag}`];
+      updateArgs = ['add', '-g', `scc-ai-proxy@${targetTag}`];
       // On Windows, bun's global bin symlink may not update properly without removal first
       // Pre-remove to ensure clean reinstall (mirrors dev-install.sh behavior)
       cacheCommand = process.platform === 'win32' ? 'bun' : null;
-      cacheArgs = process.platform === 'win32' ? ['remove', '-g', '@kaitranntt/ccs'] : null;
+      cacheArgs = process.platform === 'win32' ? ['remove', '-g', 'scc-ai-proxy'] : null;
       break;
     default:
       updateCommand = 'npm';
-      updateArgs = ['install', '-g', `@kaitranntt/ccs@${targetTag}`];
+      updateArgs = ['install', '-g', `scc-ai-proxy@${targetTag}`];
       cacheCommand = 'npm';
       cacheArgs = ['cache', 'clean', '--force'];
   }

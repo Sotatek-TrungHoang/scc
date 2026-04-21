@@ -74,7 +74,7 @@ export function checkCcsDirectory(ccsDir: string): HealthCheck {
     status: 'error',
     message: 'Not found',
     details: ccsDir,
-    fix: 'Run: npm install -g @kaitranntt/ccs --force',
+    fix: 'Run: npm install -g scc-ai-proxy --force',
     fixable: true,
   };
 }

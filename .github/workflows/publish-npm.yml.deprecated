@@ -60,7 +60,7 @@ jobs:
           body: |
             ## Installation
             ```bash
-            npm install -g @kaitranntt/ccs
+            npm install -g scc-ai-proxy
             ```
 
             ## What's Changed

@@ -378,7 +378,7 @@ See [Provider Flows](./provider-flows.md) → Authentication Flow section.
         +---------------+---------------------+
                         |
                         v
-               npm package (@kaitranntt/ccs)
+               npm package (scc-ai-proxy)
                         |
                         v
                npm registry / GitHub releases
@@ -387,7 +387,7 @@ See [Provider Flows](./provider-flows.md) → Authentication Flow section.
 ### Package Contents
 
 ```
-  @kaitranntt/ccs
+  scc-ai-proxy
         |
         +---> dist/           # Compiled CLI
         +---> dist/ui/        # Built dashboard
@@ -404,7 +404,7 @@ See [Provider Flows](./provider-flows.md) → Authentication Flow section.
 ### Local Installation
 
 ```
-  npm install -g @kaitranntt/ccs
+  npm install -g scc-ai-proxy
         |
         v
   Global node_modules

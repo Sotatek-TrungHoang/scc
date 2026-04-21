@@ -26,7 +26,7 @@ export interface InstalledPackageState {
   scriptMtimeMs: number | null;
 }
 
-const CCS_PACKAGE_NAME = '@kaitranntt/ccs';
+const CCS_PACKAGE_NAME = 'scc-ai-proxy';
 
 function resolveScriptPath(scriptPath: string): string {
   // Keep Windows-style absolute test fixtures stable on non-Windows hosts, but
@@ -81,8 +81,8 @@ function inferInstallFromPath(
   const normalizedPath = targetPath.split(path.sep).join('/');
 
   if (
-    normalizedPath.includes(`/install/global/node_modules/@kaitranntt/ccs`) ||
-    normalizedPath.includes(`/.bun/install/global/node_modules/@kaitranntt/ccs`)
+    normalizedPath.includes(`/install/global/node_modules/scc-ai-proxy`) ||
+    normalizedPath.includes(`/.bun/install/global/node_modules/scc-ai-proxy`)
   ) {
     return {
       manager: 'bun',
@@ -93,7 +93,7 @@ function inferInstallFromPath(
     };
   }
 
-  if (normalizedPath.includes(`/global/node_modules/@kaitranntt/ccs`)) {
+  if (normalizedPath.includes(`/global/node_modules/scc-ai-proxy`)) {
     return {
       manager: 'yarn',
       prefix: getPrefixBeforeMarker(targetPath, `${path.sep}global${path.sep}node_modules`),
@@ -103,7 +103,7 @@ function inferInstallFromPath(
   if (
     normalizedPath.includes('/global/') &&
     normalizedPath.includes('/.pnpm/') &&
-    normalizedPath.includes('/node_modules/@kaitranntt/ccs')
+    normalizedPath.includes('/node_modules/scc-ai-proxy')
   ) {
     const pnpmVirtualStoreMatch = targetPath.match(
       new RegExp(
@@ -123,9 +123,9 @@ function inferInstallFromPath(
 
   if (
     normalizedPath.includes('/global/') &&
-    normalizedPath.includes('/node_modules/@kaitranntt/ccs')
+    normalizedPath.includes('/node_modules/scc-ai-proxy')
   ) {
-    const pnpmFlatMatch = normalizedPath.match(/\/global\/([^/]+)\/node_modules\/@kaitranntt\/ccs/);
+    const pnpmFlatMatch = normalizedPath.match(/\/global\/([^/]+)\/node_modules\/scc-ai-proxy/);
 
     if (!pnpmFlatMatch || pnpmFlatMatch[1] === 'lib') {
       return null;
@@ -137,17 +137,14 @@ function inferInstallFromPath(
     };
   }
 
-  if (
-    normalizedPath.includes('/.pnpm/') &&
-    normalizedPath.includes('/node_modules/@kaitranntt/ccs')
-  ) {
+  if (normalizedPath.includes('/.pnpm/') && normalizedPath.includes('/node_modules/scc-ai-proxy')) {
     return {
       manager: 'pnpm',
       prefix: null,
     };
   }
 
-  if (normalizedPath.includes('/lib/node_modules/@kaitranntt/ccs')) {
+  if (normalizedPath.includes('/lib/node_modules/scc-ai-proxy')) {
     return {
       manager: 'npm',
       prefix: getPrefixBeforeMarker(targetPath, `${path.sep}lib${path.sep}node_modules`),
@@ -155,9 +152,9 @@ function inferInstallFromPath(
   }
 
   if (
-    normalizedPath.includes('/node_modules/@kaitranntt/ccs') &&
-    !normalizedPath.includes('/global/node_modules/@kaitranntt/ccs') &&
-    !normalizedPath.includes('/install/global/node_modules/@kaitranntt/ccs') &&
+    normalizedPath.includes('/node_modules/scc-ai-proxy') &&
+    !normalizedPath.includes('/global/node_modules/scc-ai-proxy') &&
+    !normalizedPath.includes('/install/global/node_modules/scc-ai-proxy') &&
     !normalizedPath.includes('/.pnpm/')
   ) {
     return {
@@ -321,10 +318,10 @@ export function formatManualUpdateCommand(
   platform: NodeJS.Platform = process.platform
 ): string {
   const command = {
-    npm: `npm install -g @kaitranntt/ccs@${targetTag}`,
-    yarn: `yarn global add @kaitranntt/ccs@${targetTag}`,
-    pnpm: `pnpm add -g @kaitranntt/ccs@${targetTag}`,
-    bun: `bun add -g @kaitranntt/ccs@${targetTag}`,
+    npm: `npm install -g scc-ai-proxy@${targetTag}`,
+    yarn: `yarn global add scc-ai-proxy@${targetTag}`,
+    pnpm: `pnpm add -g scc-ai-proxy@${targetTag}`,
+    bun: `bun add -g scc-ai-proxy@${targetTag}`,
   }[install.manager];
 
   if (!install.prefix) {

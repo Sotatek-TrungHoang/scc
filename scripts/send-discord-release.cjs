@@ -183,7 +183,7 @@ function createEmbed(release) {
     color,
     timestamp: new Date().toISOString(),
     footer: {
-      text: isDev ? 'npm i @kaitranntt/ccs@dev' : 'npm i @kaitranntt/ccs@latest',
+      text: isDev ? 'npm i scc-ai-proxy@dev' : 'npm i scc-ai-proxy@latest',
     },
     fields,
   };

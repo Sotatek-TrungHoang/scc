@@ -26,8 +26,8 @@ function installDescriptor() {
   return {
     manager: 'npm' as const,
     scriptPath: '/tmp/ccs-prefix/bin/ccs',
-    resolvedScriptPath: '/tmp/ccs-prefix/lib/node_modules/@kaitranntt/ccs/dist/ccs.js',
-    packageRoot: '/tmp/ccs-prefix/lib/node_modules/@kaitranntt/ccs',
+    resolvedScriptPath: '/tmp/ccs-prefix/lib/node_modules/scc-ai-proxy/dist/ccs.js',
+    packageRoot: '/tmp/ccs-prefix/lib/node_modules/scc-ai-proxy',
     prefix: '/tmp/ccs-prefix',
     detectionSource: 'path' as const,
   };
@@ -65,18 +65,18 @@ function createDeps(overrides: Partial<UpdateCommandDeps> = {}): UpdateCommandDe
     },
     formatManualUpdateCommand: () => {
       if (currentInstallOverride.manager === 'npm') {
-        return 'NPM_CONFIG_PREFIX=/tmp/ccs-prefix npm install -g @kaitranntt/ccs@dev';
+        return 'NPM_CONFIG_PREFIX=/tmp/ccs-prefix npm install -g scc-ai-proxy@dev';
       }
 
       if (currentInstallOverride.manager === 'bun') {
-        return 'BUN_INSTALL=/tmp/bun-prefix bun add -g @kaitranntt/ccs@dev';
+        return 'BUN_INSTALL=/tmp/bun-prefix bun add -g scc-ai-proxy@dev';
       }
 
       if (currentInstallOverride.manager === 'yarn') {
-        return 'YARN_GLOBAL_FOLDER=/tmp/yarn-prefix yarn global add @kaitranntt/ccs@dev';
+        return 'YARN_GLOBAL_FOLDER=/tmp/yarn-prefix yarn global add scc-ai-proxy@dev';
       }
 
-      return 'PNPM_HOME=/tmp/pnpm-prefix pnpm add -g @kaitranntt/ccs@dev';
+      return 'PNPM_HOME=/tmp/pnpm-prefix pnpm add -g scc-ai-proxy@dev';
     },
     readInstalledPackageState: () => {
       stateReads += 1;
@@ -131,7 +131,7 @@ describe('update-command current install handling', () => {
     const installCall = spawnCalls.find((call) => call.args.includes('install'));
 
     expect(installCall?.command).toBe('npm');
-    expect(installCall?.args).toEqual(['install', '-g', '@kaitranntt/ccs@dev']);
+    expect(installCall?.args).toEqual(['install', '-g', 'scc-ai-proxy@dev']);
     expect(installCall?.env?.npm_config_prefix).toBe('/tmp/ccs-prefix');
     expect(exitCodes).toContain(0);
   });
@@ -147,7 +147,7 @@ describe('update-command current install handling', () => {
 
     expect(logLines.join('\n')).toContain('outside the current installation');
     expect(logLines.join('\n')).toContain(
-      'NPM_CONFIG_PREFIX=/tmp/ccs-prefix npm install -g @kaitranntt/ccs@dev'
+      'NPM_CONFIG_PREFIX=/tmp/ccs-prefix npm install -g scc-ai-proxy@dev'
     );
     expect(exitCodes).toContain(1);
   });
@@ -255,7 +255,7 @@ describe('update-command current install handling', () => {
 
       const updateCall = spawnCalls.find(
         (call) =>
-          call.command === manager && call.args.some((arg) => arg.includes('@kaitranntt/ccs@dev'))
+          call.command === manager && call.args.some((arg) => arg.includes('scc-ai-proxy@dev'))
       );
 
       expect(updateCall?.args).toContain(expectedArg);

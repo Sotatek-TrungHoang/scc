@@ -247,7 +247,7 @@ describe.skip('Update Command Beta Channel Implementation (Phase 3)', function (
 
       // Should show manual command with dev tag
       const manualCommand = consoleOutput.find(output =>
-        output[0] && output[0].includes('npm install -g @kaitranntt/ccs@dev')
+        output[0] && output[0].includes('npm install -g scc-ai-proxy@dev')
       );
       assert(manualCommand, 'should show manual npm install command with dev tag');
     });
@@ -273,17 +273,17 @@ describe.skip('Update Command Beta Channel Implementation (Phase 3)', function (
 
       // Should show manual command with latest tag
       const manualCommand = consoleOutput.find(output =>
-        output[0] && output[0].includes('npm install -g @kaitranntt/ccs@latest')
+        output[0] && output[0].includes('npm install -g scc-ai-proxy@latest')
       );
       assert(manualCommand, 'should show manual npm install command with latest tag');
     });
 
     it('should show correct manual commands for different package managers with dev tag', function () {
       const packageManagers = [
-        { name: 'npm', command: 'npm install -g @kaitranntt/ccs@dev' },
-        { name: 'yarn', command: 'yarn global add @kaitranntt/ccs@dev' },
-        { name: 'pnpm', command: 'pnpm add -g @kaitranntt/ccs@dev' },
-        { name: 'bun', command: 'bun add -g @kaitranntt/ccs@dev' }
+        { name: 'npm', command: 'npm install -g scc-ai-proxy@dev' },
+        { name: 'yarn', command: 'yarn global add scc-ai-proxy@dev' },
+        { name: 'pnpm', command: 'pnpm add -g scc-ai-proxy@dev' },
+        { name: 'bun', command: 'bun add -g scc-ai-proxy@dev' }
       ];
 
       packageManagers.forEach(({ name, command }) => {

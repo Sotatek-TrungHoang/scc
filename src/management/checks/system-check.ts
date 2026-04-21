@@ -120,7 +120,7 @@ export class CcsDirectoryChecker implements IHealthChecker {
         'SCC Directory',
         'error',
         'Config directory not found',
-        'Run: npm install -g @kaitranntt/ccs --force',
+        'Run: npm install -g scc-ai-proxy --force',
         { status: 'ERROR', info: 'Not found' }
       );
     }

@@ -21,7 +21,7 @@ function writePackage(root: string, version: string): void {
   mkdirSync(root, { recursive: true });
   writeFileSync(
     join(root, 'package.json'),
-    JSON.stringify({ name: '@kaitranntt/ccs', version }, null, 2)
+    JSON.stringify({ name: 'scc-ai-proxy', version }, null, 2)
   );
 }
 
@@ -37,7 +37,7 @@ afterEach(() => {
 describe('package-manager-detector', () => {
   it('detects npm installs from the current binary path and keeps the custom prefix', () => {
     const tempRoot = makeTempDir('ccs-install-detector-npm-');
-    const packageRoot = join(tempRoot, 'prefix', 'lib', 'node_modules', '@kaitranntt', 'ccs');
+    const packageRoot = join(tempRoot, 'prefix', 'lib', 'node_modules', 'scc-ai-proxy');
     const scriptPath = join(packageRoot, 'dist', 'ccs.js');
 
     writePackage(packageRoot, '7.67.0-dev.5');
@@ -58,8 +58,7 @@ describe('package-manager-detector', () => {
       'install',
       'global',
       'node_modules',
-      '@kaitranntt',
-      'ccs'
+      'scc-ai-proxy'
     );
     const scriptPath = join(packageRoot, 'dist', 'ccs.js');
 
@@ -82,8 +81,7 @@ describe('package-manager-detector', () => {
         'install',
         'global',
         'node_modules',
-        '@kaitranntt',
-        'ccs'
+        'scc-ai-proxy'
       );
       const scriptPath = join(packageRoot, 'dist', 'ccs.js');
       const symlinkPath = join(tempRoot, 'home', '.bun', 'bin', 'ccs');
@@ -113,8 +111,7 @@ describe('package-manager-detector', () => {
       'install',
       'global',
       'node_modules',
-      '@kaitranntt',
-      'ccs'
+      'scc-ai-proxy'
     );
 
     writePackage(packageRoot, '7.67.0-dev.9');
@@ -132,8 +129,7 @@ describe('package-manager-detector', () => {
       'custom-yarn-root',
       'global',
       'node_modules',
-      '@kaitranntt',
-      'ccs'
+      'scc-ai-proxy'
     );
 
     writePackage(packageRoot, '7.67.0-dev.9');
@@ -152,10 +148,9 @@ describe('package-manager-detector', () => {
       'global',
       '5',
       '.pnpm',
-      '@kaitranntt+ccs@7.67.0-dev.9',
+      'scc-ai-proxy@7.67.0-dev.9',
       'node_modules',
-      '@kaitranntt',
-      'ccs'
+      'scc-ai-proxy'
     );
 
     writePackage(packageRoot, '7.67.0-dev.9');
@@ -174,8 +169,7 @@ describe('package-manager-detector', () => {
       'global',
       '5',
       'node_modules',
-      '@kaitranntt',
-      'ccs'
+      'scc-ai-proxy'
     );
 
     writePackage(packageRoot, '7.67.0-dev.9');
@@ -188,7 +182,7 @@ describe('package-manager-detector', () => {
 
   it('detects Windows npm globals without a lib directory', () => {
     const install = detectCurrentInstall(
-      'C:/Program Files/node-prefix/node_modules/@kaitranntt/ccs/dist/ccs.js'
+      'C:/Program Files/node-prefix/node_modules/scc-ai-proxy/dist/ccs.js'
     );
 
     expect(install.manager).toBe('npm');
@@ -199,14 +193,14 @@ describe('package-manager-detector', () => {
     const install = {
       manager: 'npm' as const,
       scriptPath: '/tmp/prefix/bin/ccs',
-      resolvedScriptPath: '/tmp/prefix/lib/node_modules/@kaitranntt/ccs/dist/ccs.js',
-      packageRoot: '/tmp/prefix/lib/node_modules/@kaitranntt/ccs',
+      resolvedScriptPath: '/tmp/prefix/lib/node_modules/scc-ai-proxy/dist/ccs.js',
+      packageRoot: '/tmp/prefix/lib/node_modules/scc-ai-proxy',
       prefix: '/tmp/prefix',
       detectionSource: 'path' as const,
     };
 
     expect(formatManualUpdateCommand('dev', install)).toBe(
-      'NPM_CONFIG_PREFIX=/tmp/prefix npm install -g @kaitranntt/ccs@dev'
+      'NPM_CONFIG_PREFIX=/tmp/prefix npm install -g scc-ai-proxy@dev'
     );
   });
 
@@ -214,14 +208,14 @@ describe('package-manager-detector', () => {
     const install = {
       manager: 'npm' as const,
       scriptPath: 'C:/Tools/CCS/ccs.cmd',
-      resolvedScriptPath: 'C:/Program Files/CCS/lib/node_modules/@kaitranntt/ccs/dist/ccs.js',
-      packageRoot: 'C:/Program Files/CCS/lib/node_modules/@kaitranntt/ccs',
+      resolvedScriptPath: 'C:/Program Files/CCS/lib/node_modules/scc-ai-proxy/dist/ccs.js',
+      packageRoot: 'C:/Program Files/CCS/lib/node_modules/scc-ai-proxy',
       prefix: 'C:/Program Files/CCS',
       detectionSource: 'path' as const,
     };
 
     expect(formatManualUpdateCommand('dev', install, 'win32')).toBe(
-      `powershell -NoProfile -Command "$env:NPM_CONFIG_PREFIX='C:/Program Files/CCS'; npm install -g @kaitranntt/ccs@dev"`
+      `powershell -NoProfile -Command "$env:NPM_CONFIG_PREFIX='C:/Program Files/CCS'; npm install -g scc-ai-proxy@dev"`
     );
   });
 
@@ -229,8 +223,8 @@ describe('package-manager-detector', () => {
     const install = {
       manager: 'npm' as const,
       scriptPath: '/tmp/prefix/bin/ccs',
-      resolvedScriptPath: '/tmp/prefix/lib/node_modules/@kaitranntt/ccs/dist/ccs.js',
-      packageRoot: '/tmp/prefix/lib/node_modules/@kaitranntt/ccs',
+      resolvedScriptPath: '/tmp/prefix/lib/node_modules/scc-ai-proxy/dist/ccs.js',
+      packageRoot: '/tmp/prefix/lib/node_modules/scc-ai-proxy',
       prefix: '/tmp/prefix',
       detectionSource: 'path' as const,
     };

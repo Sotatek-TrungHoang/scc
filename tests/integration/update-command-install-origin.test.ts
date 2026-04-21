@@ -19,7 +19,7 @@ function writePackage(root: string, version: string): void {
   mkdirSync(root, { recursive: true });
   writeFileSync(
     join(root, 'package.json'),
-    JSON.stringify({ name: '@kaitranntt/ccs', version }, null, 2)
+    JSON.stringify({ name: 'scc-ai-proxy', version }, null, 2)
   );
 }
 
@@ -40,15 +40,14 @@ async function loadHandleUpdateCommand() {
 beforeEach(() => {
   tempRoot = mkdtempSync(join(tmpdir(), 'ccs-update-origin-'));
   currentPrefix = join(tempRoot, 'prefix');
-  currentPackageRoot = join(currentPrefix, 'lib', 'node_modules', '@kaitranntt', 'ccs');
+  currentPackageRoot = join(currentPrefix, 'lib', 'node_modules', 'scc-ai-proxy');
   bunPackageRoot = join(
     tempRoot,
     '.bun',
     'install',
     'global',
     'node_modules',
-    '@kaitranntt',
-    'ccs'
+    'scc-ai-proxy'
   );
   fakeBinDir = join(tempRoot, 'bin');
 
@@ -103,7 +102,7 @@ describe('update-command install origin integration', () => {
       `#!/bin/sh
 if [ "$npm_config_prefix" = "${currentPrefix}" ] || [ "$NPM_CONFIG_PREFIX" = "${currentPrefix}" ]; then
   cat > "${join(currentPackageRoot, 'package.json')}" <<'EOF'
-{"name":"@kaitranntt/ccs","version":"7.67.0-dev.9"}
+{"name":"scc-ai-proxy","version":"7.67.0-dev.9"}
 EOF
   exit 0
 fi
@@ -115,7 +114,7 @@ exit 13
       join(fakeBinDir, 'bun'),
       `#!/bin/sh
 cat > "${join(bunPackageRoot, 'package.json')}" <<'EOF'
-{"name":"@kaitranntt/ccs","version":"7.67.0-dev.9"}
+{"name":"scc-ai-proxy","version":"7.67.0-dev.9"}
 EOF
 exit 0
 `
@@ -155,7 +154,7 @@ exit 0
       join(fakeBinDir, 'bun'),
       `#!/bin/sh
 cat > "${join(bunPackageRoot, 'package.json')}" <<'EOF'
-{"name":"@kaitranntt/ccs","version":"7.67.0-dev.9"}
+{"name":"scc-ai-proxy","version":"7.67.0-dev.9"}
 EOF
 exit 0
 `
