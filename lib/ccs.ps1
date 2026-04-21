@@ -8,7 +8,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$PACKAGE = "@kaitranntt/ccs"
+$PACKAGE = "scc-ai-proxy"
 $MIN_NODE_VERSION = 14
 
 # Check Node.js installed

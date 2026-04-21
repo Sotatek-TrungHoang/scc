@@ -31,13 +31,7 @@
     "sccd": "dist/bin/droid-runtime.js",
     "scc-codex": "dist/bin/codex-runtime.js",
     "sccx": "dist/bin/codex-runtime.js",
-    "sccxp": "dist/bin/ccsxp-runtime.js",
-    "ccs": "dist/ccs.js",
-    "ccs-droid": "dist/bin/droid-runtime.js",
-    "ccsd": "dist/bin/droid-runtime.js",
-    "ccs-codex": "dist/bin/codex-runtime.js",
-    "ccsx": "dist/bin/codex-runtime.js",
-    "ccsxp": "dist/bin/ccsxp-runtime.js"
+    "sccxp": "dist/bin/ccsxp-runtime.js"
   },
   "files": [
     "dist/",
