@@ -704,7 +704,7 @@ export function buildOfficialChannelsLaunchPreview(input: {
   if (plan.skippedMessages.length > 0) {
     return {
       state: 'partial',
-      title: `CCS will auto-add ${appliedLabels.join(', ')}`,
+      title: `SCC will auto-add ${appliedLabels.join(', ')}`,
       detail:
         'Some selected channels are still skipped. Review the notes below before relying on the rest.',
       command: 'scc',

@@ -72,7 +72,7 @@ describe('docker executor', () => {
     expect(calls).toHaveLength(3);
     expect(calls[0]).toEqual({
       command: 'ssh',
-      args: ['docker', 'mkdir -p ~/.ccs/docker'],
+      args: ['docker', 'mkdir -p ~/.scc/docker'],
       options: { remote: true, timeoutMs: 30_000 },
     });
     expect(calls[1].command).toBe('scp');
@@ -81,7 +81,7 @@ describe('docker executor', () => {
       fakeAssets.dockerfile,
       fakeAssets.supervisordConfig,
       fakeAssets.entrypoint,
-      'docker:~/.ccs/docker/',
+      'docker:~/.scc/docker/',
     ]);
     expect(calls[1].options).toEqual({ remote: true, timeoutMs: 30_000 });
     expect(calls[2].command).toBe('ssh');

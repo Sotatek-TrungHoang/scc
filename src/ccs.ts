@@ -1452,7 +1452,7 @@ async function main(): Promise<void> {
           args: launchArgs,
           profile: profileInfo.name,
           profileType: profileInfo.type,
-          settingsPath: effectiveSettingsPath,
+          settingsPath: expandedSettingsPath,
         });
 
         execClaude(claudeCli, launchArgs, { ...proxyEnv, ...traceEnv });
@@ -1468,7 +1468,7 @@ async function main(): Promise<void> {
         args: launchArgs,
         profile: profileInfo.name,
         profileType: profileInfo.type,
-        settingsPath: effectiveSettingsPath,
+        settingsPath: expandedSettingsPath,
       });
 
       execClaude(claudeCli, launchArgs, { ...envVars, ...traceEnv });

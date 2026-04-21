@@ -24,9 +24,9 @@ describe('help command parity', () => {
     const visibleLines = rendered.split('\n').filter((line) => line.trim().length > 0);
 
     expect(visibleLines.length).toBeLessThanOrEqual(90);
-    expect(rendered.includes('ccs help <topic>')).toBe(true);
-    expect(rendered.includes('ccs help browser')).toBe(true);
-    expect(rendered.includes('ccs help completion')).toBe(true);
+    expect(rendered.includes('scc help <topic>')).toBe(true);
+    expect(rendered.includes('scc help browser')).toBe(true);
+    expect(rendered.includes('scc help completion')).toBe(true);
   });
 
   test('root help covers every public root command once the catalog is updated', async () => {
@@ -47,7 +47,7 @@ describe('help command parity', () => {
 
     expect(rendered.includes('Built-in OAuth Providers')).toBe(true);
     expect(rendered.includes('scc cliproxy --help')).toBe(true);
-    expect(rendered.includes('ccs help kiro')).toBe(true);
+    expect(rendered.includes('scc help kiro')).toBe(true);
     expect(rendered.includes('gemini')).toBe(true);
     expect(rendered.includes('codex')).toBe(true);
     expect(rendered.includes('ghcp')).toBe(true);
@@ -62,7 +62,7 @@ describe('help command parity', () => {
   test('kiro topic documents IDC and callback flags', async () => {
     const rendered = await renderLines((writeLine) => handleHelpRoute(['kiro'], writeLine));
 
-    expect(rendered.includes('CCS Kiro Help')).toBe(true);
+    expect(rendered.includes('SCC Kiro Help')).toBe(true);
     expect(rendered.includes('--kiro-idc-start-url <url>')).toBe(true);
     expect(rendered.includes('--kiro-idc-region <region>')).toBe(true);
     expect(rendered.includes('--kiro-idc-flow <authcode|device>')).toBe(true);

@@ -40,10 +40,10 @@ describe('Config Directory Override', function () {
       assert.strictEqual(getCcsDir(), expected);
     });
 
-    it('should use CCS_HOME with \.scc appended (legacy behavior)', function () {
+    it('should use CCS_HOME with \.ccs appended (legacy behavior)', function () {
       process.env.CCS_HOME = '/tmp/test-home';
       const { getCcsDir } = require('../../dist/utils/config-manager');
-      assert.strictEqual(getCcsDir(), '/tmp/test-home/\.scc');
+      assert.strictEqual(getCcsDir(), '/tmp/test-home/\.ccs');
     });
 
     it('should use CCS_DIR directly (no \.scc append)', function () {

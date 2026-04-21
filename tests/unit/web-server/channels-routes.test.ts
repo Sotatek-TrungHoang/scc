@@ -170,7 +170,7 @@ describe('web-server channels-routes', () => {
       expect(payload.status?.launchPreview).toEqual(
         expect.objectContaining({
           state: 'ready',
-          title: 'CCS will auto-add Discord',
+          title: 'SCC will auto-add Discord',
           appendedArgs: ['--channels', 'plugin:discord@claude-plugins-official'],
         })
       );

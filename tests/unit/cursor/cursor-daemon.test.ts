@@ -433,7 +433,7 @@ describe('renderCursorStatus', () => {
     }
   });
 
-  it('falls back to ~/.ccs in status output when no CCS override is active', () => {
+  it('falls back to ~/.scc in status output when no CCS override is active', () => {
     const originalLog = console.log;
     const originalCcsHomeValue = process.env.CCS_HOME;
     const logs: string[] = [];
@@ -460,7 +460,7 @@ describe('renderCursorStatus', () => {
         { running: true, port: 20129, pid: 1234 }
       );
 
-      expect(logs.some((line) => line.includes('Raw settings:    ~/.ccs/cursor.settings.json'))).toBe(
+      expect(logs.some((line) => line.includes('Raw settings:    ~/.scc/cursor.settings.json'))).toBe(
         true
       );
     } finally {
