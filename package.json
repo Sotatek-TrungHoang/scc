@@ -1,7 +1,7 @@
 {
-  "name": "@kaitranntt/ccs",
-  "version": "7.73.0",
-  "description": "Claude Code Switch - Instant profile switching between Claude, GLM, Kimi, and more",
+  "name": "@sotadev/scc",
+  "version": "7.74.0",
+  "description": "Switch Claude Code - Instant profile switching between Claude, GLM, Kimi, and more",
   "keywords": [
     "cli",
     "claude",
@@ -10,19 +10,16 @@
     "profile",
     "switch"
   ],
-  "homepage": "https://github.com/kaitranntt/ccs",
+  "homepage": "https://github.com/Sotatek-TrungHoang/scc",
   "bugs": {
-    "url": "https://github.com/kaitranntt/ccs/issues"
+    "url": "https://github.com/Sotatek-TrungHoang/scc/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kaitranntt/ccs.git"
+    "url": "git+https://github.com/Sotatek-TrungHoang/scc.git"
   },
   "license": "MIT",
-  "author": {
-    "name": "Tam Nhu Tran (Kai)",
-    "email": "kaitranntt@users.noreply.github.com"
-  },
+  "author": "EOD <eod@users.noreply.github.com> (EOD)",
   "main": "dist/ccs.js",
   "types": "dist/ccs.d.ts",
   "bin": {
@@ -152,5 +149,10 @@
     "semantic-release": "^25.0.2",
     "typescript": "5.3",
     "vite": "^7.2.4"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "lib",
+    "test": "tests"
   }
 }
