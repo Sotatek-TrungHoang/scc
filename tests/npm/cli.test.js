@@ -112,7 +112,7 @@ describe('npm CLI', () => {
         env: { ...process.env, CCS_HOME: testCcsHome }
       });
 
-      assert(output.includes('CCS gitlab Shortcut Help'), 'Should render provider shortcut help');
+      assert(output.includes('SCC gitlab Shortcut Help'), 'Should render provider shortcut help');
       assert(output.includes('--gitlab-token-login'), 'Should document canonical GitLab PAT flag');
       assert(output.includes('--token-login'), 'Should document legacy GitLab PAT alias');
       assert(output.includes('--gitlab-url <url>'), 'Should document self-hosted GitLab URL flag');

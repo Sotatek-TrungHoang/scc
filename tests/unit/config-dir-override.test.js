@@ -34,19 +34,19 @@ describe('Config Directory Override', function () {
   });
 
   describe('getCcsDir() precedence', function () {
-    it('should return ~/.ccs by default', function () {
+    it('should return ~/\.scc by default', function () {
       const { getCcsDir } = require('../../dist/utils/config-manager');
-      const expected = path.join(os.homedir(), '.ccs');
+      const expected = path.join(os.homedir(), '\.scc');
       assert.strictEqual(getCcsDir(), expected);
     });
 
-    it('should use CCS_HOME with .ccs appended (legacy behavior)', function () {
+    it('should use CCS_HOME with \.scc appended (legacy behavior)', function () {
       process.env.CCS_HOME = '/tmp/test-home';
       const { getCcsDir } = require('../../dist/utils/config-manager');
-      assert.strictEqual(getCcsDir(), '/tmp/test-home/.ccs');
+      assert.strictEqual(getCcsDir(), '/tmp/test-home/\.scc');
     });
 
-    it('should use CCS_DIR directly (no .ccs append)', function () {
+    it('should use CCS_DIR directly (no \.scc append)', function () {
       process.env.CCS_DIR = '/tmp/my-ccs-config';
       const { getCcsDir } = require('../../dist/utils/config-manager');
       assert.strictEqual(getCcsDir(), path.resolve('/tmp/my-ccs-config'));
@@ -78,7 +78,7 @@ describe('Config Directory Override', function () {
       setGlobalConfigDir('/tmp/override');
       assert.strictEqual(getCcsDir(), path.resolve('/tmp/override'));
       setGlobalConfigDir(undefined);
-      const expected = path.join(os.homedir(), '.ccs');
+      const expected = path.join(os.homedir(), '\.scc');
       assert.strictEqual(getCcsDir(), expected);
     });
   });
@@ -146,17 +146,17 @@ describe('Config Directory Override', function () {
 
     it('should return null for regular paths', function () {
       const { detectCloudSyncPath } = require('../../dist/utils/config-manager');
-      assert.strictEqual(detectCloudSyncPath('/home/kai/.ccs'), null);
+      assert.strictEqual(detectCloudSyncPath('/home/kai/\.scc'), null);
     });
 
-    it('should return null for default ~/.ccs path', function () {
+    it('should return null for default ~/\.scc path', function () {
       const { detectCloudSyncPath } = require('../../dist/utils/config-manager');
-      assert.strictEqual(detectCloudSyncPath(path.join(os.homedir(), '.ccs')), null);
+      assert.strictEqual(detectCloudSyncPath(path.join(os.homedir(), '\.scc')), null);
     });
 
     it('should not false-positive on substrings (e.g., megauser, Dropbox-api)', function () {
       const { detectCloudSyncPath } = require('../../dist/utils/config-manager');
-      assert.strictEqual(detectCloudSyncPath('/home/megauser/.ccs'), null);
+      assert.strictEqual(detectCloudSyncPath('/home/megauser/\.scc'), null);
       assert.strictEqual(detectCloudSyncPath('/home/kai/Dropbox-api-client/ccs'), null);
     });
   });
