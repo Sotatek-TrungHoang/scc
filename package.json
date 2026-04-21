@@ -1,5 +1,5 @@
 {
-  "name": "@sotadev/scc",
+  "name": "scc-ai-proxy",
   "publishConfig": {
     "access": "public"
   },
