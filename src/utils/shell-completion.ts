@@ -98,7 +98,7 @@ export class ShellCompletionInstaller {
     const completionPath = path.join(this.completionDir, 'ccs.bash');
 
     if (!fs.existsSync(completionPath)) {
-      throw new Error('Completion file not found. Please reinstall CCS.');
+      throw new Error('Completion file not found. Please reinstall SCC.');
     }
 
     const marker = '# SCC shell completion';
@@ -140,7 +140,7 @@ export class ShellCompletionInstaller {
     const zshCompDir = path.join(this.homeDir, '.zsh', 'completion');
 
     if (!fs.existsSync(completionPath)) {
-      throw new Error('Completion file not found. Please reinstall CCS.');
+      throw new Error('Completion file not found. Please reinstall SCC.');
     }
 
     // Create zsh completion directory (with file conflict checking)
@@ -188,7 +188,7 @@ export class ShellCompletionInstaller {
     const fishCompDir = path.join(this.homeDir, '.config', 'fish', 'completions');
 
     if (!fs.existsSync(completionPath)) {
-      throw new Error('Completion file not found. Please reinstall CCS.');
+      throw new Error('Completion file not found. Please reinstall SCC.');
     }
 
     // Create fish completion directory (with file conflict checking)
@@ -221,7 +221,7 @@ export class ShellCompletionInstaller {
     const completionPath = path.join(this.completionDir, 'ccs.ps1');
 
     if (!fs.existsSync(completionPath)) {
-      throw new Error('Completion file not found. Please reinstall CCS.');
+      throw new Error('Completion file not found. Please reinstall SCC.');
     }
 
     const marker = '# SCC shell completion';

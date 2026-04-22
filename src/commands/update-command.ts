@@ -274,7 +274,7 @@ async function verifyCurrentInstallVersion(
       if (previousState?.version && previousState.version === installedVersion) {
         deps.log(
           warn(
-            `The current install path did not change from ${previousState.version}; another package manager likely updated a different copy of CCS.`
+            `The current install path did not change from ${previousState.version}; another package manager likely updated a different copy of SCC.`
           )
         );
       }

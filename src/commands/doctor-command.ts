@@ -1,7 +1,7 @@
 /**
  * Doctor Command Handler
  *
- * Handle doctor command for CCS.
+ * Handle doctor command for SCC.
  */
 
 import { initUI, header, dim, color, subheader } from '../utils/ui';

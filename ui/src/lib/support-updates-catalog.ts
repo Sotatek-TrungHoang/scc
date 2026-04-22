@@ -251,8 +251,8 @@ const BASE_CLI_SUPPORT_ENTRIES: CliSupportEntry[] = [
       'First-class runtime target for native Codex sessions and Codex-routed CLIProxy flows.',
     pillars: {
       baseUrl:
-        'Native ~/.codex config for default mode, transient -c overrides for CCS-backed routes',
-      auth: 'Native Codex auth for default mode, env_key injection for CCS-backed routes',
+        'Native ~/.codex config for default mode, transient -c overrides for SCC-backed routes',
+      auth: 'Native Codex auth for default mode, env_key injection for SCC-backed routes',
       model: 'Native Codex config or routed Codex model mapping from CLIProxy',
     },
     routes: [{ label: 'Codex CLI', path: '/codex' }],

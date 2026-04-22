@@ -173,7 +173,7 @@ function getFamilyGuide(family: AiProviderFamilyState): FamilyGuide {
           'Model mappings and headers are optional, not step one.',
         ],
         profileBoundary:
-          'Use API Profiles when you want a CCS-native Anthropic-compatible profile instead of this CLIProxy-managed Gemini route.',
+          'Use API Profiles when you want a SCC-native Anthropic-compatible profile instead of this CLIProxy-managed Gemini route.',
         editPrompts: [
           {
             label: 'Base URL',
@@ -207,7 +207,7 @@ function getFamilyGuide(family: AiProviderFamilyState): FamilyGuide {
           'Mappings are only needed when the upstream model naming does not match the requested one.',
         ],
         profileBoundary:
-          'Use API Profiles when you want a CCS-native Anthropic-compatible profile rather than this CLIProxy-managed Codex route.',
+          'Use API Profiles when you want a SCC-native Anthropic-compatible profile rather than this CLIProxy-managed Codex route.',
         editPrompts: [
           {
             label: 'Base URL',
@@ -238,7 +238,7 @@ function getFamilyGuide(family: AiProviderFamilyState): FamilyGuide {
           'Most users can start with a key only, then add mappings or filters if routing needs it.',
         ],
         profileBoundary:
-          'Use API Profiles when you want a CCS-native Anthropic-compatible profile or preset instead of this CLIProxy-managed Claude route.',
+          'Use API Profiles when you want a SCC-native Anthropic-compatible profile or preset instead of this CLIProxy-managed Claude route.',
         editPrompts: [
           {
             label: 'Base URL',
@@ -272,7 +272,7 @@ function getFamilyGuide(family: AiProviderFamilyState): FamilyGuide {
           'Mappings and headers are optional follow-up steps.',
         ],
         profileBoundary:
-          'Use API Profiles when you need a CCS-native Anthropic-compatible profile rather than this CLIProxy-managed Vertex route.',
+          'Use API Profiles when you need a SCC-native Anthropic-compatible profile rather than this CLIProxy-managed Vertex route.',
         editPrompts: [
           {
             label: 'Base URL',
@@ -306,7 +306,7 @@ function getFamilyGuide(family: AiProviderFamilyState): FamilyGuide {
           'Headers and mappings come after the connector is already working.',
         ],
         profileBoundary:
-          'Use API Profiles when you want a CCS-native Anthropic-compatible profile, preset, or provider outside the CLIProxy connector flow.',
+          'Use API Profiles when you want a SCC-native Anthropic-compatible profile, preset, or provider outside the CLIProxy connector flow.',
         editPrompts: [
           {
             label: 'Connector identity',
@@ -1345,7 +1345,7 @@ function EmptyEntryWorkspace({
               </div>
               <div className="mt-2 text-sm leading-6 text-muted-foreground">
                 Use Overview or Control Panel for OAuth sign-ins. Use API Profiles only for
-                CCS-native Anthropic-compatible profiles and presets.
+                SCC-native Anthropic-compatible profiles and presets.
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button type="button" size="sm" variant="outline" onClick={onOpenControlPanel}>
@@ -1538,7 +1538,7 @@ export function CliproxyAiProvidersPage() {
 
       <div className="mt-3 rounded-lg border bg-muted/15 p-3 text-xs leading-5 text-muted-foreground">
         Overview handles OAuth sign-ins. This page stores CLIProxy-managed keys and connectors. API
-        Profiles remains for CCS-native Anthropic-compatible profiles.
+        Profiles remains for SCC-native Anthropic-compatible profiles.
       </div>
     </div>
   );

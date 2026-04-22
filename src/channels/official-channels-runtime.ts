@@ -522,7 +522,7 @@ export function buildOfficialChannelSetupSummary(
       state: 'needs_token',
       label: 'Needs token',
       detail: `${envKey} is missing. SCC cannot auto-add ${channel.displayName} until you save it here or provide it in the current SCC process env.`,
-      nextStep: `Save ${envKey} below, or export it before launching CCS.`,
+      nextStep: `Save ${envKey} below, or export it before launching SCC.`,
     };
   }
 
@@ -633,7 +633,7 @@ export function buildOfficialChannelsReadinessSummary(input: {
           : `SCC can auto-add ${selectedLabels} on the next supported native Claude run. ${envOnlyChannels.map((channel) => channel.displayName).join(', ')} currently depends on this same SCC process env.`,
     nextStep:
       envOnlyChannels.length === 0
-        ? 'Claude-side pairing and access policy may still be required inside Claude, but CCS-side prerequisites are ready.'
+        ? 'Claude-side pairing and access policy may still be required inside Claude, but SCC-side prerequisites are ready.'
         : envOnlyChannels.length === selectedChannels.length
           ? 'Run SCC from this same env, or save the token here first if you want persistent Claude channel state.'
           : 'Save env-only tokens here if you want persistent Claude channel state across shells.',

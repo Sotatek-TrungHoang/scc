@@ -117,7 +117,7 @@ function fetchLatestVersionFromGitHub(): Promise<string | null> {
     const req = https.get(
       GITHUB_API_URL,
       {
-        headers: { 'User-Agent': 'CCS-Update-Checker' },
+        headers: { 'User-Agent': 'SCC-Update-Checker' },
         timeout: REQUEST_TIMEOUT,
       },
       (res) => {
@@ -162,7 +162,7 @@ function fetchVersionFromNpmTag(tag: 'latest' | 'dev'): Promise<string | null> {
     const req = https.get(
       url,
       {
-        headers: { 'User-Agent': 'CCS-Update-Checker' },
+        headers: { 'User-Agent': 'SCC-Update-Checker' },
         timeout: REQUEST_TIMEOUT,
       },
       (res) => {

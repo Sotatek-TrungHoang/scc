@@ -38,7 +38,7 @@ const options = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${API_KEY}`,
     'Content-Length': Buffer.byteLength(requestBody),
-    'User-Agent': 'CCS-GLMT-StreamingTest/1.0'
+    'User-Agent': 'SCC-GLMT-StreamingTest/1.0'
   }
 };
 

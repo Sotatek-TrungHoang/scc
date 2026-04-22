@@ -548,7 +548,7 @@ export class GlmtProxy {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(requestBody),
           Authorization: authHeader,
-          'User-Agent': 'CCS-GLMT-Proxy/1.0',
+          'User-Agent': 'SCC-GLMT-Proxy/1.0',
         },
       };
 
@@ -635,7 +635,7 @@ export class GlmtProxy {
           'Content-Type': 'application/json',
           'Content-Length': Buffer.byteLength(requestBody),
           Authorization: authHeader,
-          'User-Agent': 'CCS-GLMT-Proxy/1.0',
+          'User-Agent': 'SCC-GLMT-Proxy/1.0',
           Accept: 'text/event-stream',
         },
       };

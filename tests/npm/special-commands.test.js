@@ -50,7 +50,7 @@ describe('integration: special commands', () => {
 
   it('handles --uninstall command', () => {
     const output = execSync(buildCliCommand('--uninstall'), { encoding: 'utf8' });
-    assert(output.includes('Uninstalling CCS'));
+    assert(output.includes('Uninstalling SCC'));
     assert(output.includes('[OK] Uninstall complete!') || output.includes('Nothing to uninstall'));
   });
 

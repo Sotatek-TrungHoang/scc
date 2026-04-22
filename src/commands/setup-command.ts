@@ -1,7 +1,7 @@
 /**
  * Setup Command Handler
  *
- * Interactive first-time setup wizard for CCS.
+ * Interactive first-time setup wizard for SCC.
  * Guides users through initial configuration including:
  * - Local vs Remote CLIProxy mode selection
  * - Remote proxy configuration (host, port, auth token)
@@ -446,7 +446,7 @@ function showHelp(): void {
   console.log('');
   console.log('Usage: scc setup [options]');
   console.log('');
-  console.log('Interactive first-time setup wizard for CCS.');
+  console.log('Interactive first-time setup wizard for SCC.');
   console.log('');
   console.log('Options:');
   console.log('  --force, -f     Force setup even if already configured');

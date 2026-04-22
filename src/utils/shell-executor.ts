@@ -1,7 +1,7 @@
 /**
  * Shell Executor Utilities
  *
- * Cross-platform shell execution utilities for CCS.
+ * Cross-platform shell execution utilities for SCC.
  */
 
 import { spawn, spawnSync, ChildProcess, type SpawnOptions } from 'child_process';
@@ -62,7 +62,7 @@ export function stripCodexSessionEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv 
 }
 
 /**
- * Resolve CCS-managed environment overrides for Claude launch.
+ * Resolve SCC-managed environment overrides for Claude launch.
  * - preferences.auto_update: false -> DISABLE_AUTOUPDATER=1
  */
 export function getClaudeLaunchEnvOverrides(): NodeJS.ProcessEnv {
@@ -141,7 +141,7 @@ export function execClaude(
   // stale proxy config (e.g., from prior CLIProxy sessions) from interfering
   // with native Claude API routing. Settings-based profiles explicitly inject
   // their own ANTHROPIC_* values, so they don't need this protection.
-  const profileType = envVars?.CCS_PROFILE_TYPE;
+  const profileType = envVars?.SCC_PROFILE_TYPE;
   const baseEnv =
     profileType === 'account' || profileType === 'default'
       ? stripAnthropicEnv(process.env)
@@ -167,7 +167,7 @@ export function execClaude(
   // propagate key env vars to tmux session so agent team teammates
   // (spawned via tmux split-window) inherit the correct config dir
   if (process.env.TMUX && envVars) {
-    const tmuxPropagateVars = ['CLAUDE_CONFIG_DIR', 'CCS_PROFILE_TYPE', 'CCS_WEBSEARCH_SKIP'];
+    const tmuxPropagateVars = ['CLAUDE_CONFIG_DIR', 'SCC_PROFILE_TYPE', 'SCC_WEBSEARCH_SKIP'];
     for (const key of tmuxPropagateVars) {
       if (envVars[key]) {
         try {

@@ -686,7 +686,7 @@ async function showHelp(): Promise<void> {
     `  ${color('Account profiles', 'command')}  work, personal, client (persists CLAUDE_CONFIG_DIR)`
   );
   console.log(
-    `  ${color('default', 'command')}           Clears CCS-managed overrides or inherits mapped continuity`
+    `  ${color('default', 'command')}           Clears SCC-managed overrides or inherits mapped continuity`
   );
   console.log('');
   console.log(subheader('Examples'));
@@ -705,7 +705,7 @@ async function showHelp(): Promise<void> {
   console.log(`  ${dim('# Persist an account profile for IDE/native Claude use')}`);
   console.log(`  ${color('scc persist work --yes', 'command')}`);
   console.log('');
-  console.log(`  ${dim('# Reset to native Claude defaults (clear CCS-managed overrides)')}`);
+  console.log(`  ${dim('# Reset to native Claude defaults (clear SCC-managed overrides)')}`);
   console.log(`  ${color('scc persist default --yes', 'command')}`);
   console.log('');
   console.log(`  ${dim('# List all backups')}`);
@@ -804,7 +804,7 @@ export async function handlePersistCommand(args: string[]): Promise<void> {
     console.log('');
   } else {
     console.log(info('No new env vars will be added.'));
-    console.log(dim('    CCS-managed transport overrides will be removed if present.'));
+    console.log(dim('    SCC-managed transport overrides will be removed if present.'));
     console.log('');
   }
   if (resolved.clearEnvKeys.length > 0) {

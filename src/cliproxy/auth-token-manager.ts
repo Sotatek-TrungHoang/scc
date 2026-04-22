@@ -9,7 +9,7 @@
 
 import { randomBytes } from 'crypto';
 import { loadOrCreateUnifiedConfig, mutateUnifiedConfig } from '../config/unified-config-loader';
-import { CCS_INTERNAL_API_KEY, CCS_CONTROL_PANEL_SECRET } from './config-generator';
+import { SCC_INTERNAL_API_KEY, SCC_CONTROL_PANEL_SECRET } from './config-generator';
 
 /**
  * Generate a cryptographically secure token.
@@ -56,7 +56,7 @@ export function getEffectiveApiKey(variantName?: string): string {
   }
 
   // Priority 3: Default constant (backwards compatible)
-  return CCS_INTERNAL_API_KEY;
+  return SCC_INTERNAL_API_KEY;
 }
 
 /**
@@ -77,7 +77,7 @@ export function getEffectiveManagementSecret(): string {
   }
 
   // Priority 2: Default constant (backwards compatible)
-  return CCS_CONTROL_PANEL_SECRET;
+  return SCC_CONTROL_PANEL_SECRET;
 }
 
 /**
@@ -182,11 +182,11 @@ export function getAuthSummary(): {
 
   return {
     apiKey: {
-      value: customApiKey || CCS_INTERNAL_API_KEY,
+      value: customApiKey || SCC_INTERNAL_API_KEY,
       isCustom: !!customApiKey,
     },
     managementSecret: {
-      value: customSecret || CCS_CONTROL_PANEL_SECRET,
+      value: customSecret || SCC_CONTROL_PANEL_SECRET,
       isCustom: !!customSecret,
     },
   };

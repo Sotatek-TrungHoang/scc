@@ -514,7 +514,7 @@ export async function ensureTokenValid(
     return {
       valid: false,
       refreshed: false,
-      error: `CCS-managed token validation is not available for ${provider}`,
+      error: `SCC-managed token validation is not available for ${provider}`,
     };
   }
 

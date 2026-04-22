@@ -21,7 +21,7 @@ export interface ProviderRefreshResult {
   success: boolean;
   error?: string;
   expiresAt?: number;
-  /** True if refresh is delegated to CLIProxy (not handled by CCS) */
+  /** True if refresh is delegated to CLIProxy (not handled by SCC) */
   delegated?: boolean;
 }
 

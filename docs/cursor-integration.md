@@ -1,9 +1,11 @@
 # Cursor IDE Integration
 
-This guide covers the deprecated CCS-owned Cursor IDE bridge, including auth import, local daemon lifecycle, live probe checks, and dashboard controls.
+**DEPRECATION NOTICE**: This document describes the legacy CCS-owned Cursor bridge. For current SCC usage, use the CLIProxy-backed Cursor provider path via `scc cursor` commands. The legacy bridge is maintained for backward compatibility only.
 
-`ccs cursor` now belongs to the CLIProxy-backed Cursor provider path.
-Use `ccs legacy cursor` for the deprecated local bridge documented here.
+This guide covers the deprecated SCC-owned Cursor IDE bridge, including auth import, local daemon lifecycle, live probe checks, and dashboard controls.
+
+`scc cursor` now belongs to the CLIProxy-backed Cursor provider path.
+Use `scc legacy cursor` for the deprecated local bridge documented here.
 
 ## What It Provides
 
@@ -35,7 +37,7 @@ Treat this as a CCS-managed Cursor bridge, not a generic CLIProxy-backed provide
 ### 1) Enable integration
 
 ```bash
-ccs legacy cursor enable
+scc legacy cursor enable
 ```
 
 ### 2) Import credentials
@@ -43,25 +45,25 @@ ccs legacy cursor enable
 Auto-detect from Cursor local SQLite state:
 
 ```bash
-ccs legacy cursor auth
+scc legacy cursor auth
 ```
 
 Manual fallback:
 
 ```bash
-ccs legacy cursor auth --manual --token <token> --machine-id <machine-id>
+scc legacy cursor auth --manual --token <token> --machine-id <machine-id>
 ```
 
 ### 3) Start daemon
 
 ```bash
-ccs legacy cursor start
+scc legacy cursor start
 ```
 
 ### 4) Run a live probe
 
 ```bash
-ccs legacy cursor probe
+scc legacy cursor probe
 ```
 
 Use this to verify that the current build can complete one real authenticated request through the local daemon.
@@ -69,26 +71,26 @@ Use this to verify that the current build can complete one real authenticated re
 ### 5) Run Cursor-backed Claude
 
 ```bash
-ccs legacy cursor "explain this repo"
+scc legacy cursor "explain this repo"
 ```
 
 ### 6) Verify status
 
 ```bash
-ccs legacy cursor status
+scc legacy cursor status
 ```
 
-Use `ccs legacy cursor` with bare or normal Claude args to run through the local Cursor proxy.
+Use `scc legacy cursor` with bare or normal Claude args to run through the local Cursor proxy.
 The admin namespace remains available for setup and inspection:
 
 ```bash
-ccs legacy cursor help
+scc legacy cursor help
 ```
 
 ### 7) Stop daemon
 
 ```bash
-ccs legacy cursor stop
+scc legacy cursor stop
 ```
 
 ## Supported Cursor Provider Path
@@ -96,10 +98,10 @@ ccs legacy cursor stop
 For the supported CLIProxy-backed Cursor provider, use:
 
 ```bash
-ccs cursor --auth
-ccs cursor --accounts
-ccs cursor --config
-ccs cursor "task"
+scc cursor --auth
+scc cursor --accounts
+scc cursor --config
+scc cursor "task"
 ```
 
 ## Runtime Defaults
@@ -119,7 +121,7 @@ These values are managed in unified config and can be updated from CLI or dashbo
 Open dashboard:
 
 ```bash
-ccs config
+scc config
 ```
 
 Then navigate to `Cursor IDE (Legacy)` in the `Deprecated` section.
@@ -131,27 +133,27 @@ Available controls:
 - Daemon actions (start/stop)
 - Runtime config (port, auto-start, ghost mode)
 - Models list with searchable combobox filtering for large catalogs
-- Raw editor for `~/.ccs/cursor.settings.json`
+- Raw editor for `~/.scc/cursor.settings.json`
 
 ## Raw Settings and Unified Config Sync
 
 Raw settings are stored in:
 
-`~/.ccs/cursor.settings.json`
+`~/.scc/cursor.settings.json`
 
-When raw settings include a local `ANTHROPIC_BASE_URL` port override, CCS synchronizes that port back into unified config so CLI and dashboard remain consistent.
+When raw settings include a local `ANTHROPIC_BASE_URL` port override, SCC synchronizes that port back into unified config so CLI and dashboard remain consistent.
 
 ## Troubleshooting
 
-### `Not authenticated` or `expired` in `ccs cursor status`
+### `Not authenticated` or `expired` in `scc cursor status`
 
-- Re-run `ccs legacy cursor auth` (or manual auth command).
+- Re-run `scc legacy cursor auth` (or manual auth command).
 
-### `ccs legacy cursor probe` fails even though status is green
+### `scc legacy cursor probe` fails even though status is green
 
 - `status` proves local config/auth/daemon readiness only.
 - `probe` proves the live runtime path.
-- If `probe` fails with upstream protocol errors, inspect the current CCS build first rather than assuming the local daemon is healthy.
+- If `probe` fails with upstream protocol errors, inspect the current SCC build first rather than assuming the local daemon is healthy.
 
 ### Auto-detect fails
 
@@ -162,4 +164,4 @@ When raw settings include a local `ANTHROPIC_BASE_URL` port override, CCS synchr
 ### Daemon fails to start
 
 - Check if port `20129` is in use.
-- Change port in dashboard config tab, then retry `ccs legacy cursor start`.
+- Change port in dashboard config tab, then retry `scc legacy cursor start`.

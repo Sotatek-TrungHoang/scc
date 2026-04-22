@@ -1,7 +1,7 @@
 /**
  * Sync Command Handler
  *
- * Handle sync command for CCS.
+ * Handle sync command for SCC.
  */
 
 import { initUI, header, ok, info } from '../utils/ui';

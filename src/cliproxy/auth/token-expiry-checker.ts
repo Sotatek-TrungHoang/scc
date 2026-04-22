@@ -75,7 +75,7 @@ export function getTokenExpiryInfo(
     const content = fs.readFileSync(tokenPath, 'utf-8');
     const data: TokenData = JSON.parse(content);
 
-    // Validate refresh_token exists (required for CCS-managed refresh).
+    // Validate refresh_token exists (required for SCC-managed refresh).
     // CLIProxy-delegated providers may not expose refresh_token in token files —
     // CLIProxyAPIPlus manages refresh internally, so skip this check for them.
     if (!isRefreshDelegated(provider)) {

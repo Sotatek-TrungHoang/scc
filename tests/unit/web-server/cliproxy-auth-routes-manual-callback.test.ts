@@ -223,7 +223,7 @@ describe('cliproxy-auth-routes manual callback nickname persistence', () => {
       expect(statusResponse.body).toEqual({
         status: 'error',
         error:
-          'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+          'Authentication completed upstream, but no new local token was saved for this account. Update SCC/CLIProxy and retry.',
       });
     } finally {
       Date.now = realDateNow;
@@ -277,7 +277,7 @@ describe('cliproxy-auth-routes manual callback nickname persistence', () => {
       expect(secondStatusResponse.body).toEqual({
         status: 'error',
         error:
-          'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+          'Authentication completed upstream, but no new local token was saved for this account. Update SCC/CLIProxy and retry.',
       });
     } finally {
       Date.now = realDateNow;
@@ -512,7 +512,7 @@ describe('cliproxy-auth-routes manual callback nickname persistence', () => {
       expect(secondStatusResponse.body).toEqual({
         status: 'error',
         error:
-          'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+          'Authentication completed upstream, but no new local token was saved for this account. Update SCC/CLIProxy and retry.',
       });
     } finally {
       Date.now = realDateNow;

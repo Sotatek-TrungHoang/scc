@@ -1151,7 +1151,7 @@ router.get('/:provider/status', async (req: Request, res: Response): Promise<voi
         res.status(409).json({
           status: 'error',
           error:
-            'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.',
+            'Authentication completed upstream, but no new local token was saved for this account. Update SCC/CLIProxy and retry.',
         });
         return;
       }

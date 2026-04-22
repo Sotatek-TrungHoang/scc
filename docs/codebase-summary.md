@@ -1,13 +1,13 @@
-# CCS Codebase Summary
+# SCC Codebase Summary
 
-Last Updated: 2026-04-07
+Last Updated: 2026-04-21
 
-Comprehensive overview of the modularized CCS codebase structure following the Phase 9 modularization effort (Settings, Analytics, Auth Monitor splits + Test Infrastructure), v7.1 Remote CLIProxy feature, v7.2 Kiro + GitHub Copilot (ghcp) OAuth providers, v7.14 Hybrid Quota Management, v7.34 Image Analysis Hook, account-context validation hardening, Official Claude Channels runtime support, and native Codex runtime target support.
+Comprehensive overview of the modularized SCC (Switch Claude Code) codebase structure following the Phase 9 modularization effort (Settings, Analytics, Auth Monitor splits + Test Infrastructure), v7.1 Remote CLIProxy feature, v7.2 Kiro + GitHub Copilot (ghcp) OAuth providers, v7.14 Hybrid Quota Management, v7.34 Image Analysis Hook, account-context validation hardening, Official Claude Channels runtime support, native Codex runtime target support, and complete CCS→SCC rebrand with independent npm package `scc-ai-proxy` (v7.74.3).
 
 ## Repository Structure
 
 ```
-ccs/
+scc/
 ├── src/                      # CLI TypeScript source
 ├── dist/                     # Compiled JavaScript (npm package)
 ├── lib/                      # Native shell scripts (bash, PowerShell)
@@ -36,8 +36,8 @@ The main CLI is organized into domain-specific modules with barrel exports.
 src/
 ├── ccs.ts                    # Main entry point & profile execution flow
 ├── bin/                      # Dedicated runtime entrypoints
-│   ├── droid-runtime.ts      # Forces droid target for ccs-droid / ccsd package bins
-│   ├── codex-runtime.ts      # Forces codex target for ccs-codex / ccsx package bins
+│   ├── droid-runtime.ts      # Forces droid target for scc-droid / ccsd package bins
+│   ├── codex-runtime.ts      # Forces codex target for scc-codex / ccsx package bins
 │   └── ccsxp-runtime.ts      # Forces built-in codex profile + codex target for ccsxp
 ├── types/                    # TypeScript type definitions
 │   ├── index.ts              # Barrel export (aggregates all types)

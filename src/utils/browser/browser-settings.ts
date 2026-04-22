@@ -148,7 +148,7 @@ export function describeManagedBrowserAttachNotReady(
 
   if (errorMessage.includes('Chrome profile directory is invalid')) {
     const summary = `SCC could not initialize the managed browser profile at ${config.userDataDir}`;
-    const nextStep = `Confirm the path is writable or reset it to the CCS-managed default, then launch Chrome in attach mode. Example: ${launchCommand}`;
+    const nextStep = `Confirm the path is writable or reset it to the SCC-managed default, then launch Chrome in attach mode. Example: ${launchCommand}`;
     return {
       state: 'path_missing',
       title: 'Claude Browser Attach could not initialize the managed profile.',

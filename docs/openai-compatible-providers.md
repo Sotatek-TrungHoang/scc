@@ -1,6 +1,6 @@
 # OpenAI-Compatible Provider Routing
 
-CCS can route Claude Code traffic through a local Anthropic-compatible proxy when
+SCC can route Claude Code traffic through a local Anthropic-compatible proxy when
 your API profile points at an OpenAI-compatible chat completions endpoint.
 
 This is useful for providers such as:
@@ -14,23 +14,23 @@ This is useful for providers such as:
 ## Related Project: claude-code-router
 
 [claude-code-router](https://github.com/musistudio/claude-code-router) is the
-main external reference that informed this CCS work. Their Anthropic/OpenAI
+main external reference that informed this SCC work. Their Anthropic/OpenAI
 transformer design helped shape the routing approach here.
 
 When to use CCR:
 
-- you want a standalone router without CCS profile integration
-- you do not need CCS account/runtime management around the request flow
+- you want a standalone router without SCC profile integration
+- you do not need SCC account/runtime management around the request flow
 
-When to use CCS:
+When to use SCC:
 
-- you already use CCS API profiles or runtime bridges
-- you want the proxy flow available through `ccs <profile>` and `ccs proxy ...`
-- you want the routing behavior documented and tested inside the CCS workflow
+- you already use SCC API profiles or runtime bridges
+- you want the proxy flow available through `scc <profile>` and `scc proxy ...`
+- you want the routing behavior documented and tested inside the SCC workflow
 
-## What CCS Does
+## What SCC Does
 
-When you launch a compatible settings profile with the Claude target, CCS now:
+When you launch a compatible settings profile with the Claude target, SCC now:
 
 1. Starts a local proxy on `127.0.0.1`
 2. Accepts Anthropic `/v1/messages` traffic from Claude Code
@@ -45,16 +45,16 @@ You do not need to rewrite your profile by hand each time.
 Create or reuse an API profile that points at an OpenAI-compatible endpoint:
 
 ```bash
-ccs api create --preset hf
+scc api create --preset hf
 ```
 
 Then you can use the profile directly:
 
 ```bash
-ccs hf
+scc hf
 ```
 
-CCS detects that the profile is OpenAI-compatible and auto-routes Claude Code
+SCC detects that the profile is OpenAI-compatible and auto-routes Claude Code
 through the local proxy.
 
 ## Manual Proxy Lifecycle
@@ -62,20 +62,20 @@ through the local proxy.
 If you want to manage the proxy explicitly:
 
 ```bash
-ccs proxy start hf
-eval "$(ccs proxy activate)"
-ccs proxy status
-ccs proxy stop
+scc proxy start hf
+eval "$(scc proxy activate)"
+scc proxy status
+scc proxy stop
 ```
 
 Useful variants:
 
 ```bash
-ccs proxy start hf --host 127.0.0.1
-ccs proxy activate --fish
+scc proxy start hf --host 127.0.0.1
+scc proxy activate --fish
 ```
 
-`ccs proxy activate` now prints the full local runtime contract:
+`scc proxy activate` now prints the full local runtime contract:
 
 - `ANTHROPIC_BASE_URL`
 - `ANTHROPIC_AUTH_TOKEN`

@@ -426,7 +426,7 @@ function writeDroidSettings(settings: DroidSettings): void {
 }
 
 /**
- * Upsert a CCS-managed custom model entry.
+ * Upsert a SCC-managed custom model entry.
  * Acquires file lock to prevent concurrent write races.
  */
 export async function upsertCcsModel(
@@ -498,7 +498,7 @@ export async function upsertCcsModel(
 }
 
 /**
- * Remove a CCS-managed custom model entry.
+ * Remove a SCC-managed custom model entry.
  */
 export async function removeCcsModel(profile: string): Promise<void> {
   validateProfileName(profile);
@@ -524,7 +524,7 @@ export async function removeCcsModel(profile: string): Promise<void> {
 }
 
 /**
- * List all CCS-managed custom model entries.
+ * List all SCC-managed custom model entries.
  */
 export async function listCcsModels(): Promise<Map<string, DroidCustomModel>> {
   const result = new Map<string, DroidCustomModel>();

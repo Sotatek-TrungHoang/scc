@@ -1,8 +1,8 @@
 # WebSearch Configuration Guide
 
-Last Updated: 2026-04-11
+Last Updated: 2026-04-21
 
-CCS provides automatic web search for third-party profiles that cannot access Anthropic's native WebSearch API.
+SCC provides automatic web search for third-party profiles that cannot access Anthropic's native WebSearch API.
 
 ## How WebSearch Works
 

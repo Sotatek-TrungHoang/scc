@@ -729,7 +729,7 @@ function generateYamlWithComments(config: UnifiedConfig): string {
 
   if (config.logging) {
     lines.push('# ----------------------------------------------------------------------------');
-    lines.push('# Logging: CCS-owned structured runtime logs');
+    lines.push('# Logging: SCC-owned structured runtime logs');
     lines.push('# Current file: ~/.ccs/logs/current.jsonl');
     lines.push('# Archives rotate automatically and are pruned by retain_days.');
     lines.push('# This is separate from cliproxy.logging, which controls CLIProxy runtime files.');

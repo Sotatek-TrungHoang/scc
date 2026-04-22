@@ -213,7 +213,7 @@ export function downloadFile(
     // Use proxy agent if configured, otherwise disable connection pooling for clean exit
     const options = {
       headers: {
-        'User-Agent': 'CCS-CLIProxyPlus-Downloader/1.0',
+        'User-Agent': 'SCC-CLIProxyPlus-Downloader/1.0',
       },
       agent: getProxyAgent(url),
     };
@@ -353,7 +353,7 @@ function fetchTextOnce(
     const protocol = url.startsWith('https') ? https : http;
     const options = {
       headers: {
-        'User-Agent': 'CCS-CLIProxyPlus-Downloader/1.0',
+        'User-Agent': 'SCC-CLIProxyPlus-Downloader/1.0',
       },
       agent: getProxyAgent(url),
     };
@@ -417,7 +417,7 @@ function fetchJsonOnce(
 
     const options: https.RequestOptions = {
       headers: {
-        'User-Agent': 'CCS-CLIProxyPlus-Updater/1.0',
+        'User-Agent': 'SCC-CLIProxyPlus-Updater/1.0',
         Accept: 'application/vnd.github.v3+json',
       },
       agent: getProxyAgent(url),

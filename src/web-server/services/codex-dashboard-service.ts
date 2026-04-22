@@ -739,7 +739,7 @@ export async function getCodexDashboardDiagnostics(): Promise<CodexDashboardDiag
     warnings.push('Codex binary is not detected in PATH or CCS_CODEX_PATH.');
   } else if (!supportsConfigOverrides) {
     warnings.push(
-      'This Codex build does not expose --config overrides required for CCS-backed Codex routing.'
+      'This Codex build does not expose --config overrides required for SCC-backed Codex routing.'
     );
   }
 

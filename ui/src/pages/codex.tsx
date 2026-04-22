@@ -265,7 +265,7 @@ export function CodexPage() {
                   CCS does not keep <code>~/.codex/config.toml</code> in sync for you.
                 </p>
                 <p>
-                  CCS-backed Codex launches may apply transient <code>-c</code> overrides and
+                  SCC-backed Codex launches may apply transient <code>-c</code> overrides and
                   <code> CCS_CODEX_API_KEY</code>; those effective values may not appear here.
                 </p>
               </div>

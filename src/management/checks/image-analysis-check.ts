@@ -75,7 +75,7 @@ export async function runImageAnalysisCheck(results: HealthCheck): Promise<void>
   if (staleHookCount > 0) {
     results.warnings.push({
       name: 'Image Analysis',
-      message: `${staleHookCount} stale CCS-managed image hook setting file(s) were detected`,
+      message: `${staleHookCount} stale SCC-managed image hook setting file(s) were detected`,
       fix: 'Run: scc doctor --fix',
     });
     console.log(`  ${warn('Hooks:')} ${staleHookCount} stale setting file(s) can be repaired`);

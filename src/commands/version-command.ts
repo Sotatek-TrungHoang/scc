@@ -1,7 +1,7 @@
 /**
  * Version Command Handler
  *
- * Handle --version command for CCS.
+ * Handle --version command for SCC.
  */
 
 import * as path from 'path';

@@ -268,7 +268,7 @@ export class DelegationHandler {
     options.betas = parseStringFlag(args, '--betas');
 
     // Collect extra args to pass through to Claude CLI
-    // CCS-handled flags with values (skip these and their values):
+    // SCC-handled flags with values (skip these and their values):
     const ccsFlagsWithValue = new Set([
       '-p',
       '--prompt',
@@ -288,7 +288,7 @@ export class DelegationHandler {
       // Skip profile name (non-flag first arg)
       if (arg === profile && !arg.startsWith('-')) continue;
 
-      // Skip CCS-handled flags and their values
+      // Skip SCC-handled flags and their values
       if (ccsFlagsWithValue.has(arg)) {
         i++; // Skip next arg (the value)
         continue;

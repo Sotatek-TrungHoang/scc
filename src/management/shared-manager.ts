@@ -1277,7 +1277,7 @@ class SharedManager {
   }
 
   /**
-   * Guard project merge operations to known CCS-managed roots only.
+   * Guard project merge operations to known SCC-managed roots only.
    */
   private isSafeProjectsMergeSource(sourcePath: string, instanceName: string): boolean {
     const resolvedSource = this.resolveCanonicalPath(sourcePath);
@@ -1295,7 +1295,7 @@ class SharedManager {
   }
 
   /**
-   * Guard advanced continuity merge operations to known CCS-managed roots only.
+   * Guard advanced continuity merge operations to known SCC-managed roots only.
    */
   private isSafeContinuityMergeSource(
     sourcePath: string,

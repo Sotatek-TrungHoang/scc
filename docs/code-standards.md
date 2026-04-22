@@ -1,8 +1,8 @@
-# CCS Code Standards
+# SCC Code Standards
 
-Last Updated: 2026-04-07
+Last Updated: 2026-04-21
 
-Code standards, modularization patterns, and conventions for the CCS codebase.
+Code standards, modularization patterns, and conventions for the SCC codebase.
 
 ---
 

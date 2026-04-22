@@ -661,7 +661,7 @@ async function handlePasteCallbackMode(
     if (!tokenSnapshot) {
       console.log(
         fail(
-          'Authentication completed upstream, but no new local token was saved for this account. Update CCS/CLIProxy and retry.'
+          'Authentication completed upstream, but no new local token was saved for this account. Update SCC/CLIProxy and retry.'
         )
       );
       return null;

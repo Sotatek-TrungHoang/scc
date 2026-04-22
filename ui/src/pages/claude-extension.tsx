@@ -872,7 +872,7 @@ export function ClaudeExtensionPage() {
                             <div className="text-muted-foreground">
                               {t('claudeExtensionPage.nativeDefaultsDescription', {
                                 defaultValue:
-                                  'This profile resolves to native Claude defaults, so apply/reset mainly clears existing CCS-managed overrides.',
+                                  'This profile resolves to native Claude defaults, so apply/reset mainly clears existing SCC-managed overrides.',
                               })}
                             </div>
                           )}

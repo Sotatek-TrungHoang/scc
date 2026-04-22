@@ -78,7 +78,7 @@ function McpServerEditor({
     <>
       {reservedManagedBrowserDraft ? (
         <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
-          <strong>ccs_browser</strong> is reserved for the CCS-managed browser tooling path.
+          <strong>ccs_browser</strong> is reserved for the SCC-managed browser tooling path.
           Configure it from <code>Settings &gt; Browser</code> instead of creating it here.
         </div>
       ) : null}
@@ -270,7 +270,7 @@ export function CodexMcpServersCard({
     >
       {selectedEntryIsManagedBrowser ? (
         <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-900 dark:text-amber-200">
-          <strong>{selectedEntry?.name}</strong> is CCS-managed. Configure browser tooling from{' '}
+          <strong>{selectedEntry?.name}</strong> is SCC-managed. Configure browser tooling from{' '}
           <code>Settings &gt; Browser</code>; the generic MCP editor is read-only for this entry.
         </div>
       ) : null}

@@ -179,9 +179,9 @@ export async function configureProviderModel(
 
   // Build settings with selective merge:
   // - Preserve ALL user settings (top-level and env vars)
-  // - Only update CCS-controlled fields (model selection)
+  // - Only update SCC-controlled fields (model selection)
 
-  // CCS-controlled env vars (always override with our values)
+  // SCC-controlled env vars (always override with our values)
   const ccsControlledEnv: Record<string, string> = {
     ANTHROPIC_BASE_URL: baseEnv.ANTHROPIC_BASE_URL || '',
     ANTHROPIC_AUTH_TOKEN: baseEnv.ANTHROPIC_AUTH_TOKEN || '',

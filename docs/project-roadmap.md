@@ -1,6 +1,6 @@
-# CCS Project Roadmap
+# SCC Project Roadmap
 
-Last Updated: 2026-04-18
+Last Updated: 2026-04-21
 
 Forward-looking roadmap documenting current priorities, GitHub issues, and future feature plans.
 

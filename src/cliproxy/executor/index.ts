@@ -1232,7 +1232,7 @@ export async function execClaudeWithCLIProxy(
     console.error(`[i] Thinking: ${thinkingLabel} (${sourceLabel})`);
   }
 
-  // 12. Filter CCS-specific flags before passing to Claude CLI
+  // 12. Filter SCC-specific flags before passing to Claude CLI
   const ccsFlags = [
     '--auth',
     '--paste-callback',

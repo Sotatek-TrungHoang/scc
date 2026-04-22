@@ -1,7 +1,7 @@
 /**
  * Image Analyzer Hook Utilities
  *
- * Shared helper functions for CCS-managed image hook detection and cleanup.
+ * Shared helper functions for SCC-managed image hook detection and cleanup.
  *
  * @module utils/hooks/image-analyzer-hook-utils
  */
@@ -19,7 +19,7 @@ function extractManagedHookPath(command: string): string | null {
 }
 
 /**
- * Check if a hook entry is a CCS-managed image analyzer hook.
+ * Check if a hook entry is a SCC-managed image analyzer hook.
  * Matches current and legacy path variants by suffix rather than full path.
  */
 export function isCcsImageAnalyzerHook(hook: Record<string, unknown>): boolean {
@@ -35,7 +35,7 @@ export function isCcsImageAnalyzerHook(hook: Record<string, unknown>): boolean {
 }
 
 /**
- * Remove duplicate CCS-managed image hooks from settings, keeping only the first one.
+ * Remove duplicate SCC-managed image hooks from settings, keeping only the first one.
  */
 export function deduplicateCcsImageAnalyzerHooks(settings: Record<string, unknown>): boolean {
   const hooks = settings.hooks as Record<string, unknown[]> | undefined;
@@ -60,7 +60,7 @@ export function deduplicateCcsImageAnalyzerHooks(settings: Record<string, unknow
 }
 
 /**
- * Remove all CCS-managed image hooks from settings while preserving unrelated hooks.
+ * Remove all SCC-managed image hooks from settings while preserving unrelated hooks.
  */
 export function removeCcsImageAnalyzerHooks(settings: Record<string, unknown>): boolean {
   const hooks = settings.hooks as Record<string, unknown[]> | undefined;

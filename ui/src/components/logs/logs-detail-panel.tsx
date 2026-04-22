@@ -262,7 +262,7 @@ export function LogsDetailPanel({
         </div>
         <div className="rounded-full bg-primary/5 px-2 py-0.5 border border-primary/10">
           <span className="text-[9px] font-medium uppercase tracking-[0.12em] text-primary/65">
-            CCS-TEC-v3
+            SCC-TEC-v3
           </span>
         </div>
       </div>

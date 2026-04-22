@@ -14,31 +14,32 @@ import { TargetBinaryInfo } from './target-adapter';
  * Detect Droid CLI executable.
  *
  * Priority:
- * 1. CCS_DROID_PATH env var (user override)
+ * 1. SCC_DROID_PATH env var (user override)
  * 2. PATH lookup via which/where.exe
  */
 export function detectDroidCli(): string | null {
-  // Priority 1: CCS_DROID_PATH environment variable
-  if (process.env.CCS_DROID_PATH) {
-    const customPath = expandPath(process.env.CCS_DROID_PATH);
+  // Priority 1: SCC_DROID_PATH / CCS_DROID_PATH environment variable
+  const droidPathOverride = process.env.SCC_DROID_PATH || process.env.CCS_DROID_PATH;
+  if (droidPathOverride) {
+    const customPath = expandPath(droidPathOverride);
     try {
       if (fs.statSync(customPath).isFile()) {
         return customPath;
       }
-      console.warn('[!] CCS_DROID_PATH points to a directory, not a file:', customPath);
-      console.warn('    Refusing PATH fallback while CCS_DROID_PATH is explicitly set.');
+      console.warn('[!] SCC_DROID_PATH points to a directory, not a file:', customPath);
+      console.warn('    Refusing PATH fallback while SCC_DROID_PATH is explicitly set.');
       return null;
     } catch (err) {
       const error = err as NodeJS.ErrnoException;
       if (error.code === 'ENOENT') {
-        console.warn('[!] Warning: CCS_DROID_PATH is set but file not found:', customPath);
+        console.warn('[!] Warning: SCC_DROID_PATH is set but file not found:', customPath);
       } else {
         console.warn(
-          `[!] Warning: CCS_DROID_PATH is not accessible (${error.code || 'unknown error'}):`,
+          `[!] Warning: SCC_DROID_PATH is not accessible (${error.code || 'unknown error'}):`,
           customPath
         );
       }
-      console.warn('    Refusing PATH fallback while CCS_DROID_PATH is explicitly set.');
+      console.warn('    Refusing PATH fallback while SCC_DROID_PATH is explicitly set.');
       return null;
     }
   }
@@ -113,7 +114,7 @@ export function checkDroidVersion(droidPath: string): void {
       const major = parseInt(match[1]);
       if (major >= 2) {
         console.warn(
-          `[!] Droid version ${version} not verified with CCS. Config format may differ.`
+          `[!] Droid version ${version} not verified with SCC. Config format may differ.`
         );
       }
     }

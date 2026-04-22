@@ -102,7 +102,7 @@ export interface Settings {
   env?: EnvVars;
   /** Saved model presets for this provider */
   presets?: ModelPreset[];
-  /** CCS-only per-profile Image preferences */
+  /** SCC-only per-profile Image preferences */
   ccs_image?: CcsImageSettings;
   [key: string]: unknown; // Allow other settings
 }

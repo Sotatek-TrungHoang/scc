@@ -2,7 +2,7 @@
  * Profile Hook Injector
  *
  * Injects the legacy WebSearch compatibility hook into per-profile settings files.
- * The first-class runtime now uses the CCS-managed MCP server; these hooks remain
+ * The first-class runtime now uses the SCC-managed MCP server; these hooks remain
  * for compatibility and migration safety only.
  *
  * @module utils/websearch/profile-hook-injector

@@ -82,7 +82,7 @@ async function validateProviderKey(
       method: 'GET',
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        'User-Agent': 'CCS-Preflight/1.0',
+        'User-Agent': 'SCC-Preflight/1.0',
       },
     };
 
@@ -104,7 +104,7 @@ async function validateProviderKey(
       } else {
         if (process.env.CCS_DEBUG === '1') {
           console.error(
-            `[CCS-Preflight] Unexpected status ${res.statusCode} from ${url.href} - fail-open`
+            `[SCC-Preflight] Unexpected status ${res.statusCode} from ${url.href} - fail-open`
           );
         }
         safeResolve({ valid: true });
@@ -200,7 +200,7 @@ export async function validateAnthropicKey(
       headers: {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
-        'User-Agent': 'CCS-Preflight/1.0',
+        'User-Agent': 'SCC-Preflight/1.0',
       },
     };
 

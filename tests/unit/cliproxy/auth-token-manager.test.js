@@ -394,32 +394,32 @@ describe('Auth Token Manager', () => {
   // Constants Validation
   // =========================================================================
   describe('Default Constants', () => {
-    let CCS_INTERNAL_API_KEY;
-    let CCS_CONTROL_PANEL_SECRET;
+    let SCC_INTERNAL_API_KEY;
+    let SCC_CONTROL_PANEL_SECRET;
 
     beforeEach(() => {
       delete require.cache[require.resolve('../../../dist/cliproxy/config-generator')];
       const configGenerator = require('../../../dist/cliproxy/config-generator');
-      CCS_INTERNAL_API_KEY = configGenerator.CCS_INTERNAL_API_KEY;
-      CCS_CONTROL_PANEL_SECRET = configGenerator.CCS_CONTROL_PANEL_SECRET;
+      SCC_INTERNAL_API_KEY = configGenerator.SCC_INTERNAL_API_KEY;
+      SCC_CONTROL_PANEL_SECRET = configGenerator.SCC_CONTROL_PANEL_SECRET;
     });
 
-    it('CCS_INTERNAL_API_KEY is defined', () => {
-      assert(CCS_INTERNAL_API_KEY, 'CCS_INTERNAL_API_KEY should be defined');
-      assert.strictEqual(typeof CCS_INTERNAL_API_KEY, 'string');
+    it('SCC_INTERNAL_API_KEY is defined', () => {
+      assert(SCC_INTERNAL_API_KEY, 'SCC_INTERNAL_API_KEY should be defined');
+      assert.strictEqual(typeof SCC_INTERNAL_API_KEY, 'string');
     });
 
-    it('CCS_CONTROL_PANEL_SECRET is defined', () => {
-      assert(CCS_CONTROL_PANEL_SECRET, 'CCS_CONTROL_PANEL_SECRET should be defined');
-      assert.strictEqual(typeof CCS_CONTROL_PANEL_SECRET, 'string');
+    it('SCC_CONTROL_PANEL_SECRET is defined', () => {
+      assert(SCC_CONTROL_PANEL_SECRET, 'SCC_CONTROL_PANEL_SECRET should be defined');
+      assert.strictEqual(typeof SCC_CONTROL_PANEL_SECRET, 'string');
     });
 
     it('default API key has expected value', () => {
-      assert.strictEqual(CCS_INTERNAL_API_KEY, 'ccs-internal-managed');
+      assert.strictEqual(SCC_INTERNAL_API_KEY, 'ccs-internal-managed');
     });
 
     it('default secret has expected value', () => {
-      assert.strictEqual(CCS_CONTROL_PANEL_SECRET, 'ccs');
+      assert.strictEqual(SCC_CONTROL_PANEL_SECRET, 'ccs');
     });
   });
 });

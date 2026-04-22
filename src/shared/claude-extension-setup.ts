@@ -84,7 +84,7 @@ function sortEnvRecord(env: NodeJS.ProcessEnv | Record<string, string>): Record<
 function describeProfile(profileName: string, result: ProfileDetectionResult): string {
   if (profileName === 'default') {
     return result.name === 'default'
-      ? 'Use Claude Code defaults with no CCS-specific transport override.'
+      ? 'Use Claude Code defaults with no SCC-specific transport override.'
       : `Use the current default profile resolution for "${result.name}".`;
   }
   if (result.type === 'cliproxy')
@@ -188,7 +188,7 @@ async function resolveExtensionEnv(
     }
 
     notes.push(
-      'Default profile clears CCS-managed transport overrides and uses native Claude defaults.'
+      'Default profile clears SCC-managed transport overrides and uses native Claude defaults.'
     );
     return { extensionEnv: {}, warnings, notes, disableLoginPrompt: false };
   }

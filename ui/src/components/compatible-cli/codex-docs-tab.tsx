@@ -140,7 +140,7 @@ export function CodexDocsTab({ diagnostics }: CodexDocsTabProps) {
               </li>
             </ol>
             <p>
-              CCS-managed browser tooling belongs to <code>Settings &gt; Browser</code>. Do not edit
+              SCC-managed browser tooling belongs to <code>Settings &gt; Browser</code>. Do not edit
               the <code>ccs_browser</code> entry from the generic MCP card unless you are
               intentionally overriding the managed path in raw TOML.
             </p>

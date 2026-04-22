@@ -444,7 +444,7 @@ export function LogsPage() {
                             Legacy Diagnostic Node
                           </p>
                           <p className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/40">
-                            CCS-MATRIX-FAILURE-MONITOR
+                            SCC-MATRIX-FAILURE-MONITOR
                           </p>
                         </div>
                       </div>

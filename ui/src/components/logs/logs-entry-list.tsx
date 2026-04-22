@@ -210,7 +210,7 @@ export function LogsEntryList({
       <div className="flex shrink-0 items-center justify-between border-t border-border bg-muted/5 px-6 py-2">
         <div className="flex items-center gap-3">
           <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-foreground/35">
-            Node: CCS-CORE
+            Node: SCC-CORE
           </span>
           <div className="h-1 w-1 rounded-full bg-border/40" />
           <span className="text-[10px] font-medium uppercase tracking-[0.12em] text-foreground/35">

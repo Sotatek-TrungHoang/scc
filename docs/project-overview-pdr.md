@@ -1,16 +1,16 @@
-# CCS Product Development Requirements (PDR)
+# SCC Product Development Requirements (PDR)
 
-Last Updated: 2026-04-08
+Last Updated: 2026-04-21
 
 ## Product Overview
 
-**Product Name**: CCS (Claude Code Switch)
+**Product Name**: SCC (Switch Claude Code)
 
 **Tagline**: The multi-provider profile and runtime manager for Claude Code and compatible CLIs
 
-**Description**: Multi-provider CLI/runtime manager enabling seamless switching between multiple Claude accounts, OAuth/API providers, and alternate targets such as Claude Code, Factory Droid, and Codex CLI. Includes a React-based dashboard for configuration management, plus support for local and remote CLIProxyAPI instances, hybrid quota management, and official Claude channel runtime setup for Telegram, Discord, and iMessage.
+**Description**: Multi-provider CLI/runtime manager enabling seamless switching between multiple Claude accounts, OAuth/API providers, and alternate targets such as Claude Code, Factory Droid, and Codex CLI. Includes a React-based dashboard for configuration management, plus support for local and remote CLIProxyAPI instances, hybrid quota management, and official Claude channel runtime setup for Telegram, Discord, and iMessage. Published as `scc-ai-proxy` npm package with both `scc` and `ccs` CLI commands available.
 
-**Current Version**: v7.34.x+ (First-class ImageAnalysis MCP tooling, WebSearch MCP, performance improvements)
+**Current Version**: v7.74.3 (Complete CCS→SCC rebrand, independent npm package, both CLI commands available)
 
 ---
 

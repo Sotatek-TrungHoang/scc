@@ -4,7 +4,7 @@
  *
  * Purpose: Ship SCC items (.claude/) with package and symlink them to user's ~/.claude/
  * Architecture:
- *   - ~/.ccs/.claude/* (source, ships with CCS)
+ *   - ~/.ccs/.claude/* (source, ships with SCC)
  *   - ~/.claude/* (target, gets selective symlinks)
  *   - ~/.ccs/shared/ (UNTOUCHED, existing profile mechanism)
  *
@@ -71,7 +71,7 @@ export class ClaudeSymlinkManager {
   private ccsItems: CcsItem[];
 
   constructor() {
-    // Use getCcsHome() for test isolation - respects CCS_HOME env var
+    // Use getCcsHome() for test isolation - respects SCC_HOME env var
     this.homeDir = getCcsHome();
     this.ccsClaudeDir = path.join(getCcsDir(), '.claude');
     this.userClaudeDir = path.join(this.homeDir, '.claude');
@@ -347,7 +347,7 @@ export class ClaudeSymlinkManager {
 
     // Check if ~/.ccs/.claude/ exists
     if (!fs.existsSync(this.ccsClaudeDir)) {
-      issues.push('SCC .claude/ directory missing (reinstall CCS)');
+      issues.push('SCC .claude/ directory missing (reinstall SCC)');
       healthy = false;
       return { healthy, issues };
     }

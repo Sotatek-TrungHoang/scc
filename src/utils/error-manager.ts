@@ -63,13 +63,13 @@ export class ErrorManager {
       console.error(`     ${color('Get-Command claude', 'command')}`);
       console.error('');
       console.error('  4. Custom path (if installed elsewhere)');
-      console.error(`     ${color('$env:CCS_CLAUDE_PATH="C:\\path\\to\\claude.exe"', 'command')}`);
+      console.error(`     ${color('$env:SCC_CLAUDE_PATH="C:\\path\\to\\claude.exe"', 'command')}`);
     } else {
       console.error('  2. Verify installation');
       console.error(`     ${color('command -v claude', 'command')}`);
       console.error('');
       console.error('  3. Custom path (if installed elsewhere)');
-      console.error(`     ${color('export CCS_CLAUDE_PATH="/path/to/claude"', 'command')}`);
+      console.error(`     ${color('export SCC_CLAUDE_PATH="/path/to/claude"', 'command')}`);
     }
     console.error('');
 
@@ -128,7 +128,7 @@ export class ErrorManager {
     console.error(`  ${dim('# Backup corrupted file')}`);
     console.error(`  ${color(`mv ${configPath} ${configPath}.backup`, 'command')}`);
     console.error('');
-    console.error(`  ${dim('# Reinstall CCS')}`);
+    console.error(`  ${dim('# Reinstall SCC')}`);
     console.error(`  ${color('npm install -g scc-ai-proxy --force', 'command')}`);
     console.error('');
     console.error(dim('Your profile settings will be preserved.'));

@@ -1229,7 +1229,7 @@ const resources = {
         emptyControlPanelPrefix: 'For live usage stats and real-time monitoring, visit the',
         controlPanel: 'Control Panel',
         quickSetup: 'Quick Setup',
-        accountManagement: 'CCS-level account management',
+        accountManagement: 'SCC-level account management',
         providers: 'Providers',
         variants: 'Variants',
         providerCount: '{{count}} provider',
@@ -1420,7 +1420,7 @@ const resources = {
         byokSummary: 'BYOK Summary',
         activeModelSelector: 'Active model selector',
         customModels: 'Custom models',
-        ccsManaged: 'CCS-managed',
+        ccsManaged: 'SCC-managed',
         userManaged: 'User-managed',
         malformedEntries: 'Malformed entries',
         providers: 'Providers',
@@ -1806,7 +1806,7 @@ const resources = {
         controlPanel: 'Control Panel',
       },
       cliproxyHeader: {
-        ccsLevelAccountManagement: 'CCS-level account management',
+        ccsLevelAccountManagement: 'SCC-level account management',
         cliproxyNotAvailable: 'CLIProxy Not Available',
         cliproxyControlPanel: 'CLIProxy Control Panel',
         noVariants: 'No CLIProxy variants found.',
@@ -1948,7 +1948,7 @@ const resources = {
         exportCliproxyApiKey:
           'Export CLIPROXY_API_KEY in your shell before launching native Codex.',
         noConfigOverrides:
-          'This Codex build can still use the native path, but CCS-backed Codex routing via ccsxp or ccs codex --target codex stays unavailable until the detected Codex binary exposes --config overrides.',
+          'This Codex build can still use the native path, but SCC-backed Codex routing via ccsxp or ccs codex --target codex stays unavailable until the detected Codex binary exposes --config overrides.',
         configFile: 'Config file',
         path: 'Path',
         resolved: 'Resolved',

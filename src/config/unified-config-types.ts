@@ -150,7 +150,7 @@ export interface CompositeVariantConfig {
  * Allows customization of API key and management secret for CLIProxyAPI.
  */
 export interface CLIProxyAuthConfig {
-  /** API key for CCS-managed requests (default: 'ccs-internal-managed') */
+  /** API key for SCC-managed requests (default: 'ccs-internal-managed') */
   api_key?: string;
   /** Management secret for Control Panel login (default: 'ccs') */
   management_secret?: string;
@@ -237,11 +237,11 @@ export interface CLIProxyConfig {
 export type LoggingLevel = 'error' | 'warn' | 'info' | 'debug';
 
 /**
- * CCS-owned structured logging configuration.
+ * SCC-owned structured logging configuration.
  * Separate from cliproxy.logging, which controls CLIProxy runtime files.
  */
 export interface LoggingConfig {
-  /** Enable CCS-owned structured runtime logging */
+  /** Enable SCC-owned structured runtime logging */
   enabled: boolean;
   /** Minimum level written to disk */
   level: LoggingLevel;
@@ -905,7 +905,7 @@ export interface UnifiedConfig {
   cliproxy: CLIProxyConfig;
   /** OpenAI-compatible local proxy configuration */
   proxy?: OpenAICompatProxyConfig;
-  /** CCS-owned structured logging configuration */
+  /** SCC-owned structured logging configuration */
   logging?: LoggingConfig;
   /** User preferences */
   preferences: PreferencesConfig;

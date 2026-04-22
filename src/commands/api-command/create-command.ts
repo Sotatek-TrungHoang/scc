@@ -318,7 +318,7 @@ async function resolveClaudeLongContextPreference(
   }
 
   console.log('');
-  console.log(info('Claude long context is explicit in CCS.'));
+  console.log(info('Claude long context is explicit in SCC.'));
   console.log(dim('  Plain Claude model IDs stay on standard context unless you opt into [1m].'));
   console.log(
     dim('  Some providers/accounts still require extra usage or PAYG for long-context requests.')

@@ -29,7 +29,7 @@ describe('droid-detector', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 
-  it('should prefer CCS_DROID_PATH when it points to a file', () => {
+  it('should prefer SCC_DROID_PATH when it points to a file', () => {
     const fakeDroid = path.join(tmpDir, 'droid');
     fs.writeFileSync(fakeDroid, '#!/bin/sh\necho droid\n');
     process.env.CCS_DROID_PATH = fakeDroid;

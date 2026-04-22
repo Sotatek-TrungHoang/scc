@@ -77,7 +77,7 @@ class AuthCommands {
     console.log(`  ${color('remove <profile>', 'command')}       Remove saved profile`);
     console.log(`  ${color('default <profile>', 'command')}      Set default profile`);
     console.log(
-      `  ${color('reset-default', 'command')}          Clear default (restore original CCS)`
+      `  ${color('reset-default', 'command')}          Clear default (restore original SCC)`
     );
     console.log('');
     console.log(subheader('Examples'));

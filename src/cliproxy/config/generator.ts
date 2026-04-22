@@ -15,11 +15,11 @@ import { getDeniedModelIdReasonForProvider } from '../model-id-normalizer';
 import { getAuthDir, getProviderAuthDir, getConfigPathForPort } from './path-resolver';
 import { CLIPROXY_DEFAULT_PORT } from './port-manager';
 
-/** Internal API key for CCS-managed requests */
-export const CCS_INTERNAL_API_KEY = 'ccs-internal-managed';
+/** Internal API key for SCC-managed requests */
+export const SCC_INTERNAL_API_KEY = 'ccs-internal-managed';
 
 /** Simple secret key for Control Panel login (user-facing) */
-export const CCS_CONTROL_PANEL_SECRET = 'ccs';
+export const SCC_CONTROL_PANEL_SECRET = 'ccs';
 
 /**
  * Config version - bump when config format changes to trigger regeneration
@@ -566,7 +566,7 @@ function generateUnifiedConfigContent(
 # Supports: gemini, codex, agy, qwen, iflow (concurrent usage)
 # Generated: ${new Date().toISOString()}
 #
-# This config is auto-managed by CCS. Manual edits may be overwritten.
+# This config is auto-managed by SCC. Manual edits may be overwritten.
 # Use 'scc doctor' to regenerate with latest settings.
 
 # =============================================================================
@@ -675,7 +675,7 @@ export function generateConfig(
  * Extracts all keys except the internal SCC key for preservation.
  *
  * @param content - Existing config.yaml content
- * @returns Array of user-added API keys (excludes CCS_INTERNAL_API_KEY)
+ * @returns Array of user-added API keys (excludes SCC_INTERNAL_API_KEY)
  */
 export function parseUserApiKeys(content: string): string[] {
   const userKeys: string[] = [];
@@ -702,7 +702,7 @@ export function parseUserApiKeys(content: string): string[] {
       if (keyMatch) {
         const key = keyMatch[1];
         // Exclude the internal SCC key and empty strings
-        if (key && key !== CCS_INTERNAL_API_KEY) {
+        if (key && key !== SCC_INTERNAL_API_KEY) {
           userKeys.push(key);
         }
       } else if (line.match(/^\S/) && line.trim().length > 0) {

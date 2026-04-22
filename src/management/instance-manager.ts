@@ -238,7 +238,7 @@ class InstanceManager {
       }
 
       // Merge: global MCP servers as base, instance-specific overrides on top,
-      // except for CCS-managed entries which must stay aligned with the global runtime.
+      // except for SCC-managed entries which must stay aligned with the global runtime.
       const rawExistingMcp = instanceContent.mcpServers;
       const existingMcp =
         rawExistingMcp && typeof rawExistingMcp === 'object' && !Array.isArray(rawExistingMcp)

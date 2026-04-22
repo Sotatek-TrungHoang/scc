@@ -79,7 +79,7 @@ export class DroidAdapter implements TargetAdapter {
 
   /**
    * Droid uses config file for credentials — keep parent env, but strip stale
-   * ANTHROPIC_* values so prior CCS/CLIProxy sessions do not leak into Droid.
+   * ANTHROPIC_* values so prior SCC/CLIProxy sessions do not leak into Droid.
    */
   buildEnv(_creds: TargetCredentials, _profileType: ProfileType): NodeJS.ProcessEnv {
     return { ...stripAnthropicEnv(process.env) };

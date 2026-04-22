@@ -39,7 +39,7 @@ function buildConfigOverrideArgs(overrides: string[]): string[] {
 function buildConfigOverrideSupportError(binaryInfo?: TargetBinaryInfo): Error {
   const versionSummary = binaryInfo?.version ? ` (${binaryInfo.version})` : '';
   return new Error(
-    `Codex CLI${versionSummary} does not advertise --config overrides. Upgrade Codex before using CCS-backed Codex profiles or runtime reasoning overrides.`
+    `Codex CLI${versionSummary} does not advertise --config overrides. Upgrade Codex before using SCC-backed Codex profiles or runtime reasoning overrides.`
   );
 }
 
@@ -218,7 +218,7 @@ export class CodexAdapter implements TargetAdapter {
 
     if (!creds?.baseUrl?.trim() || !creds.apiKey?.trim()) {
       throw new Error(
-        'Codex target requires base URL and API key for CCS-backed profile launches.'
+        'Codex target requires base URL and API key for SCC-backed profile launches.'
       );
     }
 
@@ -257,7 +257,7 @@ export class CodexAdapter implements TargetAdapter {
     delete env[CODEX_RUNTIME_ENV_KEY];
     if (profileType !== 'default') {
       if (!creds.apiKey?.trim()) {
-        throw new Error('Codex target requires an API key for CCS-backed profile launches.');
+        throw new Error('Codex target requires an API key for SCC-backed profile launches.');
       }
       env[CODEX_RUNTIME_ENV_KEY] = creds.apiKey;
     }

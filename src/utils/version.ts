@@ -1,7 +1,7 @@
 /**
  * Version Utility
  *
- * Centralized version management for CCS.
+ * Centralized version management for SCC.
  * Reads version from package.json at runtime.
  */
 

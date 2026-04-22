@@ -1,7 +1,7 @@
 /**
  * Claude Spawner Utilities
  *
- * Cross-platform Claude CLI spawn utilities for CCS.
+ * Cross-platform Claude CLI spawn utilities for SCC.
  * Handles Windows .cmd/.bat/.ps1 files properly.
  */
 

@@ -1,7 +1,7 @@
 /**
  * Shell Completion Command Handler
  *
- * Handle --shell-completion command for CCS.
+ * Handle --shell-completion command for SCC.
  */
 
 import { initUI, header, ok, fail, color } from '../utils/ui';

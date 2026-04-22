@@ -424,7 +424,7 @@ export async function verifyClaudeExtensionBinding(
         message:
           Object.keys(expectedShared).length > 0
             ? 'Shared Claude settings file does not exist yet.'
-            : 'No shared CCS-managed values are required.',
+            : 'No shared SCC-managed values are required.',
       }
     : recordsMatch(actualShared, expectedShared)
       ? {
@@ -463,7 +463,7 @@ export async function verifyClaudeExtensionBinding(
         message:
           Object.keys(expectedIdeEnv).length > 0 || expectedDisablePrompt === true
             ? `${hostDefinition.label} settings file does not exist yet.`
-            : 'No IDE-local CCS-managed values are required.',
+            : 'No IDE-local SCC-managed values are required.',
       }
     : recordsMatch(actualIdeEnv, expectedIdeEnv) &&
         booleansMatch(actualDisablePrompt, expectedDisablePrompt)

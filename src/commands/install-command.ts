@@ -1,7 +1,7 @@
 /**
  * Install/Uninstall Command Handlers
  *
- * Handle --install and --uninstall commands for CCS.
+ * Handle --install and --uninstall commands for SCC.
  */
 
 import { info, ok, color, box, initUI } from '../utils/ui';
@@ -32,7 +32,7 @@ export async function handleInstallCommand(): Promise<void> {
 export async function handleUninstallCommand(): Promise<void> {
   await initUI();
   console.log('');
-  console.log(box('Uninstalling CCS', { borderColor: 'cyan' }));
+  console.log(box('Uninstalling SCC', { borderColor: 'cyan' }));
   console.log('');
 
   let removed = 0;
